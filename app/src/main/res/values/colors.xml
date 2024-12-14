@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_color">#FF262435</color>
+    <color name="main_color2">#FF4D4B68</color>
+    <color name="main_color3">#FF4D4A97</color>
+
+
+    <color name="main_color_transparent">#0F144184</color>
+
+</resources>

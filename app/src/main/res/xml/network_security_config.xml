@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+
+        <domain includeSubdomains="true">onplus.me</domain>
+        <domain includeSubdomains="true">glplus.me</domain>
+        <domain includeSubdomains="true">zplus.me</domain>
+        <domain includeSubdomains="true">multiacs.com</domain>
+        <domain includeSubdomains="true">185.190.25.214</domain>
+
+    </domain-config>
+</network-security-config>

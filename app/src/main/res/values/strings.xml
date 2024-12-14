@@ -1,0 +1,22 @@
+<resources>
+    <string name="title_activity_list_channels" translatable="false">ListChannelsActivity</string>
+    <string name="title_activity_login" translatable="false">LoginActivity</string>
+    <string name="title_activity_dash_board" translatable="false">DashBoardActivity</string>
+
+
+    <string name="label_home" translatable="false">Home</string>
+
+    <string name="label_tv_channel" translatable="false">TV Channel</string>
+    <string name="label_series" translatable="false">Series</string>
+    <string name="label_movies" translatable="false">Movies</string>
+    <string name="label_favorites" translatable="false">Favorite</string>
+    <string name="label_coming_soon" translatable="false">Coming Soon</string>
+    <string name="label_settings" translatable="false">Settings</string>
+
+    <string name="label_logout" translatable="false">Logout</string>
+    <string name="french">French</string>
+    <string name="anglais">Anglais</string>
+    <string name="deutch">Deutch</string>
+    <string name="italian">Italian</string>
+    <string name="espagnol">Espagnol</string>
+</resources>
