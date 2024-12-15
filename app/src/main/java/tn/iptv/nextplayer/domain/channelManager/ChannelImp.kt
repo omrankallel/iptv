@@ -249,6 +249,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
             val sn = loginModel.sn
             val model = loginModel.model
 
+
+            Log.d("LoginHichem", "code:$code")
+            Log.d("LoginHichem", "mac:$mac")
+            Log.d("LoginHichem", "sn:$sn")
+            Log.d("LoginHichem", "model:$model")
+
             val response = try {
 
                 Log.d("newLoginToChannel", "changeBaseUrl   $fullUrl/login/")
