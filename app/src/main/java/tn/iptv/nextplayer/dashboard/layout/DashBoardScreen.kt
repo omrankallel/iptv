@@ -135,17 +135,43 @@ fun DashBoardScreen(viewModel: DashBoardViewModel) {
                 when (viewModel.bindingModel.selectedNavigationItem.value) {
                     Home -> {}
                     TVChannels -> {
+                        channelManager.listOfPackages.value?.forEach { packageItem ->
+
+                            if (packageItem.screen == "1" && packageItem.name == "Live TV") {
+                                channelManager.listOfPackagesOfLiveTV.value = packageItem.live.toMutableList()
+                                channelManager.selectedPackageOfLiveTV.value = channelManager.listOfPackagesOfLiveTV.value!!.first()
+
+                            }
+
+                        }
                         channelManager.fetchCategoryLiveTVAndLiveTV("")
 
                     }
 
                     Series -> {
+                        channelManager.listOfPackages.value?.forEach { packageItem ->
+
+                            if (packageItem.screen == "3" && packageItem.name == "Series") {
+                                channelManager.listOfPackagesOfSeries.value = packageItem.series.toMutableList()
+                                channelManager.selectedPackageOfSeries.value = channelManager.listOfPackagesOfSeries.value!!.first()
+                            }
+
+                        }
                         channelManager.fetchCategorySeriesAndSeries("")
 
                     }
 
                     DetailSeries -> {}
                     Movies -> {
+                        channelManager.listOfPackages.value?.forEach { packageItem ->
+
+                            if (packageItem.screen == "2" && packageItem.name == "Movies") {
+
+                                channelManager.listOfPackagesOfMovies.value = packageItem.movies.toMutableList()
+                                channelManager.selectedPackageOfMovies.value = channelManager.listOfPackagesOfMovies.value!!.first()
+                            }
+
+                        }
                         channelManager.fetchCategoryMoviesAndMovies("")
 
                     }

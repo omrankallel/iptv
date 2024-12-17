@@ -1,7 +1,9 @@
 package tn.iptv.nextplayer.listchannels
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -24,17 +26,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.MVVM.MVVMBaseActivity
+import tn.iptv.nextplayer.domain.channelManager.ChannelManager
+import tn.iptv.nextplayer.listchannels.layouts.ListChannelWithCarousel
 import tn.iptv.nextplayer.listchannels.ui.theme.IptvTheme
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end2_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_start_color
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.java.KoinJavaComponent
-import tn.iptv.nextplayer.domain.channelManager.ChannelManager
-import tn.iptv.nextplayer.listchannels.layouts.ListChannelWithCarousel
 import tn.iptv.nextplayer.listchannels.ui.theme.back_custom_drawer
 import tn.iptv.nextplayer.login.LoginActivity
 
@@ -49,9 +53,12 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
     }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), 1)
+        }
 
 
         enableEdgeToEdge()
@@ -59,7 +66,7 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
             IgnoreStatusBarScreen()
             IptvTheme {
                 val activity = LocalView.current.context as Activity
-                activity.window.statusBarColor =back_application_start_color.toArgb()
+                activity.window.statusBarColor = back_application_start_color.toArgb()
 
                 val wic = WindowCompat.getInsetsController(window, window.decorView)
                 wic.isAppearanceLightStatusBars = !isSystemInDarkTheme()
@@ -72,9 +79,11 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
                                 .fillMaxWidth()
                                 .background(back_application_start_color),
                         )
-                    }, bottomBar = {
+                    },
+                    bottomBar = {
 
-                    }, content = {paddingValues ->
+                    },
+                    content = { paddingValues ->
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -84,30 +93,33 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
                                         colors = listOf(
                                             back_application_start_color,
                                             back_application_end_color,
-                                            back_application_end2_color
-                                        )
-                                    )
-                                )
-                        ){
+                                            back_application_end2_color,
+                                        ),
+                                    ),
+                                ),
+                        ) {
 
-                            ListChannelWithCarousel(viewModel, onSelectChannel = { channelSelect->
-                                viewModel.bindingModel.channelSelected.value = channelSelect
-                                channelManager.channelSelected.postValue(channelSelect)
-                                startActivity(Intent(this@ListChannelsActivity , LoginActivity::class.java))
+                            ListChannelWithCarousel(
+                                viewModel,
+                                onSelectChannel = { channelSelect ->
+                                    viewModel.bindingModel.channelSelected.value = channelSelect
+                                    channelManager.channelSelected.postValue(channelSelect)
+                                    startActivity(Intent(this@ListChannelsActivity, LoginActivity::class.java))
 
-                            })
+                                },
+                            )
 
-                          /*  ListChannelScreen(viewModel, onSelectChannel = { channelSelect->
-                                viewModel.bindingModel.channelSelected.value = channelSelect
-                                channelManager.channelSelected.postValue(channelSelect)
-                                startActivity(Intent(this@ListChannelsActivity , LoginActivity::class.java))
+                            /*  ListChannelScreen(viewModel, onSelectChannel = { channelSelect->
+                                  viewModel.bindingModel.channelSelected.value = channelSelect
+                                  channelManager.channelSelected.postValue(channelSelect)
+                                  startActivity(Intent(this@ListChannelsActivity , LoginActivity::class.java))
 
-                            })*/
+                              })*/
                         }
-                    }
+                    },
 
 
-                )
+                    )
             }
 
             hideSystemUI()
@@ -139,13 +151,11 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
 }
 
 
-
-
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -156,19 +166,19 @@ fun IgnoreStatusBarScreen() {
     // Hide or ignore the status bar
     systemUiController.setSystemBarsColor(
         color = Color.Transparent,
-        darkIcons = true // Change this depending on your app theme
+        darkIcons = true, // Change this depending on your app theme
     )
 
     // Optional: to draw content behind the status bar, use this:
     systemUiController.isStatusBarVisible = false
 
- /*   Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(back_application_start_color)
-    ) {
-        // Your content here
-    }*/
+    /*   Box(
+           modifier = Modifier
+               .fillMaxSize()
+               .background(back_application_start_color)
+       ) {
+           // Your content here
+       }*/
 }
 
 @Preview(showBackground = true)
