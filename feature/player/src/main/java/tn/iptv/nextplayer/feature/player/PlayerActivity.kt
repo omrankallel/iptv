@@ -305,7 +305,7 @@ class PlayerActivity : AppCompatActivity() {
 
         btnMenu.setOnClickListener(
             View.OnClickListener {
-                //toggleMenuVisibility()
+                toggleMenuVisibility()
                 lifecycleScope.launch {
                     var a =favoriteViewModel.getSizeFavorites("channel").toString()
                     Log.d("FavoriteList","")
