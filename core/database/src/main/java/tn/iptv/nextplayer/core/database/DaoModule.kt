@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import tn.iptv.nextplayer.core.database.dao.DirectoryDao
+import tn.iptv.nextplayer.core.database.dao.FavoriteDao
 import tn.iptv.nextplayer.core.database.dao.MediumDao
 
 @Module
@@ -16,4 +17,7 @@ object DaoModule {
 
     @Provides
     fun provideDirectoryDao(db: MediaDatabase): DirectoryDao = db.directoryDao()
+
+    @Provides
+    fun provideFavoriteDao(db: MediaDatabase): FavoriteDao = db.favoriteDao()
 }

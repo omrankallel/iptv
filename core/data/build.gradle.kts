@@ -38,6 +38,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.lifecycle.viewmodel.android)
     ksp(libs.hilt.compiler)
     kspAndroidTest(libs.hilt.compiler)
 

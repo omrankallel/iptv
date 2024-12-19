@@ -4,92 +4,83 @@
     xmlns:tools="http://schemas.android.com/tools">
 
 
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-       >
+        android:orientation="horizontal">
 
 
         <TextView
             android:id="@+id/txt_index_channel"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
             android:gravity="center"
-            android:text="index"
+            android:text="@string/index"
             android:textSize="12sp"
-            tools:text=" 1 "
-            android:layout_marginRight="10dp"
-            />
+            tools:text=" 1 " />
 
         <RelativeLayout
             android:id="@+id/card_channel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center|center_vertical"
             android:background="@drawable/back_current_channel"
+            android:gravity="center|center_vertical"
             android:padding="4dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginEnd="50dp">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="3dp"
-            app:cardCornerRadius="40dp">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/img_channel"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:padding="0dp"
-                android:scaleType="centerCrop"
-                 />
-<!--  bind:photoProfile="@{viewModel.bindingModel.profileModel}"  -->
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50dp"
+                android:orientation="horizontal">
 
-        </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="3dp"
+                    app:cardCornerRadius="40dp">
 
-        <TextView
-            android:id="@+id/txt_title_channel"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:gravity="start|center"
-            android:maxLines="1"
-            android:text=" Watania 1 "
-            android:textColor="#FFF"
-            android:textSize="16sp"
-            android:layout_marginStart="10dp"
-            tools:text=" Watania 1 fdsfdsfdsfdsfdsfdsfds"
-            tools:textColor="#000" />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/img_channel"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:padding="0dp"
+                        android:scaleType="centerCrop" />
+                    <!--  bind:photoProfile="@{viewModel.bindingModel.profileModel}"  -->
+
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    android:id="@+id/txt_title_channel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:ellipsize="end"
+                    android:gravity="start|center"
+                    android:maxLines="1"
+                    android:text="@string/watania_1"
+                    android:textColor="#FFF"
+                    android:textSize="16sp"
+                    tools:text=" Watania 1 fdsfdsfdsfdsfdsfdsfds"
+                    tools:textColor="#000" />
 
 
-
-</LinearLayout>
+            </LinearLayout>
 
 
             <ImageView
                 android:id="@+id/img_favorite"
                 android:layout_width="24dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ic_favorite"
                 android:layout_alignParentEnd="true"
+                android:contentDescription="@string/todo"
+                android:src="@drawable/ic_not_star"
 
                 />
         </RelativeLayout>
 
     </LinearLayout>
 
-
-
-
-        <!--    -->
 
 </layout>

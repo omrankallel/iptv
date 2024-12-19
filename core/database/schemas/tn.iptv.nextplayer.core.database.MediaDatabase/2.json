@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "07d2da8b83b2e373b7ddb708482306f0",
+    "version": 2,
+    "identityHash": "fb6954bc3275be8f4cf1761b55b9aee7",
     "entities": [
       {
         "tableName": "directories",
@@ -187,32 +187,6 @@
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_media_path` ON `${TABLE_NAME}` (`path`)"
           }
         ],
-        "foreignKeys": []
-      },
-      {
-        "tableName": "favorite",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`itemId`))",
-        "fields": [
-          {
-            "fieldPath": "itemId",
-            "columnName": "itemId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "type",
-            "columnName": "type",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "itemId"
-          ]
-        },
-        "indices": [],
         "foreignKeys": []
       },
       {
@@ -462,7 +436,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '07d2da8b83b2e373b7ddb708482306f0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb6954bc3275be8f4cf1761b55b9aee7')"
     ]
   }
 }

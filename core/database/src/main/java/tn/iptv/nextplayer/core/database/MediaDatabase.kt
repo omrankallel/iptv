@@ -3,9 +3,11 @@ package tn.iptv.nextplayer.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import tn.iptv.nextplayer.core.database.dao.DirectoryDao
+import tn.iptv.nextplayer.core.database.dao.FavoriteDao
 import tn.iptv.nextplayer.core.database.dao.MediumDao
 import tn.iptv.nextplayer.core.database.entities.AudioStreamInfoEntity
 import tn.iptv.nextplayer.core.database.entities.DirectoryEntity
+import tn.iptv.nextplayer.core.database.entities.FavoriteEntity
 import tn.iptv.nextplayer.core.database.entities.MediumEntity
 import tn.iptv.nextplayer.core.database.entities.SubtitleStreamInfoEntity
 import tn.iptv.nextplayer.core.database.entities.VideoStreamInfoEntity
@@ -14,6 +16,7 @@ import tn.iptv.nextplayer.core.database.entities.VideoStreamInfoEntity
     entities = [
         DirectoryEntity::class,
         MediumEntity::class,
+        FavoriteEntity::class,
         VideoStreamInfoEntity::class,
         AudioStreamInfoEntity::class,
         SubtitleStreamInfoEntity::class,
@@ -26,6 +29,8 @@ abstract class MediaDatabase : RoomDatabase() {
     abstract fun mediumDao(): MediumDao
 
     abstract fun directoryDao(): DirectoryDao
+
+    abstract fun favoriteDao(): FavoriteDao
 
     companion object {
         const val DATABASE_NAME = "media_db"

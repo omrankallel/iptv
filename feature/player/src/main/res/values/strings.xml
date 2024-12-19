@@ -1,1 +1,5 @@
-<resources></resources>
+<resources>
+    <string name="index">index</string>
+    <string name="todo">TODO</string>
+    <string name="watania_1">Watania 1</string>
+</resources>
