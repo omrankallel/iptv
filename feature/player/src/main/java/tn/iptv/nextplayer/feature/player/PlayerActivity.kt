@@ -306,11 +306,6 @@ class PlayerActivity : AppCompatActivity() {
         btnMenu.setOnClickListener(
             View.OnClickListener {
                 toggleMenuVisibility()
-                lifecycleScope.launch {
-                    var a =favoriteViewModel.getSizeFavorites("channel").toString()
-                    Log.d("FavoriteList","")
-                    Log.d("FavoriteList",a )
-                }
             },
         )
 
@@ -392,7 +387,7 @@ class PlayerActivity : AppCompatActivity() {
             brightnessManager.setBrightness(playerPreferences.playerBrightness)
         }
         createPlayer()
-        setOrientation()
+        //setOrientation()
         initPlaylist()
         initializePlayerView()
         playVideo(uri = playlistManager.getCurrent() ?: intent.data!!)

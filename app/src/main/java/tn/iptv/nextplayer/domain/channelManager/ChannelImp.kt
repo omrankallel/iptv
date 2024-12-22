@@ -15,6 +15,8 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import retrofit2.HttpException
 import retrofit2.awaitResponse
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
+import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager.Companion.cryptKey
 import tn.iptv.nextplayer.domain.config.AES256Cipher
 import tn.iptv.nextplayer.domain.config.RetrofitInstance
@@ -34,6 +36,7 @@ import tn.iptv.nextplayer.domain.models.saisons.SaisonItem
 import tn.iptv.nextplayer.domain.models.series.ListSeriesByCategory
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import java.io.IOException
+import java.util.Locale
 
 
 class ChannelImp(private var application: Application) : ChannelManager {
@@ -85,6 +88,13 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
 
     /**
+     * [ChannelManager.listOfFavorites]
+     * */
+
+    override var listOfFavorites: MutableLiveData<MutableList<Favorite>> = MutableLiveData(ArrayList())
+
+
+    /**
      * [ChannelManager.listOfPackagesOfSeries]
      * */
     override var listOfPackagesOfSeries: MutableLiveData<MutableList<PackageMedia>> = MutableLiveData(ArrayList())
@@ -128,6 +138,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * [ChannelManager.homeIsLoading]
      * */
     override var homeIsLoading: MutableLiveData<Boolean> = MutableLiveData(false)
+
+
+    /**
+     * [ChannelManager.favoriteIsLoading]
+     * */
+    override var favoriteIsLoading: MutableLiveData<Boolean> = MutableLiveData(false)
 
     /**
      * [ChannelManager.moviesIsLoading]
@@ -390,6 +406,29 @@ class ChannelImp(private var application: Application) : ChannelManager {
     }
 
 
+    /**
+     * [ChannelManager.fetchFavorites]
+     * */
+    @SuppressLint("LogNotTimber")
+    override fun fetchFavorites(favoriteViewModel: FavoriteViewModel) {
+        Log.d(TAG, "fetchFavorites")
+        job?.cancel()
+        job = scopeMain.launch {
+            listOfFavorites.value?.clear()
+            favoriteIsLoading.postValue(true)
+            Log.d("kkkkkkkkkkkkkkkkkkkk", "kkkkkkkkkkkkkkkk")
+
+            favoriteViewModel.getAllFavorite().map { favorites ->
+                listOfFavorites.value?.add(favorites)
+            }
+            Log.d("kkkkkkkkkkkkkkkkkkkk", "kkkkkkkkkkkkkkkk")
+
+            Log.d("TestOmran", listOfFavorites.value?.size.toString())
+
+            favoriteIsLoading.postValue(false)
+        }
+
+    }
 
 
     /**
@@ -668,7 +707,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
             val newArrayMediaItem: ArrayList<MediaItem> = ArrayList<MediaItem>()
 
             grpTV.listSeries.forEach { mediaItem ->
-                if (mediaItem.name.toLowerCase().contains(searchValue.toLowerCase()))
+                if (mediaItem.name.lowercase(Locale.getDefault()).contains(searchValue.lowercase(Locale.getDefault())))
 
                     newArrayMediaItem.add(mediaItem)
             }

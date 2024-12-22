@@ -6,7 +6,7 @@
 
     <string name="label_home" translatable="false">Home</string>
 
-    <string name="label_tv_channel" translatable="false">TV Channel</string>
+    <string name="label_tv_channel" translatable="false">Live TV</string>
     <string name="label_series" translatable="false">Series</string>
     <string name="label_movies" translatable="false">Movies</string>
     <string name="label_favorites" translatable="false">Favorite</string>

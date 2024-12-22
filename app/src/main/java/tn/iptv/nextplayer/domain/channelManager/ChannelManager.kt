@@ -1,6 +1,8 @@
 package tn.iptv.nextplayer.domain.channelManager
 
 import androidx.lifecycle.MutableLiveData
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
+import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.domain.models.Channel
 import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.LoginModel
@@ -62,6 +64,12 @@ interface ChannelManager {
     var selectedPackageOfLiveTV: MutableLiveData<PackageMedia>
 
 
+    /////////////////////////////   Favorites     ///////////////////////////////
+    var listOfFavorites: MutableLiveData<MutableList<Favorite>>
+
+
+
+
     /////////////////////////////   Movies     ///////////////////////////////
     /**
      * [ChannelImp.listOfPackagesOfMovies]
@@ -105,6 +113,11 @@ interface ChannelManager {
      * [ChannelImp.homeIsLoading]
      * */
     var homeIsLoading: MutableLiveData<Boolean>
+
+    /**
+     * [ChannelImp.favoriteIsLoading]
+     * */
+    var favoriteIsLoading: MutableLiveData<Boolean>
 
 
 
@@ -207,6 +220,11 @@ interface ChannelManager {
      * [ChannelImp.fetchPackages]
      * */
     fun fetchPackages()
+
+    /**
+     * [ChannelImp.fetchFavorites]
+     * */
+    fun fetchFavorites(favoriteViewModel: FavoriteViewModel)
 
 
     /**

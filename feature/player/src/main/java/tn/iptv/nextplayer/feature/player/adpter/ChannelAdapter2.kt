@@ -39,7 +39,19 @@ class ChannelAdapter2(
     override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
 
         val currentLiveTVChannel = mList[position]
-        var isFavorite = true
+        var isFavorite = false
+
+        favoriteViewModel.isFavoriteExists(currentLiveTVChannel.id) { exists ->
+            isFavorite = exists
+            holder.imgFavorite.setImageDrawable(
+                AppCompatResources.getDrawable(
+                    context,
+                    if (isFavorite) R.drawable.ic_star else R.drawable.ic_not_star
+                )
+            )
+        }
+
+
 
         holder.txtIndexChannel.text = "${position + 1}"
         holder.txtTitleChannel.text = currentLiveTVChannel.name
@@ -69,7 +81,7 @@ class ChannelAdapter2(
             } else {
                 holder.imgFavorite.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_star))
 
-                favoriteViewModel.addFavorite(currentLiveTVChannel.id, "channel")
+                favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name,currentLiveTVChannel.icon,currentLiveTVChannel.url,"","","","","","","","Live TV")
             }
             isFavorite = !isFavorite
         }

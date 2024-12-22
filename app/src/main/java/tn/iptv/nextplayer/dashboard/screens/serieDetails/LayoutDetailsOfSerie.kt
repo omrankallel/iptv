@@ -21,6 +21,11 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
@@ -38,8 +44,13 @@ import tn.iptv.nextplayer.login.app
 
 
 @Composable
-fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel){
-
+fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel){
+    var exist by remember { mutableStateOf(false) }
+    LaunchedEffect(serieItem.id) {
+        favoriteViewModel.isFavoriteExists(serieItem.id) { exists ->
+            exist = exists
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -130,10 +141,24 @@ fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel){
             }
             Button(
                 modifier = Modifier.size(width = 150.dp, height = 40.dp),
-                onClick = { /* Wishlist action */ },
+                onClick = {
+                    if (exist) {
+                        favoriteViewModel.deleteFavoriteById(serieItem.id)
+                    } else {
+                        favoriteViewModel.addFavorite(serieItem.id, serieItem.name, serieItem.icon, serieItem.url, serieItem.plot, serieItem.cast, serieItem.genre, serieItem.date, "", "", "", "Series")
+                    }
+                    favoriteViewModel.isFavoriteExists(serieItem.id) { exists ->
+                        exist = exists
+                    }
+                    Log.d("existssssss", exist.toString()+ " "+serieItem.name)
+
+                },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black)
             ) {
-                Text(" + My Wishlist", color = Color.White)
+                if (exist)
+                    Text(" - My Wishlist", color = Color.White)
+                else
+                    Text(" + My Wishlist", color = Color.White)
             }
         }
     }

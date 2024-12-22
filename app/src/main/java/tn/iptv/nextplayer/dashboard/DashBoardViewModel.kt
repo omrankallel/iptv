@@ -28,6 +28,8 @@ class DashBoardViewModel : BaseViewModel() {
 
         observeLiveTV()
 
+        observeFavorite()
+
     }
 
     private fun observeLiveTV() {
@@ -67,6 +69,14 @@ class DashBoardViewModel : BaseViewModel() {
 
         channelManager.homeIsLoading.observeForever {
             bindingModel.isLoadingHome.value = it
+        }
+    }
+
+    private fun observeFavorite() {
+
+
+        channelManager.favoriteIsLoading.observeForever {
+            bindingModel.isLoadingFavorite.value = it
         }
     }
 

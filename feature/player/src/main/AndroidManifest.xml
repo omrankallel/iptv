@@ -13,7 +13,9 @@
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"
             android:theme="@style/NextPlayer"
-            tools:targetApi="o">
+            android:screenOrientation="landscape"
+            tools:targetApi="o"
+            tools:ignore="DiscouragedApi">
 
             <!-- This filter captures protocols without type info -->
             <intent-filter>

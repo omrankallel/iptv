@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.core.data.favorite
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.count
+import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.core.database.dao.FavoriteDao
 import tn.iptv.nextplayer.core.database.entities.FavoriteEntity
 import javax.inject.Inject
@@ -18,7 +19,16 @@ class FavoriteRepository @Inject constructor(
         favoriteDao.deleteFavoriteById(itemId)
     }
 
-    public fun getAllFavoriteByType(type: String): Flow<List<FavoriteEntity>> {
+    suspend fun isFavoriteExists(itemId: String): Boolean {
+        return favoriteDao.isFavoriteExists(itemId)
+    }
+
+
+    fun getAllFavorite(): Flow<List<FavoriteEntity>> {
+        return favoriteDao.getAllFavorite()
+    }
+
+    fun getAllFavoriteByType(type: String): Flow<List<FavoriteEntity>> {
         return favoriteDao.getAllFavoriteByType(type)
     }
 

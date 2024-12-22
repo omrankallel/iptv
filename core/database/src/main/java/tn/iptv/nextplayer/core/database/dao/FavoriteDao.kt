@@ -15,9 +15,14 @@ interface FavoriteDao {
     @Upsert
     suspend fun upsertAll(favorites: List<FavoriteEntity>)
 
+    @Query("SELECT * FROM favorite")
+    fun getAllFavorite(): Flow<List<FavoriteEntity>>
+
     @Query("SELECT * FROM favorite WHERE type = :type")
     fun getAllFavoriteByType(type: String): Flow<List<FavoriteEntity>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM favorite WHERE itemId = :itemId)")
+    suspend fun isFavoriteExists(itemId: String): Boolean
 
     @Query("DELETE FROM favorite WHERE itemId = :itemId")
     suspend fun deleteFavoriteById(itemId: String)

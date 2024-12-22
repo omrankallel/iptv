@@ -14,7 +14,7 @@ enum class NavigationItem(
     ),
     TVChannels(
         icon = R.drawable.ic_tv_channles,
-        title = "TV Channels"
+        title = "Live TV"
     ),
 
     Series(
@@ -44,10 +44,10 @@ enum class NavigationItem(
         title = "Favorite"
     ),
 
-    ComingSoon(
+    /*ComingSoon(
         icon = R.drawable.ic_coming_soon,
         title = "Coming Soon"
-    ),
+    ),*/
 
     Settings(
         icon = R.drawable.ic_settings,

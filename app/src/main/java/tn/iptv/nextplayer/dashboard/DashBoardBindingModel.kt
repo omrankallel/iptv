@@ -26,6 +26,7 @@ class DashBoardBindingModel {
 
 
     var isLoadingHome: MutableState<Boolean> = mutableStateOf(false)
+    var isLoadingFavorite: MutableState<Boolean> = mutableStateOf(false)
 
 
     /////////////:  series  ///////////////

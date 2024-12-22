@@ -46,12 +46,12 @@ import com.google.gson.Gson
 import fetchString
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.component.CustomDrawer
 import tn.iptv.nextplayer.dashboard.component.TopBarDashBoard
 import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
-import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.ComingSoon
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.DetailMovies
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.DetailSeries
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Favorite
@@ -64,7 +64,6 @@ import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.TVChannels
 import tn.iptv.nextplayer.dashboard.customdrawer.model.isOpened
 import tn.iptv.nextplayer.dashboard.screens.FavoriteScreen
 import tn.iptv.nextplayer.dashboard.screens.SettingsScreen
-import tn.iptv.nextplayer.dashboard.screens.comingSoon.ComingSoonScreen
 import tn.iptv.nextplayer.dashboard.screens.detailmovies.MovieDetailScreen
 import tn.iptv.nextplayer.dashboard.screens.home.HomeScreen
 import tn.iptv.nextplayer.dashboard.screens.movies.MoviesScreen
@@ -92,7 +91,7 @@ import kotlin.math.roundToInt
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("LogNotTimber", "SuspiciousIndentation")
 @Composable
-fun DashBoardScreen(viewModel: DashBoardViewModel) {
+fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     var drawerState by remember { mutableStateOf(CustomDrawerState.Closed) }
@@ -177,8 +176,10 @@ fun DashBoardScreen(viewModel: DashBoardViewModel) {
                     }
 
                     DetailMovies -> {}
-                    Favorite -> {}
-                    ComingSoon -> {}
+                    Favorite -> {
+                        channelManager.fetchFavorites(favoriteViewModel)
+                    }
+
                     Settings -> {}
                     Logout -> {
 
@@ -254,6 +255,7 @@ fun DashBoardScreen(viewModel: DashBoardViewModel) {
 
             MainContent(
                 viewModel = viewModel,
+                favoriteViewModel = favoriteViewModel,
                 drawerState = drawerState,
                 searchValueInitial = searchValueInitial,
                 selectedNavigationItem = viewModel.bindingModel.selectedNavigationItem.value,
@@ -309,6 +311,7 @@ fun DashBoardScreen(viewModel: DashBoardViewModel) {
 @Composable
 fun MainContent(
     viewModel: DashBoardViewModel,
+    favoriteViewModel: FavoriteViewModel,
     // modifier: Modifier = Modifier,
     searchValueInitial: MutableState<String>,
     drawerState: CustomDrawerState,
@@ -337,7 +340,6 @@ fun MainContent(
                 Series, DetailSeries -> fetchString(context, R.string.label_series)
                 Movies, DetailMovies -> fetchString(context, R.string.label_movies)
                 Favorite -> fetchString(context, R.string.label_favorites)
-                ComingSoon -> fetchString(context, R.string.label_coming_soon)
                 Settings -> fetchString(context, R.string.label_settings)
                 Logout -> fetchString(context, R.string.label_logout)
 
@@ -470,7 +472,7 @@ fun MainContent(
 
                     DetailSeries -> {
                         viewModel.bindingModel.selectedPage = Page.NOTHING
-                        SerieDetailsScreen(viewModel)
+                        SerieDetailsScreen(viewModel, favoriteViewModel)
                     }
 
                     Movies -> {
@@ -489,21 +491,37 @@ fun MainContent(
 
                     DetailMovies -> {
                         viewModel.bindingModel.selectedPage = Page.NOTHING
-                        MovieDetailScreen(viewModel)
+                        MovieDetailScreen(viewModel, favoriteViewModel)
                     }
 
                     Favorite -> {
-                        viewModel.bindingModel.selectedPage = Page.NOTHING
-                        FavoriteScreen()
-                        viewModel.bindingModel.selectedSerie.value = MediaItem()
-                        viewModel.bindingModel.selectedMovie.value = MediaItem()
-                    }
+                        FavoriteScreen(
+                            viewModel,
+                            onSelectFavorite = {
+                                if (it.type == "Series") {
+                                    val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                    onShowScreenDetailSerie(serieSelected)
+                                } else if (it.type == "Movies") {
+                                    val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                    onShowScreenDetailMovie(movieSelected)
+                                } else if (it.type == "Live TV") {
+                                    val indexOfChannel = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                    try {
 
-                    ComingSoon -> {
-                        viewModel.bindingModel.selectedPage = Page.NOTHING
-                        ComingSoonScreen(viewModel)
-                        viewModel.bindingModel.selectedSerie.value = MediaItem()
-                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+                                        val intent = Intent(app, PlayerActivity::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        //intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
+                                        // intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
+                                        intent.data = Uri.parse(indexOfChannel.url)
+                                        app.startActivity(intent)
+
+
+                                    } catch (error: Exception) {
+                                        Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                        )
                     }
 
                     Settings -> {
@@ -516,6 +534,7 @@ fun MainContent(
                     Logout -> {
 
                         PreferencesHelper.logoutUser(context)
+                        favoriteViewModel.deleteAllFavorite()
                         viewModel.bindingModel.selectedPage = Page.NOTHING
                         viewModel.bindingModel.selectedSerie.value = MediaItem()
                         viewModel.bindingModel.selectedMovie.value = MediaItem()

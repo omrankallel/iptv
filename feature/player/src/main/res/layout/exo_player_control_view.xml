@@ -233,7 +233,7 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
                     android:orientation="vertical"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     tools:ignore="MissingConstraints">
 
                     <LinearLayout

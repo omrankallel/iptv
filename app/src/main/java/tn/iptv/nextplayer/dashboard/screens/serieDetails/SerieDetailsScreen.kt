@@ -17,12 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
 
 @Composable
-fun  SerieDetailsScreen (viewModel: DashBoardViewModel){
+fun  SerieDetailsScreen (viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel){
 
 
       val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
@@ -39,7 +40,7 @@ fun  SerieDetailsScreen (viewModel: DashBoardViewModel){
                 .fillMaxHeight()
 
         ) {
-            LayoutDetailsOfSerie (serieItem = viewModel.bindingModel.selectedSerie.value ,viewModel )
+            LayoutDetailsOfSerie (serieItem = viewModel.bindingModel.selectedSerie.value ,viewModel, favoriteViewModel)
 
         }
 

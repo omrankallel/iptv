@@ -36,6 +36,8 @@ class LoginViewModel : BaseViewModel() {
         } catch (e: SecurityException) {
             bindingModel.serialNumber = androidId
         }
+        if (bindingModel.serialNumber.isEmpty())
+            bindingModel.serialNumber = androidId
 
 
         val macAddress = getMacAddress()
@@ -94,7 +96,7 @@ class LoginViewModel : BaseViewModel() {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     serialNumber = Build.getSerial()
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD){
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
                     serialNumber = Build.SERIAL
                 }
 

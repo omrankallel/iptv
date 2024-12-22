@@ -9,12 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 
 @Composable
-fun  MovieDetailScreen (viewModel: DashBoardViewModel){
+fun MovieDetailScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
 
-    Log.d("MovieDetailScreen",""+  viewModel.bindingModel.selectedMovie.value.toString())
+    Log.d("MovieDetailScreen", "" + viewModel.bindingModel.selectedMovie.value.toString())
 
 
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -22,11 +23,11 @@ fun  MovieDetailScreen (viewModel: DashBoardViewModel){
         Box(
             modifier = Modifier
                 .weight(3f)
-                .fillMaxHeight()
+                .fillMaxHeight(),
 
-        ) {
+            ) {
 
-            LayoutDetailsOfMovie (movieItem = viewModel.bindingModel.selectedMovie.value )
+            LayoutDetailsOfMovie(movieItem = viewModel.bindingModel.selectedMovie.value, favoriteViewModel = favoriteViewModel)
 
         }
 
@@ -35,9 +36,9 @@ fun  MovieDetailScreen (viewModel: DashBoardViewModel){
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .padding(10.dp)
+                .padding(10.dp),
 
-        ) {
+            ) {
 
         }
     }

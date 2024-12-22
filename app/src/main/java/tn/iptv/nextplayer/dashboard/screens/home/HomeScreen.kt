@@ -45,7 +45,7 @@ fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listOfPackages = channelManager.listOfPackages.value
-    val isLoading = viewModel.bindingModel.isLoadingSeries
+    val isLoading = viewModel.bindingModel.isLoadingHome
     val pagerState = rememberPagerState(initialPage = 1)
 
 

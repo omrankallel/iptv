@@ -3,13 +3,12 @@ package tn.iptv.nextplayer.dashboard
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,35 +17,35 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import dagger.hilt.android.AndroidEntryPoint
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.MVVM.MVVMBaseActivity
+import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.layout.DashBoardScreen
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.listchannels.IgnoreStatusBarScreen
-import tn.iptv.nextplayer.listchannels.ListChannelViewModel
 import tn.iptv.nextplayer.listchannels.ui.theme.IptvTheme
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end2_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_start_color
 
 
-class DashBoardActivity: MVVMBaseActivity<DashBoardViewModel>()  {
+@AndroidEntryPoint
+class DashBoardActivity : MVVMBaseActivity<DashBoardViewModel>() {
     private val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
+    private val favoriteViewModel: FavoriteViewModel by viewModels()
 
 
     override fun setUpUseCase(): DashBoardViewModel {
         val dashBoardViewModel: DashBoardViewModel by viewModel()
         return dashBoardViewModel
     }
-
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -71,9 +70,11 @@ class DashBoardActivity: MVVMBaseActivity<DashBoardViewModel>()  {
                                 .fillMaxWidth()
                                 .background(back_application_start_color),
                         )
-                    }, bottomBar = {
+                    },
+                    bottomBar = {
 
-                    }, content = {paddingValues ->
+                    },
+                    content = { paddingValues ->
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -83,27 +84,24 @@ class DashBoardActivity: MVVMBaseActivity<DashBoardViewModel>()  {
                                         colors = listOf(
                                             back_application_start_color,
                                             back_application_end_color,
-                                            back_application_end2_color
-                                        )
-                                    )
-                                )
-                        ){
+                                            back_application_end2_color,
+                                        ),
+                                    ),
+                                ),
+                        ) {
 
-                            Log.e("dashboard_vm","   DashBoardScreen(viewModel)  ")
-                            DashBoardScreen(viewModel)
+                            DashBoardScreen(viewModel, favoriteViewModel)
 
                         }
-                    }
+                    },
 
 
-                )
+                    )
             }
         }
 
         hideSystemUI()
     }
-
-
 
 
     private fun hideSystemUI() {
