@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -43,12 +43,12 @@ class ChannelAdapter2(
 
         favoriteViewModel.isFavoriteExists(currentLiveTVChannel.id) { exists ->
             isFavorite = exists
-            holder.imgFavorite.setImageDrawable(
-                AppCompatResources.getDrawable(
-                    context,
-                    if (isFavorite) R.drawable.ic_star else R.drawable.ic_not_star
-                )
-            )
+
+            if (isFavorite)
+                holder.imgFavorite.visibility = View.VISIBLE
+            else
+                holder.imgFavorite.visibility = View.GONE
+
         }
 
 
@@ -74,17 +74,6 @@ class ChannelAdapter2(
             }
         }
 
-        holder.imgFavorite.setOnClickListener {
-            if (isFavorite) {
-                holder.imgFavorite.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_not_star))
-                favoriteViewModel.deleteFavoriteById(currentLiveTVChannel.id)
-            } else {
-                holder.imgFavorite.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_star))
-
-                favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name,currentLiveTVChannel.icon,currentLiveTVChannel.url,"","","","","","","","Live TV")
-            }
-            isFavorite = !isFavorite
-        }
 
 
         holder.cardChannel.setOnClickListener {
@@ -98,6 +87,24 @@ class ChannelAdapter2(
 
         }
 
+        holder.cardChannel.setOnLongClickListener {
+            holder.favoriteLayout.visibility = View.VISIBLE
+            true
+        }
+        holder.favoriteLayout.setOnClickListener {
+            if (isFavorite) {
+                holder.imgFavorite.visibility = View.GONE
+                favoriteViewModel.deleteFavoriteById(currentLiveTVChannel.id)
+            } else {
+                holder.imgFavorite.visibility = View.VISIBLE
+                favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name, currentLiveTVChannel.icon, currentLiveTVChannel.url, "", "", "", "", "", "", "", "Live TV")
+            }
+            isFavorite = !isFavorite
+
+
+
+            holder.favoriteLayout.visibility = View.GONE
+        }
 
         Glide.with(context).load(currentLiveTVChannel.icon).into(holder.imgImageChannel)
 
@@ -114,7 +121,7 @@ class ChannelAdapter2(
         val imgImageChannel: AppCompatImageView = this.itemView.findViewById(R.id.img_channel)
         val imgFavorite: ImageView = this.itemView.findViewById(R.id.img_favorite)
         val cardChannel: RelativeLayout = this.itemView.findViewById(R.id.card_channel)
-
+        val favoriteLayout: LinearLayout = this.itemView.findViewById(R.id.favorite_layout)
 
     }
 }

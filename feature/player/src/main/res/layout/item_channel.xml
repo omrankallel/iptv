@@ -1,86 +1,113 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-
-        <TextView
-            android:id="@+id/txt_index_channel"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
-            android:gravity="center"
-            android:text="@string/index"
-            android:textSize="12sp"
-            tools:text=" 1 " />
-
-        <RelativeLayout
-            android:id="@+id/card_channel"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/back_current_channel"
-            android:gravity="center|center_vertical"
-            android:padding="4dp">
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/txt_index_channel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="@string/index"
+                android:textSize="12sp"
+                tools:text=" 1 " />
+
+            <RelativeLayout
+                android:id="@+id/card_channel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="50dp"
-                android:orientation="horizontal">
+                android:background="@drawable/back_current_channel"
+                android:gravity="center|center_vertical"
+                android:padding="4dp">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="3dp"
-                    app:cardCornerRadius="40dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="50dp"
+                    android:orientation="horizontal">
 
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/img_channel"
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="3dp"
+                        app:cardCornerRadius="40dp">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/img_channel"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:padding="0dp"
+                            android:scaleType="centerCrop" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/txt_title_channel"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_centerInParent="true"
-                        android:padding="0dp"
-                        android:scaleType="centerCrop" />
-                    <!--  bind:photoProfile="@{viewModel.bindingModel.profileModel}"  -->
+                        android:layout_marginStart="10dp"
+                        android:ellipsize="end"
+                        android:gravity="start|center"
+                        android:maxLines="1"
+                        android:text="@string/watania_1"
+                        android:textColor="#FFF"
+                        android:textSize="16sp"
+                        tools:text=" Watania 1"
+                        tools:textColor="#000" />
+                </LinearLayout>
 
-                </androidx.cardview.widget.CardView>
+                <ImageView
+                    android:id="@+id/img_favorite"
+                    android:layout_width="24dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:contentDescription="@string/todo"
+                    android:src="@drawable/ic_star" />
+            </RelativeLayout>
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/txt_title_channel"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="10dp"
-                    android:ellipsize="end"
-                    android:gravity="start|center"
-                    android:maxLines="1"
-                    android:text="@string/watania_1"
-                    android:textColor="#FFF"
-                    android:textSize="16sp"
-                    tools:text=" Watania 1 fdsfdsfdsfdsfdsfdsfds"
-                    tools:textColor="#000" />
+        <LinearLayout
+            android:id="@+id/favorite_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#808080"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone">
 
 
-            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/ajouter_aux_favoris"
+                android:textColor="#FFF"
+                android:textSize="14sp" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="0.5" />
 
             <ImageView
-                android:id="@+id/img_favorite"
                 android:layout_width="24dp"
-                android:layout_height="50dp"
-                android:layout_alignParentEnd="true"
+                android:layout_height="24dp"
+                android:layout_marginEnd="10dp"
                 android:contentDescription="@string/todo"
-                android:src="@drawable/ic_not_star"
-
-                />
-        </RelativeLayout>
+                android:src="@drawable/ic_star" />
+        </LinearLayout>
 
     </LinearLayout>
-
-
 </layout>
