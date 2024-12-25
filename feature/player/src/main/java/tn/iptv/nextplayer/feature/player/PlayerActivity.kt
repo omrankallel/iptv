@@ -15,7 +15,6 @@ import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.util.Rational
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -104,6 +103,7 @@ import tn.iptv.nextplayer.feature.player.extensions.togglePlayPause
 import tn.iptv.nextplayer.feature.player.extensions.toggleSystemBars
 import tn.iptv.nextplayer.feature.player.model.Subtitle
 import tn.iptv.nextplayer.feature.player.model.grouped_media.GroupedMedia
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.feature.player.utils.BrightnessManager
 import tn.iptv.nextplayer.feature.player.utils.PlayerApi
 import tn.iptv.nextplayer.feature.player.utils.PlayerGestureHelper
@@ -184,7 +184,6 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var menuContainer: LinearLayout
     private lateinit var menuTitle: TextView
 
-    private lateinit var btnMenu: ImageButton
     private lateinit var audioTrackButton: ImageButton
     private lateinit var backButton: ImageButton
     private lateinit var exoContentFrameLayout: AspectRatioFrameLayout
@@ -239,7 +238,6 @@ class PlayerActivity : AppCompatActivity() {
         menuTitle = binding.playerView.findViewById(R.id.menu_title)
 
 
-        btnMenu = binding.playerView.findViewById(R.id.btn_menu)
         audioTrackButton = binding.playerView.findViewById(R.id.btn_audio_track)
         backButton = binding.playerView.findViewById(R.id.back_button)
         exoContentFrameLayout = binding.playerView.findViewById(R.id.exo_content_frame)
@@ -278,7 +276,7 @@ class PlayerActivity : AppCompatActivity() {
 
             menuContainer.visibility = View.VISIBLE
             //adjust Container  with data
-            menuTitle.text = groupOfChannel.labelGenre
+            menuTitle.text = AppHelper.cleanChannelName(groupOfChannel.labelGenre)
 
             val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
             recyclerView.layoutManager = LinearLayoutManager(this)
@@ -294,6 +292,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
 
                 },
+                menuContainer,
             )
             recyclerView.adapter = adapter
 
@@ -301,13 +300,6 @@ class PlayerActivity : AppCompatActivity() {
             menuContainer.visibility = View.GONE
         }
 
-
-
-        btnMenu.setOnClickListener(
-            View.OnClickListener {
-                toggleMenuVisibility()
-            },
-        )
 
         if (!isPipSupported) {
             pipButton.visibility = View.GONE

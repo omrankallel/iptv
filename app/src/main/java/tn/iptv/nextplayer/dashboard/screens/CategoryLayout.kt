@@ -15,6 +15,7 @@ import tn.iptv.nextplayer.component.OutlinedButtonIPTV
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import tn.iptv.nextplayer.domain.models.packages.PackageMedia
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 
 
 @Composable
@@ -37,13 +38,13 @@ fun PackagesLayout (selectedItem  : MutableState<PackageMedia>, listItems  : Lis
                     paddingHorizontal = 10.dp,
                     sizeText = 13.sp,
                     shape = 5.dp,
-                    label = item.name,
+                    label = AppHelper.cleanChannelName(item.name),
                     onClick = {
 
                     })
 
             else
-                OutlinedButtonIPTV(labelButton = item.name , onClick =
+                OutlinedButtonIPTV(labelButton = AppHelper.cleanChannelName(item.name) , onClick =
                 {
                     onSelectPackage (item)
                 })

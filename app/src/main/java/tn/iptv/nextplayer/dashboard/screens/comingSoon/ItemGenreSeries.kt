@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import tn.iptv.nextplayer.dashboard.screens.tvChannel.ItemLiveChannel
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.domain.models.series.MediaType
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 
 @Composable
 fun ItemGenreSeries(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelectMediaItem: (MediaItem) -> Unit) {
@@ -33,7 +34,7 @@ fun ItemGenreSeries(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSele
             .padding(5.dp),
     ) {
         Text(
-            text = groupedMediaItem.labelGenre,
+            text = AppHelper.cleanChannelName(groupedMediaItem.labelGenre),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Medium,
             color = Color.White,

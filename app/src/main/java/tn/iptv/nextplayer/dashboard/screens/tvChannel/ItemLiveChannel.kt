@@ -38,6 +38,7 @@ import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.dashboard.screens.serieDetails.Chip
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.domain.models.series.MediaType
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 
 
@@ -115,7 +116,7 @@ Box (
             Row (Modifier.fillMaxSize()){
 
                 Text(
-                    text = seriesItem.name,
+                    text = AppHelper.cleanChannelName(seriesItem.name),
                     fontSize =10.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,

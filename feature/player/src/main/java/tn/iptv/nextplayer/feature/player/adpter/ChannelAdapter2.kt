@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.feature.player.R
 import tn.iptv.nextplayer.feature.player.model.grouped_media.MediaItem
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 
 
 class ChannelAdapter2(
@@ -23,6 +24,7 @@ class ChannelAdapter2(
     private val indexCurrentChannel: Int = 0,
     private val favoriteViewModel: FavoriteViewModel,
     private val listener: OnChannelClickListener,
+    private val menuContainer: LinearLayout,
 
     ) : RecyclerView.Adapter<ChannelAdapter2.ViewHolder>() {
 
@@ -44,17 +46,22 @@ class ChannelAdapter2(
         favoriteViewModel.isFavoriteExists(currentLiveTVChannel.id) { exists ->
             isFavorite = exists
 
-            if (isFavorite)
+            if (isFavorite) {
                 holder.imgFavorite.visibility = View.VISIBLE
-            else
+                holder.txtFavorite.text = "Supprimer des favoris"
+            } else {
                 holder.imgFavorite.visibility = View.GONE
+                holder.txtFavorite.text = "Ajouter aux Favoris"
+            }
 
         }
 
 
 
+
+
         holder.txtIndexChannel.text = "${position + 1}"
-        holder.txtTitleChannel.text = currentLiveTVChannel.name
+        holder.txtTitleChannel.text = AppHelper.cleanChannelName(currentLiveTVChannel.name)
 
 
         when (position) {
@@ -74,6 +81,9 @@ class ChannelAdapter2(
             }
         }
 
+        holder.imgFavorite.setOnClickListener {
+            menuContainer.visibility = View.GONE
+        }
 
 
         holder.cardChannel.setOnClickListener {
@@ -88,16 +98,22 @@ class ChannelAdapter2(
         }
 
         holder.cardChannel.setOnLongClickListener {
-            holder.favoriteLayout.visibility = View.VISIBLE
+            if (holder.favoriteLayout.visibility == View.VISIBLE) {
+                holder.favoriteLayout.visibility = View.GONE
+            } else {
+                holder.favoriteLayout.visibility = View.VISIBLE
+            }
             true
         }
         holder.favoriteLayout.setOnClickListener {
             if (isFavorite) {
                 holder.imgFavorite.visibility = View.GONE
                 favoriteViewModel.deleteFavoriteById(currentLiveTVChannel.id)
+                holder.txtFavorite.text = "Ajouter aux Favoris"
             } else {
                 holder.imgFavorite.visibility = View.VISIBLE
                 favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name, currentLiveTVChannel.icon, currentLiveTVChannel.url, "", "", "", "", "", "", "", "Live TV")
+                holder.txtFavorite.text = "Supprimer des favoris"
             }
             isFavorite = !isFavorite
 
@@ -122,6 +138,7 @@ class ChannelAdapter2(
         val imgFavorite: ImageView = this.itemView.findViewById(R.id.img_favorite)
         val cardChannel: RelativeLayout = this.itemView.findViewById(R.id.card_channel)
         val favoriteLayout: LinearLayout = this.itemView.findViewById(R.id.favorite_layout)
+        val txtFavorite: TextView = this.itemView.findViewById(R.id.txtFavorite)
 
     }
 }

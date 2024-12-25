@@ -45,6 +45,42 @@
         app:show_buffering="always"
         app:surface_type="none"
         tools:foreground="@color/player_background" />
+    <LinearLayout
+        android:id="@+id/menu_container"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        >
+
+        <!-- Titre du menu -->
+        <TextView
+            android:id="@+id/menu_title"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="FRENCH"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#FFFFFF"
+            android:layout_marginVertical="5dp"/>
+
+        <!-- Liste des chaînes -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/info_layout"
