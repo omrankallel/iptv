@@ -11,7 +11,6 @@ import tn.iptv.nextplayer.core.common.Utils
 import tn.iptv.nextplayer.core.common.extensions.dpToPx
 import tn.iptv.nextplayer.core.model.DoubleTapGesture
 import tn.iptv.nextplayer.core.model.PlayerPreferences
-import tn.iptv.nextplayer.core.ui.R as coreUiR
 import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.feature.player.PlayerViewModel
 import tn.iptv.nextplayer.feature.player.R
@@ -21,6 +20,7 @@ import tn.iptv.nextplayer.feature.player.extensions.shouldFastSeek
 import tn.iptv.nextplayer.feature.player.extensions.togglePlayPause
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import tn.iptv.nextplayer.core.ui.R as coreUiR
 
 @UnstableApi
 @SuppressLint("ClickableViewAccessibility")
@@ -238,6 +238,12 @@ class PlayerGestureHelper(
         },
     )
 
+    fun showHide() {
+        with(playerView) {
+            if (!isControllerFullyVisible) showController() else hideController()
+        }
+    }
+
     private fun releaseGestures() {
         // hide the volume indicator
         activity.hideVolumeGestureLayout()
@@ -266,7 +272,7 @@ class PlayerGestureHelper(
         val gestureExclusionBorder = playerView.context.dpToPx(GESTURE_EXCLUSION_AREA)
 
         return firstEvent.y < gestureExclusionBorder || firstEvent.y > playerView.height - gestureExclusionBorder ||
-            firstEvent.x < gestureExclusionBorder || firstEvent.x > playerView.width - gestureExclusionBorder
+                firstEvent.x < gestureExclusionBorder || firstEvent.x > playerView.width - gestureExclusionBorder
     }
 
     init {
@@ -290,6 +296,7 @@ class PlayerGestureHelper(
             true
         }
     }
+
 
     companion object {
         const val FULL_SWIPE_RANGE_SCREEN_RATIO = 0.66f

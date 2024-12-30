@@ -225,23 +225,22 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/layout_bg_text"
-                        android:layout_gravity="center_horizontal">
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/layout_bg_text">
 
                         <ImageView
                             android:layout_width="50dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/images"
-                            android:layout_marginTop="15dp"
                             android:layout_marginLeft="20dp"
-                            />
+                            android:layout_marginTop="15dp"
+                            android:src="@drawable/images" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TF1 HD"
-                            android:layout_marginTop="10dp"
                             android:layout_marginLeft="10dp"
+                            android:layout_marginTop="10dp"
+                            android:text="TF1 HD"
                             android:textColor="#FFFFFF"
                             android:textSize="18sp" />
 
@@ -324,8 +323,6 @@
             app:tint="@android:color/white" />
 
     </FrameLayout>
-
-
 
 
 </FrameLayout>

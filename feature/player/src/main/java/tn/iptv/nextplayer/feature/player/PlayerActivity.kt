@@ -109,7 +109,6 @@ import tn.iptv.nextplayer.feature.player.utils.PlayerApi
 import tn.iptv.nextplayer.feature.player.utils.PlayerGestureHelper
 import tn.iptv.nextplayer.feature.player.utils.PlaylistManager
 import tn.iptv.nextplayer.feature.player.utils.VolumeManager
-import tn.iptv.nextplayer.feature.player.utils.toMillis
 import java.nio.charset.Charset
 import tn.iptv.nextplayer.core.ui.R as coreUiR
 
@@ -145,7 +144,10 @@ class PlayerActivity : AppCompatActivity() {
 
     private val favoriteViewModel: FavoriteViewModel by viewModels()
 
-    // private val favoriteDao: FavoriteDao
+    private lateinit var adapter: ChannelAdapter2
+
+    private var lastOkClickTime: Long = 0
+    private val DOUBLE_CLICK_TIME_DELTA = 300
 
 
     private val shouldFastSeek: Boolean
@@ -201,6 +203,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var unlockControlsButton: ImageButton
     private lateinit var videoTitleTextView: TextView
     private lateinit var videoZoomButton: ImageButton
+    private lateinit var recyclerView: RecyclerView
 
     private val isPipSupported: Boolean by lazy {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
@@ -278,10 +281,10 @@ class PlayerActivity : AppCompatActivity() {
             //adjust Container  with data
             menuTitle.text = AppHelper.cleanChannelName(groupOfChannel.labelGenre)
 
-            val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+            recyclerView = findViewById(R.id.recyclerView)
             recyclerView.layoutManager = LinearLayoutManager(this)
 
-            val adapter = ChannelAdapter2(
+            adapter = ChannelAdapter2(
                 this.applicationContext, groupOfChannel.listSeries, indexOfCurrentChannel, favoriteViewModel,
                 object : OnChannelClickListener {
 
@@ -484,7 +487,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.playerView.apply {
             setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
             player = this@PlayerActivity.player
-            controllerShowTimeoutMs = playerPreferences.controllerAutoHideTimeout.toMillis
+            controllerShowTimeoutMs = 10000
             setControllerVisibilityListener(
                 PlayerView.ControllerVisibilityListener { visibility ->
                     toggleSystemBars(showBars = visibility == View.VISIBLE && !isControlsLocked)
@@ -623,7 +626,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun playVideo(uri: Uri) = lifecycleScope.launch(Dispatchers.IO) {
+    fun playVideo(uri: Uri) = lifecycleScope.launch(Dispatchers.IO) {
         playlistManager.updateCurrent(uri)
         val isCurrentUriIsFromIntent = intent.data == uri
 
@@ -812,8 +815,19 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_DPAD_UP,
+                -> {
+                if (::adapter.isInitialized) {
+                    adapter.toggleFavoriteUp(recyclerView)
+                    return true
+                } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                    volumeManager.increaseVolume(playerPreferences.showSystemVolumePanel)
+                    showVolumeGestureLayout()
+                    return true
+                }
+            }
+
+            KeyEvent.KEYCODE_VOLUME_UP,
                 -> {
                 if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     volumeManager.increaseVolume(playerPreferences.showSystemVolumePanel)
@@ -822,8 +836,19 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
 
-            KeyEvent.KEYCODE_VOLUME_DOWN,
             KeyEvent.KEYCODE_DPAD_DOWN,
+                -> {
+                if (::adapter.isInitialized) {
+                    adapter.toggleFavoriteDown(recyclerView)
+                    return true
+                } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                    volumeManager.decreaseVolume(playerPreferences.showSystemVolumePanel)
+                    showVolumeGestureLayout()
+                    return true
+                }
+            }
+
+            KeyEvent.KEYCODE_VOLUME_DOWN,
                 -> {
                 if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     volumeManager.decreaseVolume(playerPreferences.showSystemVolumePanel)
@@ -899,7 +924,16 @@ class PlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_NUMPAD_ENTER,
                 -> {
-                if (!binding.playerView.isControllerFullyVisible) {
+                if (::adapter.isInitialized) {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastOkClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                        playerGestureHelper.showHide()
+                    } else {
+                        adapter.selectedChannel(this)
+                    }
+                    lastOkClickTime = currentTime
+                    return true
+                } else if (!binding.playerView.isControllerFullyVisible) {
                     binding.playerView.showController()
                     return true
                 }

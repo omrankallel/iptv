@@ -30,15 +30,17 @@ kotlin = "2.0.10"
 kotlinxCoroutines = "1.8.1"
 kotlinxSerializationJson = "1.7.1"
 ksp = "2.0.10-1.0.24"
+googleGsm = "4.4.2"
+crashlytics = "3.0.2"
 ktlint = "12.1.1"
 material = "1.7.2"
 nextlib = "0.8.2"
 room = "2.6.1"
 timber = "5.0.1"
 universalChardet = "2.5.0"
-retrofit="2.11.0"
-bumptechGlide="4.15.1"
-circularimageview="4.3.1"
+retrofit = "2.11.0"
+bumptechGlide = "4.15.1"
+circularimageview = "4.3.1"
 activity = "1.9.2"
 okHttpVersion = "3.10.0"
 butterKnifeVersion = "8.8.1"
@@ -90,7 +92,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
-github-albfernandez-juniversalchardet = { group="com.github.albfernandez", name = "juniversalchardet", version.ref="universalChardet" }
+github-albfernandez-juniversalchardet = { group = "com.github.albfernandez", name = "juniversalchardet", version.ref = "universalChardet" }
 github-anilbeesetti-nextlib-media3ext = { group = "com.github.anilbeesetti.nextlib", name = "nextlib-media3ext", version.ref = "nextlib" }
 github-anilbeesetti-nextlib-mediainfo = { group = "com.github.anilbeesetti.nextlib", name = "nextlib-mediainfo", version.ref = "nextlib" }
 google-android-material = { group = "com.google.android.material", name = "material", version.ref = "androidMaterial" }

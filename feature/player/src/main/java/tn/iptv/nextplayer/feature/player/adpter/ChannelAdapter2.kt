@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.feature.player.adpter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
+import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.feature.player.R
 import tn.iptv.nextplayer.feature.player.model.grouped_media.MediaItem
 import tn.iptv.nextplayer.feature.player.utils.AppHelper
@@ -21,7 +23,7 @@ import tn.iptv.nextplayer.feature.player.utils.AppHelper
 class ChannelAdapter2(
     val context: Context,
     private val mList: List<MediaItem>,
-    private val indexCurrentChannel: Int = 0,
+    private var indexCurrentChannel: Int = 0,
     private val favoriteViewModel: FavoriteViewModel,
     private val listener: OnChannelClickListener,
     private val menuContainer: LinearLayout,
@@ -29,6 +31,40 @@ class ChannelAdapter2(
     ) : RecyclerView.Adapter<ChannelAdapter2.ViewHolder>() {
 
     private var selectedPosition: Int = -1
+
+    fun toggleFavoriteUp(recyclerView: RecyclerView) {
+
+        if (selectedPosition < mList.size) {
+            val previousPosition = selectedPosition
+            selectedPosition++;
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
+            recyclerView.smoothScrollToPosition(selectedPosition)
+        }
+    }
+
+    fun toggleFavoriteDown(recyclerView: RecyclerView) {
+
+        if (selectedPosition > 0) {
+            val previousPosition = selectedPosition
+            selectedPosition--;
+            notifyItemChanged(previousPosition)
+            notifyItemChanged(selectedPosition)
+            recyclerView.smoothScrollToPosition(selectedPosition)
+        }
+    }
+
+
+    fun selectedChannel(app: PlayerActivity) {
+        val previousIndex = indexCurrentChannel
+        indexCurrentChannel = selectedPosition
+
+        notifyItemChanged(previousIndex)
+        notifyItemChanged(indexCurrentChannel)
+        app.playVideo(Uri.parse(mList[indexCurrentChannel].url))
+    }
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val view = LayoutInflater.from(parent.context)
