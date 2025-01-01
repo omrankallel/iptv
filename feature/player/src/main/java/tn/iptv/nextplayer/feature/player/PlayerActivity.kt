@@ -48,6 +48,7 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.CaptionStyleCompat
+import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.SubtitleView
 import androidx.media3.ui.TimeBar
@@ -199,11 +200,17 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var screenRotateButton: ImageButton
     private lateinit var pipButton: ImageButton
     private lateinit var seekBar: TimeBar
+    private lateinit var seekBarPlayer: DefaultTimeBar
     private lateinit var subtitleTrackButton: ImageButton
     private lateinit var unlockControlsButton: ImageButton
     private lateinit var videoTitleTextView: TextView
     private lateinit var videoZoomButton: ImageButton
     private lateinit var recyclerView: RecyclerView
+    private lateinit var upButton: ImageButton
+    private lateinit var downButton: ImageButton
+    private lateinit var addButton: ImageButton
+    private lateinit var doubleAddButton: ImageButton
+
 
     private val isPipSupported: Boolean by lazy {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
@@ -254,10 +261,29 @@ class PlayerActivity : AppCompatActivity() {
         screenRotateButton = binding.playerView.findViewById(R.id.screen_rotate)
         pipButton = binding.playerView.findViewById(R.id.btn_pip)
         seekBar = binding.playerView.findViewById(R.id.exo_progress)
+        seekBarPlayer = binding.playerView.findViewById(R.id.exo_progress)
         subtitleTrackButton = binding.playerView.findViewById(R.id.btn_subtitle_track)
         unlockControlsButton = binding.playerView.findViewById(R.id.btn_unlock_controls)
         videoTitleTextView = binding.playerView.findViewById(R.id.video_name)
         videoZoomButton = binding.playerView.findViewById(R.id.btn_video_zoom)
+        upButton = binding.playerView.findViewById(R.id.btn_up)
+        downButton = binding.playerView.findViewById(R.id.btn_down)
+        addButton = binding.playerView.findViewById(R.id.btn_add)
+        doubleAddButton = binding.playerView.findViewById(R.id.btn_double_add)
+
+        upButton.setOnClickListener {
+            adapter.toggleFavoriteUp(recyclerView)
+        }
+        downButton.setOnClickListener {
+            adapter.toggleFavoriteDown(recyclerView)
+        }
+        addButton.setOnClickListener {
+            adapter.selectedChannel(this, recyclerView)
+        }
+
+        doubleAddButton.setOnClickListener {
+            adapter.openFavorite(recyclerView)
+        }
 
 
 
@@ -270,7 +296,7 @@ class PlayerActivity : AppCompatActivity() {
 
         try {
             val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
-            val indexOfCurrentChannel = intent.getIntExtra("INDEX_OF_CHANNEL", 0)
+            var indexOfCurrentChannel = intent.getIntExtra("INDEX_OF_CHANNEL", 0)
 
 
             // Désérialisation de la chaîne JSON en objet GroupedMedia
@@ -289,15 +315,20 @@ class PlayerActivity : AppCompatActivity() {
                 object : OnChannelClickListener {
 
                     override fun onChannelClick(position: Int, mediaItem: tn.iptv.nextplayer.feature.player.model.grouped_media.MediaItem) {
+                        if (indexOfCurrentChannel == position) {
+                            showHidePlayerGesture()
+                        } else {
+                            indexOfCurrentChannel = position
+                            playVideo(uri = Uri.parse(mediaItem.url))
 
-                        playVideo(uri = Uri.parse(mediaItem.url))
-
+                        }
                     }
 
                 },
                 menuContainer,
             )
             recyclerView.adapter = adapter
+            seekBarPlayer.visibility=View.GONE
 
         } catch (error: NullPointerException) {
             menuContainer.visibility = View.GONE
@@ -487,7 +518,7 @@ class PlayerActivity : AppCompatActivity() {
         binding.playerView.apply {
             setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
             player = this@PlayerActivity.player
-            controllerShowTimeoutMs = 10000
+            controllerShowTimeoutMs = 10000000
             setControllerVisibilityListener(
                 PlayerView.ControllerVisibilityListener { visibility ->
                     toggleSystemBars(showBars = visibility == View.VISIBLE && !isControlsLocked)
@@ -818,7 +849,7 @@ class PlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_DPAD_UP,
                 -> {
                 if (::adapter.isInitialized) {
-                    adapter.toggleFavoriteUp(recyclerView)
+                    adapter.toggleFavoriteDown(recyclerView)
                     return true
                 } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     volumeManager.increaseVolume(playerPreferences.showSystemVolumePanel)
@@ -839,7 +870,7 @@ class PlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_DPAD_DOWN,
                 -> {
                 if (::adapter.isInitialized) {
-                    adapter.toggleFavoriteDown(recyclerView)
+                    adapter.toggleFavoriteUp(recyclerView)
                     return true
                 } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     volumeManager.decreaseVolume(playerPreferences.showSystemVolumePanel)
@@ -927,9 +958,9 @@ class PlayerActivity : AppCompatActivity() {
                 if (::adapter.isInitialized) {
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastOkClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                        playerGestureHelper.showHide()
+                        adapter.openFavorite(recyclerView)
                     } else {
-                        adapter.selectedChannel(this)
+                        adapter.selectedChannel(this, recyclerView)
                     }
                     lastOkClickTime = currentTime
                     return true
@@ -943,6 +974,8 @@ class PlayerActivity : AppCompatActivity() {
                 if (binding.playerView.isControllerFullyVisible && player.isPlaying && isDeviceTvBox()) {
                     binding.playerView.hideController()
                     return true
+                } else {
+                    finish()
                 }
             }
         }
@@ -991,6 +1024,10 @@ class PlayerActivity : AppCompatActivity() {
             }
             previousScrubPosition = position
         }
+    }
+
+    fun showHidePlayerGesture() {
+        playerGestureHelper.showHide()
     }
 
     fun showVolumeGestureLayout() {
@@ -1154,3 +1191,4 @@ class PlayerActivity : AppCompatActivity() {
         const val HIDE_DELAY_MILLIS = 1000L
     }
 }
+

@@ -37,6 +37,7 @@
                     android:contentDescription="@string/player_controls_exit"
                     android:padding="12dp"
                     android:src="@drawable/ic_arrow_left"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -50,6 +51,7 @@
                     android:maxLines="2"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                     android:textColor="@android:color/white"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btn_playback_speed"
                     app:layout_constraintStart_toEndOf="@+id/back_button"
@@ -65,6 +67,7 @@
                     android:contentDescription="@string/select_playback_speed"
                     android:padding="12dp"
                     android:src="@drawable/ic_speed"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/btn_audio_track"
                     app:layout_constraintTop_toTopOf="parent"
@@ -80,6 +83,34 @@
                     android:padding="12dp"
                     android:src="@drawable/ic_audio_track"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_video_zoom"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/btn_video_zoom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_controls_horizontal"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/video_zoom"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_fit_screen"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_pip"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/btn_pip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_controls_horizontal"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/screen_rotation"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_pip"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/btn_subtitle_track"
                     app:layout_constraintTop_toTopOf="parent"
                     app:tint="@android:color/white" />
@@ -93,6 +124,69 @@
                     android:contentDescription="@string/select_subtitle_track"
                     android:padding="12dp"
                     android:src="@drawable/ic_subtitle_track"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_up"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/btn_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_subtitle_track"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_add"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_add"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/btn_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_subtitle_track"
+                    android:padding="12dp"
+                    android:src="@drawable/media3_icon_check_circle_filled"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_double_add"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+
+                <ImageButton
+                    android:id="@+id/btn_double_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_subtitle_track"
+                    android:padding="12dp"
+                    android:src="@drawable/media3_icon_check_circle_unfilled"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_down"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@android:color/white" />
+
+
+                <ImageButton
+                    android:id="@+id/btn_down"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/transparent_circle_background"
+                    android:contentDescription="@string/select_subtitle_track"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_remove"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -155,6 +249,7 @@
                     android:contentDescription="@string/controls_lock"
                     android:padding="12dp"
                     android:src="@drawable/ic_screen_rotation"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@id/exo_progress"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -186,28 +281,7 @@
                         android:contentDescription="@string/controls_lock"
                         android:padding="12dp"
                         android:src="@drawable/ic_lock_open"
-                        app:tint="@android:color/white" />
-
-                    <ImageButton
-                        android:id="@+id/btn_video_zoom"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dimen_controls_horizontal"
-                        android:background="@drawable/transparent_circle_background"
-                        android:contentDescription="@string/video_zoom"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_fit_screen"
-                        app:tint="@android:color/white" />
-
-                    <ImageButton
-                        android:id="@+id/btn_pip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dimen_controls_horizontal"
-                        android:background="@drawable/transparent_circle_background"
-                        android:contentDescription="@string/screen_rotation"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_pip"
+                        android:visibility="gone"
                         app:tint="@android:color/white" />
 
                 </LinearLayout>
@@ -274,7 +348,8 @@
                 android:contentDescription="@string/player_controls_previous"
                 android:padding="16dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_skip_prev" />
+                android:src="@drawable/ic_skip_prev"
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/exo_play_pause"
@@ -298,7 +373,8 @@
                 android:contentDescription="@string/player_controls_next"
                 android:padding="16dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_skip_next" />
+                android:src="@drawable/ic_skip_next"
+                android:visibility="gone" />
         </LinearLayout>
 
     </FrameLayout>
@@ -320,9 +396,37 @@
             android:contentDescription="@string/controls_unlock"
             android:padding="12dp"
             android:src="@drawable/ic_lock"
+            android:visibility="gone"
             app:tint="@android:color/white" />
 
     </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/menu_container"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <!-- Titre du menu -->
+        <TextView
+            android:id="@+id/menu_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="FRENCH"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+
+        <!-- Liste des chaînes -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 
 </FrameLayout>

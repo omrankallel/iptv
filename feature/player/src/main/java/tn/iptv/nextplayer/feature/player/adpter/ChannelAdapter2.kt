@@ -35,6 +35,7 @@ class ChannelAdapter2(
     fun toggleFavoriteUp(recyclerView: RecyclerView) {
 
         if (selectedPosition < mList.size) {
+            if (selectedPosition == -1) selectedPosition = 0
             val previousPosition = selectedPosition
             selectedPosition++;
             notifyItemChanged(previousPosition)
@@ -55,13 +56,49 @@ class ChannelAdapter2(
     }
 
 
-    fun selectedChannel(app: PlayerActivity) {
-        val previousIndex = indexCurrentChannel
-        indexCurrentChannel = selectedPosition
+    fun selectedChannel(app: PlayerActivity, recyclerView: RecyclerView) {
+        val position: Int = if (selectedPosition == -1) 0 else selectedPosition
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(position) as? ViewHolder
+        val isVisible: Boolean = viewHolder?.favoriteLayout?.visibility == View.VISIBLE
+        if (isVisible) {
+            favoriteViewModel.isFavoriteExists(mList[position].id) { exists ->
+                if (exists) {
+                    viewHolder?.imgFavorite?.visibility = View.GONE
+                    favoriteViewModel.deleteFavoriteById(mList[position].id)
+                    viewHolder?.txtFavorite?.text = "Ajouter aux Favoris"
+                } else {
+                    viewHolder?.imgFavorite?.visibility = View.VISIBLE
+                    favoriteViewModel.addFavorite(mList[position].id, mList[position].name, mList[position].icon, mList[position].url, "", "", "", "", "", "", "", "Live TV")
+                    viewHolder?.txtFavorite?.text = "Supprimer des favoris"
+                }
+                viewHolder?.favoriteLayout?.visibility = View.GONE
+                notifyItemChanged(position)
+            }
+        } else if (indexCurrentChannel == selectedPosition || selectedPosition == -1) {
+            app.showHidePlayerGesture()
+        } else {
+            val previousIndex = indexCurrentChannel
+            indexCurrentChannel = selectedPosition
 
-        notifyItemChanged(previousIndex)
-        notifyItemChanged(indexCurrentChannel)
-        app.playVideo(Uri.parse(mList[indexCurrentChannel].url))
+            notifyItemChanged(previousIndex)
+            notifyItemChanged(indexCurrentChannel)
+            app.playVideo(Uri.parse(mList[indexCurrentChannel].url))
+        }
+    }
+
+    fun openFavorite(recyclerView: RecyclerView) {
+        val position: Int = if (selectedPosition == -1) 0 else selectedPosition
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(position) as? ViewHolder
+        val isVisible: Boolean = viewHolder?.favoriteLayout?.visibility == View.VISIBLE
+        if (isVisible) {
+            viewHolder?.favoriteLayout?.visibility = View.GONE
+        } else {
+            viewHolder?.favoriteLayout?.visibility = View.VISIBLE
+            if(position < mList.size) {
+                recyclerView.smoothScrollToPosition(position+1)
+            }
+        }
+
     }
 
 
@@ -100,22 +137,14 @@ class ChannelAdapter2(
         holder.txtTitleChannel.text = AppHelper.cleanChannelName(currentLiveTVChannel.name)
 
 
-        when (position) {
-            selectedPosition -> {
-                holder.cardChannel.setBackgroundResource(R.drawable.back_selected_channel)
-                holder.imgFavorite.visibility = View.VISIBLE
-            }
-
-            indexCurrentChannel -> {
-                holder.cardChannel.setBackgroundResource(R.drawable.back_current_channel)
-                holder.imgFavorite.visibility = View.GONE
-            }
-
-            else -> {
-                holder.cardChannel.setBackgroundResource(R.drawable.back_transparent)
-                holder.imgFavorite.visibility = View.VISIBLE
-            }
+        if ((position == selectedPosition && position == indexCurrentChannel) || position == indexCurrentChannel) {
+            holder.cardChannel.setBackgroundResource(R.drawable.back_current_channel)
+        } else if (position == selectedPosition) {
+            holder.cardChannel.setBackgroundResource(R.drawable.back_selected_channel)
+        } else {
+            holder.cardChannel.setBackgroundResource(R.drawable.back_transparent)
         }
+
 
         holder.imgFavorite.setOnClickListener {
             menuContainer.visibility = View.GONE
@@ -125,11 +154,15 @@ class ChannelAdapter2(
         holder.cardChannel.setOnClickListener {
             listener.onChannelClick(position, currentLiveTVChannel)
 
+            val previousCurrentPosition = indexCurrentChannel
             val previousPosition = selectedPosition
             selectedPosition = position
+            indexCurrentChannel = selectedPosition
 
+            notifyItemChanged(previousCurrentPosition)
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
+            notifyItemChanged(indexCurrentChannel)
 
         }
 
@@ -165,6 +198,7 @@ class ChannelAdapter2(
     override fun getItemCount(): Int {
         return mList.size
     }
+
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 

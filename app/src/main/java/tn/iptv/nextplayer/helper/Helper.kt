@@ -7,7 +7,7 @@ object PreferencesHelper {
     private const val KEY_IS_LOGIN = "is_login"
     private const val KEY_ACTIVATION_CODE = "activation_code"
 
-    fun getSharedPreferences(context: Context): SharedPreferences {
+    private fun getSharedPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
