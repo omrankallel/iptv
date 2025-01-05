@@ -15,9 +15,14 @@ import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Rational
 import android.util.TypedValue
 import android.view.KeyEvent
+import android.view.MotionEvent.ACTION_CANCEL
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_UP
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup.LayoutParams
@@ -210,13 +215,15 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var downButton: ImageButton
     private lateinit var addButton: ImageButton
     private lateinit var doubleAddButton: ImageButton
+    val handler = Handler(Looper.getMainLooper())
+    var isHolding = false
 
 
     private val isPipSupported: Boolean by lazy {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     }
 
-    @SuppressLint("SuspiciousIndentation")
+    @SuppressLint("SuspiciousIndentation", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prettyPrintIntent()
@@ -271,11 +278,54 @@ class PlayerActivity : AppCompatActivity() {
         addButton = binding.playerView.findViewById(R.id.btn_add)
         doubleAddButton = binding.playerView.findViewById(R.id.btn_double_add)
 
-        upButton.setOnClickListener {
-            adapter.toggleFavoriteUp(recyclerView)
+        val runnableUp = object : Runnable {
+            override fun run() {
+                if (isHolding) {
+                    adapter.toggleFavoriteUp(recyclerView)
+                    handler.postDelayed(this, 200)
+                }
+            }
         }
-        downButton.setOnClickListener {
+        val runnableDown = object : Runnable {
+            override fun run() {
+                if (isHolding) {
+                    adapter.toggleFavoriteDown(recyclerView)
+                    handler.postDelayed(this, 200)
+                }
+            }
+        }
+
+        downButton.setOnTouchListener { _, event ->
+            when (event.action) {
+                ACTION_DOWN -> {
+                    isHolding = true
+                    handler.post(runnableUp)
+                }
+
+                ACTION_UP, ACTION_CANCEL -> {
+                    isHolding = false
+                    handler.removeCallbacks(runnableUp)
+                }
+            }
+            true
+        }
+        upButton.setOnTouchListener { _, event ->
+            when (event.action) {
+                ACTION_DOWN -> {
+                    isHolding = true
+                    handler.post(runnableDown)
+                }
+
+                ACTION_UP, ACTION_CANCEL -> {
+                    isHolding = false
+                    handler.removeCallbacks(runnableDown)
+                }
+            }
+            true
+        }
+        downButton.setOnLongClickListener {
             adapter.toggleFavoriteDown(recyclerView)
+            true
         }
         addButton.setOnClickListener {
             adapter.selectedChannel(this, recyclerView)
@@ -328,7 +378,7 @@ class PlayerActivity : AppCompatActivity() {
                 menuContainer,
             )
             recyclerView.adapter = adapter
-            seekBarPlayer.visibility=View.GONE
+            seekBarPlayer.visibility = View.GONE
 
         } catch (error: NullPointerException) {
             menuContainer.visibility = View.GONE
@@ -387,26 +437,6 @@ class PlayerActivity : AppCompatActivity() {
         playerApi = PlayerApi(this)
     }
 
-    private fun toggleMenuVisibility() {
-        if (menuContainer.visibility == View.VISIBLE) {
-            // Animer la disparition
-            menuContainer.animate()
-                .translationX(-menuContainer.width.toFloat())  // Fait glisser le menu hors écran
-                .setDuration(300)
-                .withEndAction {
-                    menuContainer.visibility = View.GONE  // Cacher après l'animation
-                }
-                .start()
-        } else {
-            // Afficher et animer l'apparition
-            menuContainer.visibility = View.VISIBLE
-            menuContainer.translationX = -menuContainer.width.toFloat()  // Commencer hors de l'écran
-            menuContainer.animate()
-                .translationX(0f)  // Faire glisser dans l'écran
-                .setDuration(300)
-                .start()
-        }
-    }
 
     override fun onStart() {
         if (playerPreferences.rememberPlayerBrightness) {

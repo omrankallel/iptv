@@ -2,11 +2,9 @@ package tn.iptv.nextplayer.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.R
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -24,25 +22,25 @@ import tn.iptv.nextplayer.listchannels.ui.theme.transparent
 
 
 @Composable
-fun OutlinedButtonIPTV (labelButton :String, onClick : () -> Unit,){
+fun OutlinedButtonIPTV(
+    labelButton: String, onClick: () -> Unit,
+    modifier: Modifier = Modifier
+        .height(40.dp)
+        .padding(horizontal = 10.dp),
+) {
 
 
     OutlinedButton(
-        modifier = Modifier
-            .height(40.dp)
-            //.width(150.dp)
-            //.fillMaxWidth()
-             .padding(horizontal = 10.dp)
-        ,
+        modifier = modifier,
         onClick = {
-            onClick ()
+            onClick()
         },
         border = BorderStroke(1.dp, backButton),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colors.primary,
-            backgroundColor = transparent
+            backgroundColor = transparent,
         ),
-        shape = RoundedCornerShape(5.dp)
+        shape = RoundedCornerShape(5.dp),
     ) {
         Text(
             text = labelButton,
@@ -52,7 +50,7 @@ fun OutlinedButtonIPTV (labelButton :String, onClick : () -> Unit,){
             textAlign = TextAlign.Center,
             color = Color.White,
             fontSize = 13.sp,
-            fontWeight = FontWeight.W600
+            fontWeight = FontWeight.W600,
         )
     }
 

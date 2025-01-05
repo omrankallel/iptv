@@ -35,6 +35,7 @@ import tn.iptv.nextplayer.domain.models.saisons.ResponseSaisonsOfSerie
 import tn.iptv.nextplayer.domain.models.saisons.SaisonItem
 import tn.iptv.nextplayer.domain.models.series.ListSeriesByCategory
 import tn.iptv.nextplayer.domain.models.series.MediaItem
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import java.io.IOException
 import java.util.Locale
 
@@ -51,6 +52,18 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * */
     override var channelSelected: MutableLiveData<Channel> = MutableLiveData(Channel())
 
+
+    /**
+     * [ChannelManager.listOfFilterCategory]
+     * */
+
+    override var listOfFilterCategory: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.selectedFilteredCategoryIndex]
+     * */
+
+    override var selectedFilteredCategoryIndex: MutableLiveData<Int> = MutableLiveData(-1)
 
     /**
      * [ChannelManager.activationCode]
@@ -550,11 +563,15 @@ class ChannelImp(private var application: Application) : ChannelManager {
                     val gson = Gson()
                     val modelResponseCategory = gson.fromJson(jsonStringResult, ResponseCategory::class.java)
                     Log.d("fetchCategoryMovies", "modelResponsePackage ${modelResponseCategory.toString()} ")
+                    listOfFilterCategory.value?.clear()
 
                     val listGroupedMovies = ArrayList<GroupedMedia>()
+                    val listCat = ArrayList<String>()
+
 
                     modelResponseCategory.forEach { cat ->
-                        Log.d("fetchCategoryMovies", "  ${cat.id}  _  ${cat.name}")
+                        Log.d("fetchCategoryMovies", "  ${cat.id}  _  ${cat.name} _  ${cat.lang}")
+                        listCat.add(AppHelper.cleanChannelName(cat.name))
                         val responseMoviesByCat = RetrofitInstance.getChannelsApi().getMoviesByCategory(cat.id.toInt(), activationCode.value!!).awaitResponse()
 
 
@@ -576,6 +593,10 @@ class ChannelImp(private var application: Application) : ChannelManager {
                         }
 
                     }
+
+                    Log.d("Omrannnnn", listCat.toString())
+                    listOfFilterCategory.value?.addAll(listCat.distinct())
+
 
                     allListGroupedMovieByCategory.value = listGroupedMovies
 

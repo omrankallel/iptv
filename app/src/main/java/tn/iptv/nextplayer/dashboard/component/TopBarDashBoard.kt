@@ -1,10 +1,10 @@
 package tn.iptv.nextplayer.dashboard.component
 
 
-
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,11 +45,13 @@ import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TopBarDashBoard(titlePage: String,
-                    drawerState: CustomDrawerState,
-                    searchValue : MutableState<String>,
-                    onSearchValueChange : (String) -> Unit,) {
-
+fun TopBarDashBoard(
+    titlePage: String,
+    drawerState: CustomDrawerState,
+    searchValue: MutableState<String>,
+    onSearchValueChange: (String) -> Unit,
+    onClickFilter: () -> Unit,
+) {
 
 
     Row(
@@ -57,7 +59,7 @@ fun TopBarDashBoard(titlePage: String,
             .fillMaxWidth()
             .height(65.dp)
 
-           // .background(back_application_start_color)
+            // .background(back_application_start_color)
             .padding(end = if (drawerState.isOpened()) 180.dp else 80.dp),
         /* colors = TopAppBarDefaults.topAppBarColors(
              containerColor = back_application_start_color
@@ -89,14 +91,26 @@ fun TopBarDashBoard(titlePage: String,
             colorBorder = backTextFiledLight,
             leadingIcon = R.drawable.ic_search,
             hint = "Search for Something",
-            modifier = Modifier.width(300.dp).height(54.dp),
+            modifier = Modifier
+                .width(300.dp)
+                .height(54.dp),
             customKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
         ) {
             searchValue.value = it
-            onSearchValueChange ( it )
+            onSearchValueChange(it)
         }
 
         Spacer(Modifier.width(10.dp))
+
+        Box(modifier = Modifier.size(50.dp), contentAlignment = Alignment.Center) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_filter),
+                contentDescription = "Filter Icon",
+                tint = White,
+                modifier = Modifier
+                    .clickable { onClickFilter() },
+            )
+        }
 
         Box(modifier = Modifier.size(50.dp),
              contentAlignment = Alignment.Center) {

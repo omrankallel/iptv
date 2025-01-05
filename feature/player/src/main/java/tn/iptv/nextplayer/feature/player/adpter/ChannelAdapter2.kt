@@ -34,7 +34,7 @@ class ChannelAdapter2(
 
     fun toggleFavoriteUp(recyclerView: RecyclerView) {
 
-        if (selectedPosition < mList.size) {
+        if (selectedPosition < mList.size - 1) {
             if (selectedPosition == -1) selectedPosition = 0
             val previousPosition = selectedPosition
             selectedPosition++;
@@ -51,7 +51,7 @@ class ChannelAdapter2(
             selectedPosition--;
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
-            recyclerView.smoothScrollToPosition(selectedPosition)
+            recyclerView.layoutManager?.smoothScrollToPosition(recyclerView, null, selectedPosition);
         }
     }
 

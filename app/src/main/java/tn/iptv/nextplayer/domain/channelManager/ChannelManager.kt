@@ -22,6 +22,17 @@ interface ChannelManager {
 
 
     /**
+     * [ChannelImp.listOfFilterCategory]
+     * */
+    var listOfFilterCategory: MutableLiveData<MutableList<String>>
+
+    /**
+     * [ChannelImp.selectedFilteredCategoryIndex]
+     * */
+    var selectedFilteredCategoryIndex: MutableLiveData<Int>
+
+
+    /**
      * [ChannelImp.channelSelected]
      * */
     var channelSelected: MutableLiveData<Channel>

@@ -20,6 +20,7 @@ import tn.iptv.nextplayer.domain.models.series.MediaItem
 class DashBoardBindingModel {
 
 
+    var showFilters: MutableState<Boolean> = mutableStateOf(false)
 
     var selectedPage  =  Page.NOTHING
     var selectedNavigationItem: MutableState<NavigationItem> = mutableStateOf(NavigationItem.Home)
