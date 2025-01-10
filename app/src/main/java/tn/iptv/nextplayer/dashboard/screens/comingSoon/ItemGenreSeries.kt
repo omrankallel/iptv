@@ -25,9 +25,14 @@ import tn.iptv.nextplayer.domain.models.series.MediaType
 import tn.iptv.nextplayer.feature.player.utils.AppHelper
 
 @Composable
-fun ItemGenreSeries(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelectMediaItem: (MediaItem) -> Unit) {
-
+fun ItemGenreSeries(
+    mediaType: MediaType,
+    groupedMediaItem: GroupedMedia,
+    onSelectMediaItem: (MediaItem) -> Unit,
+    onShowAll: (GroupedMedia) -> Unit
+) {
     val showOtherItems = rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,65 +52,19 @@ fun ItemGenreSeries(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSele
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-
-            // Show first 4 items
             items(groupedMediaItem.listSeries.take(4)) { serie ->
-
                 if (mediaType == MediaType.LIVE_TV) {
-                    ItemLiveChannel  (mediaType, serie,
-                        onSelectLiveChannel = {
-                            onSelectMediaItem(it)
-                        },
-                    )
-
+                    ItemLiveChannel(mediaType, serie, onSelectLiveChannel = { onSelectMediaItem(it) })
                 } else {
-                    ItemSeries(mediaType, serie,
-                        onSelectSerie = {
-                            onSelectMediaItem(it)
-                        },
-                    )
+                    ItemSeries(mediaType, serie, onSelectSerie = { onSelectMediaItem(it) })
                 }
-
             }
+
             if (groupedMediaItem.listSeries.size > 4) {
-                // Show "Show All" button after the first 4 items
-
-                if (showOtherItems.value.not()) {
-                    item {
-                        ItemShowAll(
-                            mediaType,
-                            onClickToShowAll = {
-                                showOtherItems.value = true
-                            },
-                        )
-                    }
+                item {
+                    ItemShowAll(mediaType, onClickToShowAll = { onShowAll(groupedMediaItem) })
                 }
-
-                if (showOtherItems.value) {
-                    items(groupedMediaItem.listSeries.drop(4)) { serie ->
-                        if (mediaType == MediaType.LIVE_TV) {
-                            ItemLiveChannel  (mediaType, serie,
-                                onSelectLiveChannel = {
-                                    onSelectMediaItem(it)
-                                },
-                            )
-
-                        } else {
-                            ItemSeries(mediaType, serie,
-                                onSelectSerie = {
-                                    onSelectMediaItem(it)
-                                },
-                            )
-                        }
-                    }
-                }
-
             }
-
         }
-
-
     }
-
-
 }

@@ -681,7 +681,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                 val modelResponseMoviesByCat = gson.fromJson(jsonStringResult, ListSeriesByCategory::class.java)
                                 Log.e("fetchCategoryLiveTV", "modelResponseLiveTVByCat ${modelResponseMoviesByCat.toString()} ")
 
-                                val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat)
+                                val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat, icon = cat.icon)
                                 listGroupedLiveTV.add(genreSeries)
 
                             }

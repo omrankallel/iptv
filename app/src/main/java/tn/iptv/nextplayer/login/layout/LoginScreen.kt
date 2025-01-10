@@ -28,7 +28,8 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess: () -> Unit, onFailure: () 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
 
     //val inputActivationCode = remember { mutableStateOf("617294811674") }
-    val inputActivationCode = remember { mutableStateOf("933555612584") }
+   // val inputActivationCode = remember { mutableStateOf("933555612584") }
+    val inputActivationCode = remember { mutableStateOf("922522917722") }
     val colorBorder = remember { mutableStateOf(backTextFiledLight) }
     val errorText = remember { mutableStateOf<String?>(null) }
     val colorTextError = remember { mutableStateOf<Color>(Color.Red) }

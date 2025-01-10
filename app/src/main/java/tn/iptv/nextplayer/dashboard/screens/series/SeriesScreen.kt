@@ -14,16 +14,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
+import tn.iptv.nextplayer.dashboard.screens.comingSoon.AllItemsScreen
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
+import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.domain.models.series.MediaType
+import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 
@@ -40,53 +45,63 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
     val selectedPackage = viewModel.bindingModel.selectedPackageOfSeries
     val groupedSeries = viewModel.bindingModel.listSeriesByCategory
     val isLoading = viewModel.bindingModel.isLoadingSeries
+    val showAllState = rememberSaveable { mutableStateOf<GroupedMedia?>(null) }
 
 
+    if (showAllState.value != null) {
+        AllItemsScreen(
+            title = AppHelper.cleanChannelName(showAllState.value!!.labelGenre),
+            mediaType = mediaType,
+            items = showAllState.value!!.listSeries,
+            onSelectMediaItem = onSelectSerie,
+            onBack = { showAllState.value = null },
+        )
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isLoading.value)
+                CircularProgressIndicator(color = borderFrame)
+            else Column {
+                Spacer(modifier = Modifier.height(10.dp))
+                if (selectedPackage.value != null) {
+                    if (listPackagesSeries != null) {
+                        PackagesLayout(
+                            selectedPackage, listPackagesSeries,
+                            onSelectPackage = { newCategorySelected ->
+                                channelManager.selectedPackageOfSeries.value = newCategorySelected
+                                channelManager.searchValue.value?.let { channelManager.fetchCategorySeriesAndSeries(it) }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (isLoading.value)
-            CircularProgressIndicator(color = borderFrame)
-        else Column {
-            Spacer(modifier = Modifier.height(10.dp))
-            if (selectedPackage.value != null) {
-                if (listPackagesSeries != null) {
-                    PackagesLayout(
-                        selectedPackage, listPackagesSeries,
-                        onSelectPackage = { newCategorySelected ->
-                            channelManager.selectedPackageOfSeries.value = newCategorySelected
-                            channelManager.searchValue.value?.let { channelManager.fetchCategorySeriesAndSeries(it) }
 
+                            },
+                        )
+                    }
+                }
 
-                        },
-                    )
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp), // Adds space between items
+                ) {
+                    items(groupedSeries.value) { groupedSer ->
+
+                        Log.e("ItemGenreSeries", "too Affich  $groupedSer")
+
+                        ItemGenreSeries(
+                            mediaType = mediaType,
+                            groupedMediaItem = groupedSer,
+                            onSelectMediaItem = { onSelectSerie(it) },
+                            onShowAll = { showAllState.value = it },
+                        )
+                    }
                 }
             }
 
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp), // Adds space between items
-            ) {
-                items(groupedSeries.value) { groupedSer ->
 
-                    Log.e("ItemGenreSeries", "too Affich  $groupedSer")
-
-                    ItemGenreSeries(
-                        mediaType, groupedSer,
-                        onSelectMediaItem = {
-                            onSelectSerie(it)
-                        },
-                    )
-                }
-            }
         }
-
-
     }
 
 

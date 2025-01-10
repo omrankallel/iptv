@@ -40,7 +40,7 @@ class ChannelAdapter2(
             selectedPosition++;
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
-            recyclerView.smoothScrollToPosition(selectedPosition)
+            recyclerView.scrollToPosition(selectedPosition)
         }
     }
 
@@ -51,7 +51,7 @@ class ChannelAdapter2(
             selectedPosition--;
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
-            recyclerView.layoutManager?.smoothScrollToPosition(recyclerView, null, selectedPosition);
+            recyclerView.scrollToPosition(selectedPosition)
         }
     }
 

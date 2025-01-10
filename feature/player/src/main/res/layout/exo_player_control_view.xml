@@ -407,26 +407,62 @@
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:background="#AA000000"
+        android:gravity="center"
         android:orientation="vertical"
         android:padding="16dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
-        <!-- Titre du menu -->
-        <TextView
-            android:id="@+id/menu_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="FRENCH"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
 
-        <!-- Liste des chaînes -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="3dp"
+                app:cardCornerRadius="40dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/img_channel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:padding="0dp"
+                    android:scaleType="centerCrop" />
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/menu_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:ellipsize="end"
+                android:gravity="start|center"
+                android:maxLines="1"
+                android:text="@string/watania_1"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                tools:text=" Watania 1"
+                tools:textColor="#000" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginVertical="5dp"
+            android:background="#FFFFFF" />
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </LinearLayout>
 
+
+    </LinearLayout>
 
 </FrameLayout>

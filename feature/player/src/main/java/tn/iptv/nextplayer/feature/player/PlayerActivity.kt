@@ -37,7 +37,9 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.WindowCompat
+import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -59,6 +61,7 @@ import androidx.media3.ui.SubtitleView
 import androidx.media3.ui.TimeBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -191,6 +194,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     private lateinit var menuContainer: LinearLayout
     private lateinit var menuTitle: TextView
+    private lateinit var imgImageChannel: AppCompatImageView
 
     private lateinit var audioTrackButton: ImageButton
     private lateinit var backButton: ImageButton
@@ -253,6 +257,7 @@ class PlayerActivity : AppCompatActivity() {
         // Initializing views
         menuContainer = binding.playerView.findViewById(R.id.menu_container)
         menuTitle = binding.playerView.findViewById(R.id.menu_title)
+        imgImageChannel = binding.playerView.findViewById(R.id.img_channel)
 
 
         audioTrackButton = binding.playerView.findViewById(R.id.btn_audio_track)
@@ -356,6 +361,7 @@ class PlayerActivity : AppCompatActivity() {
             menuContainer.visibility = View.VISIBLE
             //adjust Container  with data
             menuTitle.text = AppHelper.cleanChannelName(groupOfChannel.labelGenre)
+            Glide.with(this).load(groupOfChannel.icon).into(imgImageChannel)
 
             recyclerView = findViewById(R.id.recyclerView)
             recyclerView.layoutManager = LinearLayoutManager(this)
@@ -378,6 +384,7 @@ class PlayerActivity : AppCompatActivity() {
                 menuContainer,
             )
             recyclerView.adapter = adapter
+            recyclerView.itemAnimator = null
             seekBarPlayer.visibility = View.GONE
 
         } catch (error: NullPointerException) {

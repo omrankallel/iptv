@@ -21,8 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -38,8 +36,9 @@ import tn.iptv.nextplayer.listchannels.ui.theme.backTextFiledLight
 import tn.iptv.nextplayer.listchannels.ui.theme.gray
 import tn.iptv.nextplayer.listchannels.ui.theme.white
 import tn.iptv.nextplayer.login.layout.TextFieldItem
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
 
 
@@ -112,8 +111,10 @@ fun TopBarDashBoard(
             )
         }
 
-        Box(modifier = Modifier.size(50.dp),
-             contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.size(50.dp),
+            contentAlignment = Alignment.Center,
+        ) {
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_favorite),
@@ -122,8 +123,10 @@ fun TopBarDashBoard(
             )
 
         }
-        Box(modifier = Modifier.size(50.dp),
-            contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.size(50.dp),
+            contentAlignment = Alignment.Center,
+        ) {
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_settings),
@@ -132,8 +135,10 @@ fun TopBarDashBoard(
             )
         }
 
-        Box(modifier = Modifier.size(50.dp),
-            contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.size(50.dp),
+            contentAlignment = Alignment.Center,
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_notification),
                 contentDescription = "Notification Icon",
@@ -164,16 +169,16 @@ fun CustomSeparator() {
 @Composable
 fun DisplayDateTime() {
 
-    // Current date and time
-    val current = LocalDateTime.now()
+    val calendar = Calendar.getInstance()
+    val timeFormatter = SimpleDateFormat("h:mma", Locale.ENGLISH)
+
 
     // Formatter for time in 12-hour format with AM/PM
-    val timeFormatter = DateTimeFormatter.ofPattern("h:mma", Locale.ENGLISH)
-    val time = current.format(timeFormatter)
+    val time = timeFormatter.format(calendar.time)
 
     // Formatter for date with day, month (in French), and year
-    val dateFormatter = DateTimeFormatter.ofPattern("d, MMMM yyyy", Locale.ENGLISH)
-    val date = current.format(dateFormatter)
+    val dateFormatter = SimpleDateFormat("d, MMMM yyyy", Locale.ENGLISH)
+    val date = dateFormatter.format(calendar.time)
 
 
     Column {

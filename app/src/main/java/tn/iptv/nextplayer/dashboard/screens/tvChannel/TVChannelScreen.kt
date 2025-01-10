@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
-import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
+import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreLive
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.series.MediaItem
@@ -67,11 +67,11 @@ fun TVChannelScreen(viewModel: DashBoardViewModel, onSelectTVChannel: (GroupedMe
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp), // Adds space between items
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(groupedLiveTV.value) { groupedLiveChannel ->
                     Log.e("ItemGenreSeries", "too Affich  $groupedLiveChannel")
-                    ItemGenreSeries(
+                    ItemGenreLive(
                         mediaType, groupedLiveChannel,
                         onSelectMediaItem = {
                             onSelectTVChannel(groupedLiveChannel, it)
