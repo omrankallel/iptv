@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1f20390ef6252959d1ca2aaaca175c37",
+    "identityHash": "4c25286a9cfab55d06660bc699d15387",
     "entities": [
       {
         "tableName": "directories",
@@ -191,7 +191,7 @@
       },
       {
         "tableName": "favorite",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` TEXT NOT NULL, `name` TEXT NOT NULL, `icon` TEXT NOT NULL, `url` TEXT NOT NULL, `plot` TEXT NOT NULL, `cast` TEXT NOT NULL, `genre` TEXT NOT NULL, `date` TEXT NOT NULL, `duration` TEXT NOT NULL, `rate` TEXT NOT NULL, `age` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`itemId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` TEXT NOT NULL, `name` TEXT NOT NULL, `icon` TEXT NOT NULL, `url` TEXT NOT NULL, `plot` TEXT NOT NULL, `cast` TEXT NOT NULL, `genre` TEXT NOT NULL, `date` TEXT NOT NULL, `duration` TEXT NOT NULL, `rate` TEXT NOT NULL, `age` TEXT NOT NULL, `type` TEXT NOT NULL, `groupOFChannel` TEXT NOT NULL, PRIMARY KEY(`itemId`))",
         "fields": [
           {
             "fieldPath": "itemId",
@@ -262,6 +262,12 @@
           {
             "fieldPath": "type",
             "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupOFChannel",
+            "columnName": "groupOFChannel",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -522,7 +528,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1f20390ef6252959d1ca2aaaca175c37')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c25286a9cfab55d06660bc699d15387')"
     ]
   }
 }

@@ -31,7 +31,6 @@ fun ItemGenreSeries(
     onSelectMediaItem: (MediaItem) -> Unit,
     onShowAll: (GroupedMedia) -> Unit
 ) {
-    val showOtherItems = rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -52,7 +51,7 @@ fun ItemGenreSeries(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(groupedMediaItem.listSeries.take(4)) { serie ->
+            items(groupedMediaItem.listSeries.take(10)) { serie ->
                 if (mediaType == MediaType.LIVE_TV) {
                     ItemLiveChannel(mediaType, serie, onSelectLiveChannel = { onSelectMediaItem(it) })
                 } else {
@@ -60,7 +59,7 @@ fun ItemGenreSeries(
                 }
             }
 
-            if (groupedMediaItem.listSeries.size > 4) {
+            if (groupedMediaItem.listSeries.size > 10) {
                 item {
                     ItemShowAll(mediaType, onClickToShowAll = { onShowAll(groupedMediaItem) })
                 }

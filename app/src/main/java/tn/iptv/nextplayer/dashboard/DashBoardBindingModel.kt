@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.dashboard
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -21,6 +22,10 @@ class DashBoardBindingModel {
 
 
     var showFilters: MutableState<Boolean> = mutableStateOf(false)
+    var selectedFilteredCategoryIndex: MutableState<Int> = mutableIntStateOf(0)
+    var selectedFilteredYearIndex: MutableState<Int> = mutableIntStateOf(0)
+    var selectedFilteredGenreIndex: MutableState<Int> = mutableIntStateOf(0)
+    var selectedFilteredRatingIndex: MutableState<Int> = mutableIntStateOf(0)
 
     var selectedPage  =  Page.NOTHING
     var selectedNavigationItem: MutableState<NavigationItem> = mutableStateOf(NavigationItem.Home)

@@ -145,7 +145,7 @@ fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, f
                     if (exist) {
                         favoriteViewModel.deleteFavoriteById(serieItem.id)
                     } else {
-                        favoriteViewModel.addFavorite(serieItem.id, serieItem.name, serieItem.icon, serieItem.url, serieItem.plot, serieItem.cast, serieItem.genre, serieItem.date, "", "", "", "Series")
+                        favoriteViewModel.addFavorite(serieItem.id, serieItem.name, serieItem.icon, serieItem.url, serieItem.plot, serieItem.cast, serieItem.genre, serieItem.date, "", "", "", "Series","")
                     }
                     favoriteViewModel.isFavoriteExists(serieItem.id) { exists ->
                         exist = exists

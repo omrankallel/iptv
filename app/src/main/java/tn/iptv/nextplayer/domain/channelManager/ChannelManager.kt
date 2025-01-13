@@ -20,16 +20,40 @@ interface ChannelManager {
         const val cryptKey = "Kjr11#aq_X1M@38N+SZ2/1R44"
     }
 
+    /**
+     * [ChannelImp.listOfFilterSeriesYear]
+     * */
+    var listOfFilterSeriesYear: MutableLiveData<MutableList<String>>
+
 
     /**
-     * [ChannelImp.listOfFilterCategory]
+     * [ChannelImp.listOfFilterSeriesGenre]
      * */
-    var listOfFilterCategory: MutableLiveData<MutableList<String>>
+    var listOfFilterSeriesGenre: MutableLiveData<MutableList<String>>
+
 
     /**
-     * [ChannelImp.selectedFilteredCategoryIndex]
+     * [ChannelImp.listOfFilterSeriesRating]
      * */
-    var selectedFilteredCategoryIndex: MutableLiveData<Int>
+    var listOfFilterSeriesRating: MutableLiveData<MutableList<String>>
+
+
+    /**
+     * [ChannelImp.listOfFilterMovieYear]
+     * */
+    var listOfFilterMovieYear: MutableLiveData<MutableList<String>>
+
+
+    /**
+     * [ChannelImp.listOfFilterMovieGenre]
+     * */
+    var listOfFilterMovieGenre: MutableLiveData<MutableList<String>>
+
+
+    /**
+     * [ChannelImp.listOfFilterMovieRating]
+     * */
+    var listOfFilterMovieRating: MutableLiveData<MutableList<String>>
 
 
     /**

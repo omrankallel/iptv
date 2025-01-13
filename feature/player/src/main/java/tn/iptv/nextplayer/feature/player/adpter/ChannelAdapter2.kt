@@ -13,9 +13,11 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.feature.player.R
+import tn.iptv.nextplayer.feature.player.model.grouped_media.GroupedMedia
 import tn.iptv.nextplayer.feature.player.model.grouped_media.MediaItem
 import tn.iptv.nextplayer.feature.player.utils.AppHelper
 
@@ -27,6 +29,7 @@ class ChannelAdapter2(
     private val favoriteViewModel: FavoriteViewModel,
     private val listener: OnChannelClickListener,
     private val menuContainer: LinearLayout,
+    private val dataOfLiveChannelJsonString: String,
 
     ) : RecyclerView.Adapter<ChannelAdapter2.ViewHolder>() {
 
@@ -68,7 +71,8 @@ class ChannelAdapter2(
                     viewHolder?.txtFavorite?.text = "Ajouter aux Favoris"
                 } else {
                     viewHolder?.imgFavorite?.visibility = View.VISIBLE
-                    favoriteViewModel.addFavorite(mList[position].id, mList[position].name, mList[position].icon, mList[position].url, "", "", "", "", "", "", "", "Live TV")
+
+                    favoriteViewModel.addFavorite(mList[position].id, mList[position].name, mList[position].icon, mList[position].url, "", "", "", "", "", "", "", "Live TV", dataOfLiveChannelJsonString)
                     viewHolder?.txtFavorite?.text = "Supprimer des favoris"
                 }
                 viewHolder?.favoriteLayout?.visibility = View.GONE
@@ -94,8 +98,8 @@ class ChannelAdapter2(
             viewHolder?.favoriteLayout?.visibility = View.GONE
         } else {
             viewHolder?.favoriteLayout?.visibility = View.VISIBLE
-            if(position < mList.size) {
-                recyclerView.smoothScrollToPosition(position+1)
+            if (position < mList.size) {
+                recyclerView.smoothScrollToPosition(position + 1)
             }
         }
 
@@ -181,7 +185,7 @@ class ChannelAdapter2(
                 holder.txtFavorite.text = "Ajouter aux Favoris"
             } else {
                 holder.imgFavorite.visibility = View.VISIBLE
-                favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name, currentLiveTVChannel.icon, currentLiveTVChannel.url, "", "", "", "", "", "", "", "Live TV")
+                favoriteViewModel.addFavorite(currentLiveTVChannel.id, currentLiveTVChannel.name, currentLiveTVChannel.icon, currentLiveTVChannel.url, "", "", "", "", "", "", "", "Live TV", dataOfLiveChannelJsonString)
                 holder.txtFavorite.text = "Supprimer des favoris"
             }
             isFavorite = !isFavorite

@@ -13,4 +13,5 @@ data class Favorite(
     val duration: String,
     val rate: String,
     val age: String,
+    val groupOFChannel:String
 )

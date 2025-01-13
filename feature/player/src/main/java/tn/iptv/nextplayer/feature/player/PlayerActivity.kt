@@ -39,7 +39,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.WindowCompat
-import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -359,6 +358,10 @@ class PlayerActivity : AppCompatActivity() {
             val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
 
             menuContainer.visibility = View.VISIBLE
+            val displayMetrics = resources.displayMetrics
+            val width = (displayMetrics.widthPixels * 0.5).toInt()
+            menuContainer.layoutParams.width = width
+
             //adjust Container  with data
             menuTitle.text = AppHelper.cleanChannelName(groupOfChannel.labelGenre)
             Glide.with(this).load(groupOfChannel.icon).into(imgImageChannel)
@@ -382,8 +385,10 @@ class PlayerActivity : AppCompatActivity() {
 
                 },
                 menuContainer,
+                dataOfLiveChannelJsonString!!,
             )
             recyclerView.adapter = adapter
+            recyclerView.scrollToPosition(indexOfCurrentChannel)
             recyclerView.itemAnimator = null
             seekBarPlayer.visibility = View.GONE
 

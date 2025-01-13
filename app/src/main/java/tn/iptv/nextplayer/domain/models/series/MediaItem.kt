@@ -11,4 +11,5 @@ data class MediaItem(
     val name: String="",
     val plot: String="",
     val url: String="",
+    val rate: String="",
 )

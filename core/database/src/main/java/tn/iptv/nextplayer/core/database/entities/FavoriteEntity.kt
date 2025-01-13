@@ -21,4 +21,5 @@ data class FavoriteEntity(
     @ColumnInfo(name = "rate") val rate: String,
     @ColumnInfo(name = "age") val age: String,
     @ColumnInfo(name = "type") val type: String,
+    @ColumnInfo(name = "groupOFChannel") val groupOFChannel: String,
 )

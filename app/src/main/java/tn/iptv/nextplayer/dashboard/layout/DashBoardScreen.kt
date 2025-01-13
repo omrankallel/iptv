@@ -16,20 +16,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
@@ -48,7 +42,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
 import coil.compose.rememberAsyncImagePainter
 import com.google.gson.Gson
 import fetchString
@@ -83,6 +76,7 @@ import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.feature.player.PlayerActivity
+import tn.iptv.nextplayer.feature.player.model.grouped_media.GroupedMedia
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end2_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end_color
 import tn.iptv.nextplayer.listchannels.ui.theme.back_application_start_color
@@ -357,6 +351,7 @@ fun MainContent(
 
             TopBarDashBoard(
                 titlePage = titlePage, drawerState = drawerState, searchValue = searchValueInitial,
+                selectedNavigationItem = selectedNavigationItem,
                 onSearchValueChange = { searchVal ->
                     Log.d("dashBord", "onSearchValueChange $searchVal ")
                     channelManager.searchValue.value = searchVal
@@ -395,207 +390,173 @@ fun MainContent(
 
                 ) {
 
-                if (viewModel.bindingModel.showFilters.value)
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        if (channelManager.listOfFilterCategory.value != null)
-                            FlowRow(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                            ) {
-                                channelManager.listOfFilterCategory.value!!.forEachIndexed { index, category ->
-                                    Button(
-                                        onClick = { channelManager.selectedFilteredCategoryIndex.value = index },
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .background(color = Color(0xFFB4A1FB))
-                                            .wrapContentSize(),
-                                        colors =  ButtonColors(
-                                            contentColor = Color(0xFFB4A1FB),
-                                            containerColor = Color(0xFFB4A1FB),
-                                            disabledContainerColor = Color(0xFFB4A1FB),
-                                            disabledContentColor = Color(0xFFB4A1FB),
-                                        )
-                                    ) {
-                                        Text(
-                                            text = category,
-                                            color = if (channelManager.selectedFilteredCategoryIndex.value == index) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface
-                                            },
-                                        )
-                                    }
+                when (selectedNavigationItem) {
+
+                    Home -> {
+                        HomeScreen(
+                            viewModel,
+                            onSelectPackage = { tvChannelSelected ->
+                                Log.d("dashBoard", "tvChannelSelected --> ${tvChannelSelected.toString()}")
+                                channelManager.homeSelected.value = tvChannelSelected
+                                channelManager.fetchPackages()
+
+                            },
+                        )
+                    }
+
+                    TVChannels -> {
+                        viewModel.bindingModel.selectedPage = Page.TV_CHANNEL
+
+                        TVChannelScreen(
+                            viewModel,
+                            onSelectTVChannel = { groupOFChannel, tvChannelSelected ->
+
+                                Log.d("dashBoard_onSelTVCha", "GroupOFChannel --> ${groupOFChannel.toString()}")
+                                Log.d("dashBoard_onSelTVCha", "tvChannelSelected --> ${tvChannelSelected.toString()}")
+
+                                val indexOfChannel = groupOFChannel.listSeries.indexOf(tvChannelSelected)
+                                Log.d("dashBoard_onSelTVCha", "indexOfChannel --> $indexOfChannel")
+
+                                // openUrlWithVLC(app, tvChannelSelected.url)
+
+                                // Serialize GroupedMedia object to JSON string
+                                val gson = Gson()
+                                val jsonStringGroupOFChannel = gson.toJson(groupOFChannel)
+
+                                try {
+
+                                    val intent = Intent(app, PlayerActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
+                                    intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
+                                    intent.data = Uri.parse(tvChannelSelected.url)
+                                    Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
+                                    app.startActivity(intent)
+
+
+                                } catch (error: Exception) {
+                                    Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
                                 }
-                            }
 
-                    } else {
-                    when (selectedNavigationItem) {
 
-                        Home -> {
-                            HomeScreen(
-                                viewModel,
-                                onSelectPackage = { tvChannelSelected ->
-                                    Log.d("dashBoard", "tvChannelSelected --> ${tvChannelSelected.toString()}")
-                                    channelManager.homeSelected.value = tvChannelSelected
-                                    channelManager.fetchPackages()
+                                /*try {
 
-                                },
-                            )
-                        }
+                                    val intent = Intent(app, PlayerActivity::class.java)
+                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
-                        TVChannels -> {
-                            viewModel.bindingModel.selectedPage = Page.TV_CHANNEL
+                                    intent.putExtra("GROUP_OF_CHANNEL",jsonStringGroupOFChannel)
+                                    intent.data = Uri.parse(tvChannelSelected.url)
+                                    Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
+                                    app.startActivity(intent)
 
-                            TVChannelScreen(
-                                viewModel,
-                                onSelectTVChannel = { groupOFChannel, tvChannelSelected ->
 
-                                    Log.d("dashBoard_onSelTVCha", "GroupOFChannel --> ${groupOFChannel.toString()}")
-                                    Log.d("dashBoard_onSelTVCha", "tvChannelSelected --> ${tvChannelSelected.toString()}")
+                                } catch (error: Exception) {
+                                    Toast.makeText(app, "Error While loading your Channel TV , Please try again", Toast.LENGTH_LONG).show()
+                                }
+                                */
 
-                                    val indexOfChannel = groupOFChannel.listSeries.indexOf(tvChannelSelected)
-                                    Log.d("dashBoard_onSelTVCha", "indexOfChannel --> $indexOfChannel")
+                            },
+                        )
+                        viewModel.bindingModel.selectedSerie.value = MediaItem()
+                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+                    }
 
-                                    // openUrlWithVLC(app, tvChannelSelected.url)
+                    Series -> {
+                        viewModel.bindingModel.selectedPage = Page.SERIES
 
-                                    // Serialize GroupedMedia object to JSON string
-                                    val gson = Gson()
-                                    val jsonStringGroupOFChannel = gson.toJson(groupOFChannel)
 
+                        SeriesScreen(
+                            viewModel,
+                            onSelectSerie = { serieSelected ->
+                                //  SerieDetailsScreen()
+                                onShowScreenDetailSerie(serieSelected)
+                            },
+                        )
+                        viewModel.bindingModel.selectedSerie.value = MediaItem()
+                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+                    }
+
+                    DetailSeries -> {
+                        viewModel.bindingModel.selectedPage = Page.NOTHING
+                        SerieDetailsScreen(viewModel, favoriteViewModel)
+                    }
+
+                    Movies -> {
+                        viewModel.bindingModel.selectedPage = Page.MOVIES
+
+                        MoviesScreen(
+                            viewModel,
+                            onSelectMovie = { movieSelected ->
+                                onShowScreenDetailMovie(movieSelected)
+                            },
+                        )
+
+                        viewModel.bindingModel.selectedSerie.value = MediaItem()
+                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+                    }
+
+                    DetailMovies -> {
+                        viewModel.bindingModel.selectedPage = Page.NOTHING
+                        MovieDetailScreen(viewModel, favoriteViewModel)
+                    }
+
+                    Favorite -> {
+                        FavoriteScreen(
+                            viewModel,
+                            onSelectFavorite = {
+                                if (it.type == "Series") {
+                                    val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                    onShowScreenDetailSerie(serieSelected)
+                                } else if (it.type == "Movies") {
+                                    val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                    onShowScreenDetailMovie(movieSelected)
+                                } else if (it.type == "Live TV") {
+                                    val mediaItem = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
                                     try {
+                                        val gson = Gson()
+                                        val groupOfChannel: GroupedMedia = gson.fromJson(it.groupOFChannel, GroupedMedia::class.java)
+                                        val indexOfChannel = groupOfChannel.listSeries.indexOfFirst { serie ->
+                                            serie.id == it.itemId
+                                        }
 
                                         val intent = Intent(app, PlayerActivity::class.java)
                                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
+                                        intent.putExtra("GROUP_OF_CHANNEL", it.groupOFChannel)
                                         intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
-                                        intent.data = Uri.parse(tvChannelSelected.url)
-                                        Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
+                                        intent.data = Uri.parse(mediaItem.url)
                                         app.startActivity(intent)
 
 
                                     } catch (error: Exception) {
                                         Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
                                     }
-
-
-                                    /*try {
-
-                                        val intent = Intent(app, PlayerActivity::class.java)
-                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-                                        intent.putExtra("GROUP_OF_CHANNEL",jsonStringGroupOFChannel)
-                                        intent.data = Uri.parse(tvChannelSelected.url)
-                                        Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
-                                        app.startActivity(intent)
-
-
-                                    } catch (error: Exception) {
-                                        Toast.makeText(app, "Error While loading your Channel TV , Please try again", Toast.LENGTH_LONG).show()
-                                    }
-                                    */
-
-                                },
-                            )
-                            viewModel.bindingModel.selectedSerie.value = MediaItem()
-                            viewModel.bindingModel.selectedMovie.value = MediaItem()
-                        }
-
-                        Series -> {
-                            viewModel.bindingModel.selectedPage = Page.SERIES
-
-
-                            SeriesScreen(
-                                viewModel,
-                                onSelectSerie = { serieSelected ->
-                                    //  SerieDetailsScreen()
-                                    onShowScreenDetailSerie(serieSelected)
-                                },
-                            )
-                            viewModel.bindingModel.selectedSerie.value = MediaItem()
-                            viewModel.bindingModel.selectedMovie.value = MediaItem()
-                        }
-
-                        DetailSeries -> {
-                            viewModel.bindingModel.selectedPage = Page.NOTHING
-                            SerieDetailsScreen(viewModel, favoriteViewModel)
-                        }
-
-                        Movies -> {
-                            viewModel.bindingModel.selectedPage = Page.MOVIES
-
-                            MoviesScreen(
-                                viewModel,
-                                onSelectMovie = { movieSelected ->
-                                    onShowScreenDetailMovie(movieSelected)
-                                },
-                            )
-
-                            viewModel.bindingModel.selectedSerie.value = MediaItem()
-                            viewModel.bindingModel.selectedMovie.value = MediaItem()
-                        }
-
-                        DetailMovies -> {
-                            viewModel.bindingModel.selectedPage = Page.NOTHING
-                            MovieDetailScreen(viewModel, favoriteViewModel)
-                        }
-
-                        Favorite -> {
-                            FavoriteScreen(
-                                viewModel,
-                                onSelectFavorite = {
-                                    if (it.type == "Series") {
-                                        val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        onShowScreenDetailSerie(serieSelected)
-                                    } else if (it.type == "Movies") {
-                                        val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        onShowScreenDetailMovie(movieSelected)
-                                    } else if (it.type == "Live TV") {
-                                        val indexOfChannel = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        try {
-
-                                            val intent = Intent(app, PlayerActivity::class.java)
-                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                            //intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
-                                            // intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
-                                            intent.data = Uri.parse(indexOfChannel.url)
-                                            app.startActivity(intent)
-
-
-                                        } catch (error: Exception) {
-                                            Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
-                                        }
-                                    }
-                                },
-                            )
-                        }
-
-                        Settings -> {
-                            viewModel.bindingModel.selectedPage = Page.NOTHING
-                            SettingsScreen()
-                            viewModel.bindingModel.selectedSerie.value = MediaItem()
-                            viewModel.bindingModel.selectedMovie.value = MediaItem()
-                        }
-
-                        Logout -> {
-
-                            PreferencesHelper.logoutUser(context)
-                            favoriteViewModel.deleteAllFavorite()
-                            viewModel.bindingModel.selectedPage = Page.NOTHING
-                            viewModel.bindingModel.selectedSerie.value = MediaItem()
-                            viewModel.bindingModel.selectedMovie.value = MediaItem()
-
-
-                            val intent = Intent(context, LoginActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            context.startActivity(intent)
-                        }
-
-
+                                }
+                            },
+                        )
                     }
+
+                    Settings -> {
+                        viewModel.bindingModel.selectedPage = Page.NOTHING
+                        SettingsScreen()
+                        viewModel.bindingModel.selectedSerie.value = MediaItem()
+                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+                    }
+
+                    Logout -> {
+
+                        PreferencesHelper.logoutUser(context)
+                        favoriteViewModel.deleteAllFavorite()
+                        viewModel.bindingModel.selectedPage = Page.NOTHING
+                        viewModel.bindingModel.selectedSerie.value = MediaItem()
+                        viewModel.bindingModel.selectedMovie.value = MediaItem()
+
+
+                        val intent = Intent(context, LoginActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        context.startActivity(intent)
+                    }
+
+
                 }
             }
 

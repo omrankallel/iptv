@@ -31,14 +31,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
 import tn.iptv.nextplayer.dashboard.customdrawer.model.isOpened
 import tn.iptv.nextplayer.listchannels.ui.theme.backTextFiledLight
 import tn.iptv.nextplayer.listchannels.ui.theme.gray
 import tn.iptv.nextplayer.listchannels.ui.theme.white
 import tn.iptv.nextplayer.login.layout.TextFieldItem
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.util.Calendar
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
@@ -47,6 +49,7 @@ import java.util.Locale
 fun TopBarDashBoard(
     titlePage: String,
     drawerState: CustomDrawerState,
+    selectedNavigationItem: NavigationItem,
     searchValue: MutableState<String>,
     onSearchValueChange: (String) -> Unit,
     onClickFilter: () -> Unit,
@@ -101,14 +104,16 @@ fun TopBarDashBoard(
 
         Spacer(Modifier.width(10.dp))
 
-        Box(modifier = Modifier.size(50.dp), contentAlignment = Alignment.Center) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_filter),
-                contentDescription = "Filter Icon",
-                tint = White,
-                modifier = Modifier
-                    .clickable { onClickFilter() },
-            )
+        if (selectedNavigationItem == Series || selectedNavigationItem == Movies) {
+            Box(modifier = Modifier.size(50.dp), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_filter),
+                    contentDescription = "Filter Icon",
+                    tint = White,
+                    modifier = Modifier
+                        .clickable { onClickFilter() },
+                )
+            }
         }
 
         Box(
@@ -169,16 +174,16 @@ fun CustomSeparator() {
 @Composable
 fun DisplayDateTime() {
 
-    val calendar = Calendar.getInstance()
-    val timeFormatter = SimpleDateFormat("h:mma", Locale.ENGLISH)
-
+    // Current date and time
+    val current = LocalDateTime.now()
 
     // Formatter for time in 12-hour format with AM/PM
-    val time = timeFormatter.format(calendar.time)
+    val timeFormatter = DateTimeFormatter.ofPattern("h:mma", Locale.ENGLISH)
+    val time = current.format(timeFormatter)
 
     // Formatter for date with day, month (in French), and year
-    val dateFormatter = SimpleDateFormat("d, MMMM yyyy", Locale.ENGLISH)
-    val date = dateFormatter.format(calendar.time)
+    val dateFormatter = DateTimeFormatter.ofPattern("d, MMMM yyyy", Locale.ENGLISH)
+    val date = current.format(dateFormatter)
 
 
     Column {

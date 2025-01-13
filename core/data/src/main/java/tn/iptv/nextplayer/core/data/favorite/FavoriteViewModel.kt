@@ -17,10 +17,10 @@ class FavoriteViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
 ) : ViewModel() {
 
-    fun addFavorite(itemId: String, name: String, icon: String, url: String, plot: String, cast: String, genre: String, date: String, duration: String, rate: String, age: String, type: String) {
+    fun addFavorite(itemId: String, name: String, icon: String, url: String, plot: String, cast: String, genre: String, date: String, duration: String, rate: String, age: String, type: String, groupOFChannel: String) {
 
         viewModelScope.launch {
-            favoriteRepository.addFavorite(FavoriteEntity(itemId, name, icon, url, plot, cast, genre, date, duration, rate, age, type))
+            favoriteRepository.addFavorite(FavoriteEntity(itemId, name, icon, url, plot, cast, genre, date, duration, rate, age, type,groupOFChannel))
         }
     }
 
@@ -41,7 +41,7 @@ class FavoriteViewModel @Inject constructor(
         return favoriteRepository.getAllFavorite()
             .map { entityList ->
                 entityList.map { entity ->
-                    Favorite(itemId = entity.itemId, name = entity.name, icon = entity.icon, url = entity.url, plot = entity.plot, cast = entity.cast, genre = entity.genre, date = entity.date, duration = entity.duration, rate = entity.rate, age = entity.age, type = entity.type)
+                    Favorite(itemId = entity.itemId, name = entity.name, icon = entity.icon, url = entity.url, plot = entity.plot, cast = entity.cast, genre = entity.genre, date = entity.date, duration = entity.duration, rate = entity.rate, age = entity.age, type = entity.type, groupOFChannel = entity.groupOFChannel)
                 }
             }.first()
     }
@@ -50,7 +50,7 @@ class FavoriteViewModel @Inject constructor(
         return favoriteRepository.getAllFavoriteByType(type)
             .map { entityList ->
                 entityList.map { entity ->
-                    Favorite(itemId = entity.itemId, name = entity.name, icon = entity.icon, url = entity.url, plot = entity.plot, cast = entity.cast, genre = entity.genre, date = entity.date, duration = entity.duration, rate = entity.rate, age = entity.age, type = entity.type)
+                    Favorite(itemId = entity.itemId, name = entity.name, icon = entity.icon, url = entity.url, plot = entity.plot, cast = entity.cast, genre = entity.genre, date = entity.date, duration = entity.duration, rate = entity.rate, age = entity.age, type = entity.type, groupOFChannel = entity.groupOFChannel)
                 }
             }.first()
     }

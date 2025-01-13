@@ -35,7 +35,6 @@ import tn.iptv.nextplayer.domain.models.saisons.ResponseSaisonsOfSerie
 import tn.iptv.nextplayer.domain.models.saisons.SaisonItem
 import tn.iptv.nextplayer.domain.models.series.ListSeriesByCategory
 import tn.iptv.nextplayer.domain.models.series.MediaItem
-import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import java.io.IOException
 import java.util.Locale
 
@@ -47,6 +46,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
     private var scopeIO = CoroutineScope(Dispatchers.IO)
     private var scopeMain = CoroutineScope(Dispatchers.Main)
 
+
     /**
      * [ChannelManager.channelSelected]
      * */
@@ -54,16 +54,44 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
 
     /**
-     * [ChannelManager.listOfFilterCategory]
+     * [ChannelManager.listOfFilterSeriesYear]
      * */
 
-    override var listOfFilterCategory: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+    override var listOfFilterSeriesYear: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
 
     /**
-     * [ChannelManager.selectedFilteredCategoryIndex]
+     * [ChannelManager.listOfFilterSeriesGenre]
      * */
 
-    override var selectedFilteredCategoryIndex: MutableLiveData<Int> = MutableLiveData(-1)
+    override var listOfFilterSeriesGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.listOfFilterSeriesRating]
+     * */
+
+    override var listOfFilterSeriesRating: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
+
+    /**
+     * [ChannelManager.listOfFilterMovieYear]
+     * */
+
+    override var listOfFilterMovieYear: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
+
+    /**
+     * [ChannelManager.listOfFilterMovieGenre]
+     * */
+
+    override var listOfFilterMovieGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.listOfFilterMovieRating]
+     * */
+
+    override var listOfFilterMovieRating: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+
 
     /**
      * [ChannelManager.activationCode]
@@ -482,6 +510,23 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                     val listGroupedSeries = ArrayList<GroupedMedia>()
 
+                    listOfFilterMovieYear.value?.clear()
+                    listOfFilterMovieGenre.value?.clear()
+                    listOfFilterMovieRating.value?.clear()
+
+
+                    val listYear = ArrayList<String>()
+                    listYear.add("Tous")
+
+
+                    val listGenre = ArrayList<String>()
+                    listGenre.add("Tous")
+
+                    val listRating = ArrayList<String>()
+                    listRating.add("Tous")
+
+
+
                     modelResponseCategory.forEach { cat ->
                         Log.d("fetchCategorySeries", "  ${cat.id}  _  ${cat.name}")
                         val responseSeriesByCat = RetrofitInstance.getChannelsApi().getSeriesByCategory(cat.id.toInt(), activationCode.value!!).awaitResponse()
@@ -500,10 +545,25 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                                 val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseSeriesByCat)
                                 listGroupedSeries.add(genreSeries)
+                                listGroupedSeries.forEach { item ->
+                                    item.listSeries.forEach { mediaItem ->
+                                        if (mediaItem.date.isNotEmpty())
+                                            listYear.add(mediaItem.date.split("-")[0])
+                                        if (mediaItem.genre.isNotEmpty())
+                                            listGenre.add(mediaItem.genre)
+                                        if (mediaItem.rate.isNotEmpty())
+                                            listRating.add(mediaItem.rate)
+                                    }
+                                }
 
                             }
                         }
                     }
+
+                    listOfFilterSeriesYear.value?.addAll(listYear.distinct().sortedByDescending { it })
+                    listOfFilterSeriesGenre.value?.addAll(listGenre.distinct().sortedByDescending { it })
+                    listOfFilterSeriesRating.value?.addAll(listRating.distinct().sortedByDescending { it })
+
 
                     allListGroupedSeriesByCategory.value = listGroupedSeries
 
@@ -563,15 +623,24 @@ class ChannelImp(private var application: Application) : ChannelManager {
                     val gson = Gson()
                     val modelResponseCategory = gson.fromJson(jsonStringResult, ResponseCategory::class.java)
                     Log.d("fetchCategoryMovies", "modelResponsePackage ${modelResponseCategory.toString()} ")
-                    listOfFilterCategory.value?.clear()
+                    listOfFilterMovieYear.value?.clear()
+                    listOfFilterMovieGenre.value?.clear()
+                    listOfFilterMovieRating.value?.clear()
 
                     val listGroupedMovies = ArrayList<GroupedMedia>()
-                    val listCat = ArrayList<String>()
 
+                    val listYear = ArrayList<String>()
+                    listYear.add("Tous")
+
+
+                    val listGenre = ArrayList<String>()
+                    listGenre.add("Tous")
+
+                    val listRating = ArrayList<String>()
+                    listRating.add("Tous")
 
                     modelResponseCategory.forEach { cat ->
                         Log.d("fetchCategoryMovies", "  ${cat.id}  _  ${cat.name} _  ${cat.lang}")
-                        listCat.add(AppHelper.cleanChannelName(cat.name))
                         val responseMoviesByCat = RetrofitInstance.getChannelsApi().getMoviesByCategory(cat.id.toInt(), activationCode.value!!).awaitResponse()
 
 
@@ -589,13 +658,29 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                 val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat)
                                 listGroupedMovies.add(genreSeries)
 
+                                listGroupedMovies.forEach { item ->
+                                    item.listSeries.forEach { mediaItem ->
+                                        if (mediaItem.date.isNotEmpty())
+                                            listYear.add(mediaItem.date.split("-")[0])
+                                        if (mediaItem.genre.isNotEmpty()) {
+                                            listGenre.add(mediaItem.genre)
+                                            listGenre.toSet().toList()
+                                        }
+                                        if (mediaItem.rate.isNotEmpty())
+                                            listRating.add(mediaItem.rate)
+                                    }
+                                }
+
                             }
                         }
 
                     }
+                    val genres = processGenres(listGenre)
 
-                    Log.d("Omrannnnn", listCat.toString())
-                    listOfFilterCategory.value?.addAll(listCat.distinct())
+
+                    listOfFilterMovieYear.value?.addAll(listYear.distinct().sortedByDescending { it })
+                    listOfFilterMovieGenre.value?.addAll(genres.distinct().sortedByDescending { it })
+                    listOfFilterMovieRating.value?.addAll(listRating.distinct().sortedByDescending { it })
 
 
                     allListGroupedMovieByCategory.value = listGroupedMovies
@@ -611,6 +696,15 @@ class ChannelImp(private var application: Application) : ChannelManager {
             }
         }
 
+    }
+    fun processGenres(genres: List<String>): List<String> {
+        return genres
+            .flatMap { it.split(",") } // Divise chaque chaîne en plusieurs genres
+            .map { it.trim() }         // Supprime les espaces autour de chaque genre
+            .filter { it.isNotEmpty() } // Retire les genres vides
+            .toSet()                   // Supprime les doublons
+            .toList()                  // Convertit en liste
+            .sorted()                  // (Facultatif) Trie les genres
     }
 
 
@@ -681,7 +775,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                 val modelResponseMoviesByCat = gson.fromJson(jsonStringResult, ListSeriesByCategory::class.java)
                                 Log.e("fetchCategoryLiveTV", "modelResponseLiveTVByCat ${modelResponseMoviesByCat.toString()} ")
 
-                                val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat, icon = cat.icon)
+                                val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat)
                                 listGroupedLiveTV.add(genreSeries)
 
                             }

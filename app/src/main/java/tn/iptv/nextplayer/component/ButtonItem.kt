@@ -22,50 +22,49 @@ import tn.iptv.nextplayer.listchannels.ui.theme.backButton
 import tn.iptv.nextplayer.listchannels.ui.theme.colorTextButton
 
 
+@Composable
+fun ButtonItem(
+    enabled: Boolean = true,
+    label: String = "Next",
+    sizeText: TextUnit = 18.sp,
+    shape: Dp = 10.dp,
+    paddingHorizontal: Dp = 100.dp,
+    modifier: Modifier = Modifier
+        .padding(horizontal = paddingHorizontal)
+        .height(50.dp),
+    modifierText: Modifier = Modifier
+        .fillMaxWidth()
+        .background(color = Color.Transparent),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        backgroundColor = backButton,
+    ),
+    onClick: () -> Unit,
+) {
 
-    @Composable
-    fun ButtonItem(
-        enabled: Boolean = true,
-        label: String = "Next",
-        sizeText: TextUnit = 18.sp,
-        shape : Dp = 10.dp,
-        paddingHorizontal: Dp = 100.dp,
-        modifier: Modifier = Modifier
-            .padding(horizontal = paddingHorizontal)
-            .height(50.dp),
-        colors: ButtonColors = ButtonDefaults.buttonColors(
-            backgroundColor =  backButton,
-      ),
-        onClick: () -> Unit
+
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier,
+        shape = RoundedCornerShape(shape),
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            disabledElevation = 0.dp,
+        ),
+        colors = colors,
     ) {
+        Text(
+            text = label,
+            modifier = modifierText,
+            textAlign = TextAlign.Center,
+            color = colorTextButton,
+            fontSize = sizeText,
+            fontWeight = FontWeight.W600,
+        )
+    }
 
-
-
-            Button(
-                onClick = onClick,
-                enabled = enabled,
-                modifier = modifier ,
-                shape = RoundedCornerShape(shape),
-                elevation = ButtonDefaults.elevation(
-                    defaultElevation = 0.dp,
-                    pressedElevation = 0.dp,
-                    disabledElevation = 0.dp
-                ),
-                colors = colors
-            ) {
-                Text(
-                    text = label,
-                    Modifier
-                        .fillMaxWidth()
-                        .background(color = Color.Transparent),
-                    textAlign = TextAlign.Center,
-                    color =  colorTextButton,
-                    fontSize = sizeText,
-                    fontWeight = FontWeight.W600
-                )
-            }
-
-        }
+}
 
 
 

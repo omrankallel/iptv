@@ -27,6 +27,9 @@ fun OutlinedButtonIPTV(
     modifier: Modifier = Modifier
         .height(40.dp)
         .padding(horizontal = 10.dp),
+    modifierText: Modifier = Modifier
+        .fillMaxWidth()
+        .background(color = Color.Transparent),
 ) {
 
 
@@ -44,9 +47,7 @@ fun OutlinedButtonIPTV(
     ) {
         Text(
             text = labelButton,
-            Modifier
-                .fillMaxWidth()
-                .background(color = Color.Transparent),
+            modifier = modifierText,
             textAlign = TextAlign.Center,
             color = Color.White,
             fontSize = 13.sp,

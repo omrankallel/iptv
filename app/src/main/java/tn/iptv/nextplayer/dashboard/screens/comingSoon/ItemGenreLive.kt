@@ -2,7 +2,6 @@ package tn.iptv.nextplayer.dashboard.screens.comingSoon
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,7 +55,7 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
         ) {
 
             // Show first 4 items
-            items(groupedMediaItem.listSeries.take(4)) { serie ->
+            items(groupedMediaItem.listSeries.take(10)) { serie ->
 
                 ItemLiveChannel(
                     mediaType, serie,
@@ -67,7 +66,7 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
 
 
             }
-            if (groupedMediaItem.listSeries.size > 4) {
+            if (groupedMediaItem.listSeries.size > 10) {
 
                 if (showOtherItems.value.not()) {
                     item {
@@ -101,7 +100,7 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
                 }
 
                 if (showOtherItems.value) {
-                    items(groupedMediaItem.listSeries.drop(4)) { serie ->
+                    items(groupedMediaItem.listSeries.drop(10)) { serie ->
                         ItemLiveChannel(
                             mediaType, serie,
                             onSelectLiveChannel = {
