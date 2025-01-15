@@ -66,12 +66,6 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
     override var listOfFilterSeriesGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
 
-    /**
-     * [ChannelManager.listOfFilterSeriesRating]
-     * */
-
-    override var listOfFilterSeriesRating: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
-
 
     /**
      * [ChannelManager.listOfFilterMovieYear]
@@ -85,12 +79,6 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * */
 
     override var listOfFilterMovieGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
-
-    /**
-     * [ChannelManager.listOfFilterMovieRating]
-     * */
-
-    override var listOfFilterMovieRating: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
 
 
     /**
@@ -512,18 +500,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                     listOfFilterMovieYear.value?.clear()
                     listOfFilterMovieGenre.value?.clear()
-                    listOfFilterMovieRating.value?.clear()
 
 
                     val listYear = ArrayList<String>()
-                    listYear.add("Tous")
-
-
                     val listGenre = ArrayList<String>()
-                    listGenre.add("Tous")
 
-                    val listRating = ArrayList<String>()
-                    listRating.add("Tous")
+
 
 
 
@@ -549,10 +531,11 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                     item.listSeries.forEach { mediaItem ->
                                         if (mediaItem.date.isNotEmpty())
                                             listYear.add(mediaItem.date.split("-")[0])
-                                        if (mediaItem.genre.isNotEmpty())
+                                        if (mediaItem.genre.isNotEmpty()) {
                                             listGenre.add(mediaItem.genre)
-                                        if (mediaItem.rate.isNotEmpty())
-                                            listRating.add(mediaItem.rate)
+                                            listGenre.toSet().toList()
+                                        }
+
                                     }
                                 }
 
@@ -560,9 +543,13 @@ class ChannelImp(private var application: Application) : ChannelManager {
                         }
                     }
 
+                    val genres = processGenres(listGenre)
+
                     listOfFilterSeriesYear.value?.addAll(listYear.distinct().sortedByDescending { it })
-                    listOfFilterSeriesGenre.value?.addAll(listGenre.distinct().sortedByDescending { it })
-                    listOfFilterSeriesRating.value?.addAll(listRating.distinct().sortedByDescending { it })
+                    listOfFilterSeriesGenre.value?.addAll(genres.distinct().sortedByDescending { it })
+                    listOfFilterSeriesYear.value!!.add(0, "Tous")
+                    listOfFilterSeriesGenre.value!!.add(0, "Tous")
+
 
 
                     allListGroupedSeriesByCategory.value = listGroupedSeries
@@ -625,19 +612,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
                     Log.d("fetchCategoryMovies", "modelResponsePackage ${modelResponseCategory.toString()} ")
                     listOfFilterMovieYear.value?.clear()
                     listOfFilterMovieGenre.value?.clear()
-                    listOfFilterMovieRating.value?.clear()
 
                     val listGroupedMovies = ArrayList<GroupedMedia>()
 
                     val listYear = ArrayList<String>()
-                    listYear.add("Tous")
-
-
                     val listGenre = ArrayList<String>()
-                    listGenre.add("Tous")
 
-                    val listRating = ArrayList<String>()
-                    listRating.add("Tous")
 
                     modelResponseCategory.forEach { cat ->
                         Log.d("fetchCategoryMovies", "  ${cat.id}  _  ${cat.name} _  ${cat.lang}")
@@ -666,8 +646,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                             listGenre.add(mediaItem.genre)
                                             listGenre.toSet().toList()
                                         }
-                                        if (mediaItem.rate.isNotEmpty())
-                                            listRating.add(mediaItem.rate)
+
                                     }
                                 }
 
@@ -678,9 +657,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
                     val genres = processGenres(listGenre)
 
 
+
+
                     listOfFilterMovieYear.value?.addAll(listYear.distinct().sortedByDescending { it })
                     listOfFilterMovieGenre.value?.addAll(genres.distinct().sortedByDescending { it })
-                    listOfFilterMovieRating.value?.addAll(listRating.distinct().sortedByDescending { it })
+                    listOfFilterMovieGenre.value!!.add(0, "Tous")
+                    listOfFilterMovieYear.value!!.add(0, "Tous")
 
 
                     allListGroupedMovieByCategory.value = listGroupedMovies
@@ -697,6 +679,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
         }
 
     }
+
     fun processGenres(genres: List<String>): List<String> {
         return genres
             .flatMap { it.split(",") } // Divise chaque chaîne en plusieurs genres

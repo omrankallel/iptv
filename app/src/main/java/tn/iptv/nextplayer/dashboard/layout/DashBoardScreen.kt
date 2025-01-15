@@ -463,6 +463,12 @@ fun MainContent(
 
                     Series -> {
                         viewModel.bindingModel.selectedPage = Page.SERIES
+                        viewModel.bindingModel.selectedFilteredYear.value = "Tous"
+                        viewModel.bindingModel.selectedFilteredGenre.value = "Tous"
+                        channelManager.listOfFilterSeriesYear.value!!.clear()
+                        channelManager.listOfFilterSeriesGenre.value!!.clear()
+                        channelManager.listOfFilterMovieYear.value!!.clear()
+                        channelManager.listOfFilterMovieGenre.value!!.clear()
 
 
                         SeriesScreen(
@@ -483,6 +489,13 @@ fun MainContent(
 
                     Movies -> {
                         viewModel.bindingModel.selectedPage = Page.MOVIES
+                        viewModel.bindingModel.selectedFilteredYear.value = "Tous"
+                        viewModel.bindingModel.selectedFilteredGenre.value = "Tous"
+                        channelManager.listOfFilterSeriesYear.value!!.clear()
+                        channelManager.listOfFilterSeriesGenre.value!!.clear()
+                        channelManager.listOfFilterMovieYear.value!!.clear()
+                        channelManager.listOfFilterMovieGenre.value!!.clear()
+
 
                         MoviesScreen(
                             viewModel,

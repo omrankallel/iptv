@@ -56,6 +56,7 @@ class DashBoardViewModel : BaseViewModel() {
 
         channelManager.listGroupedMovieByCategory.observeForever {
             bindingModel.listMoviesByCategory.value = it
+            bindingModel.listMoviesByCategoryFiltered.value = it
         }
 
         channelManager.selectedPackageOfMovies.observeForever {
@@ -89,6 +90,7 @@ class DashBoardViewModel : BaseViewModel() {
 
         channelManager.listGroupedSeriesByCategory.observeForever {
             bindingModel.listSeriesByCategory.value = it
+            bindingModel.listSeriesByCategoryFiltered.value = it
         }
 
         channelManager.seriesIsLoading.observeForever {

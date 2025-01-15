@@ -159,7 +159,7 @@ Box (
                         Spacer(modifier = Modifier.width(2.dp))
 
                         Text(
-                            text =  "8.9" ,// movieModel.rating   ,
+                            text =  seriesItem.rate ,// movieModel.rating   ,
                             fontSize =10.sp,
                             fontWeight = FontWeight.Medium,
                             maxLines = 2,

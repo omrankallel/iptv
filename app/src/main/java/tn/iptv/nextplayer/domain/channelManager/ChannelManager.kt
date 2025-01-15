@@ -32,11 +32,6 @@ interface ChannelManager {
     var listOfFilterSeriesGenre: MutableLiveData<MutableList<String>>
 
 
-    /**
-     * [ChannelImp.listOfFilterSeriesRating]
-     * */
-    var listOfFilterSeriesRating: MutableLiveData<MutableList<String>>
-
 
     /**
      * [ChannelImp.listOfFilterMovieYear]
@@ -49,11 +44,6 @@ interface ChannelManager {
      * */
     var listOfFilterMovieGenre: MutableLiveData<MutableList<String>>
 
-
-    /**
-     * [ChannelImp.listOfFilterMovieRating]
-     * */
-    var listOfFilterMovieRating: MutableLiveData<MutableList<String>>
 
 
     /**
