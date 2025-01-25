@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.dashboard
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.util.Page
@@ -13,6 +14,9 @@ import tn.iptv.nextplayer.domain.models.series.MediaItem
 
 
 class DashBoardBindingModel {
+
+
+    var index: MutableState<Int> = mutableIntStateOf(0)
 
 
     var showFilters: MutableState<Boolean> = mutableStateOf(false)

@@ -54,31 +54,17 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
 
     /**
-     * [ChannelManager.listOfFilterSeriesYear]
+     * [ChannelManager.listOfFilterYear]
      * */
 
-    override var listOfFilterSeriesYear: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+    override var listOfFilterYear: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
 
 
     /**
-     * [ChannelManager.listOfFilterSeriesGenre]
+     * [ChannelManager.listOfFilterGenre]
      * */
 
-    override var listOfFilterSeriesGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
-
-
-    /**
-     * [ChannelManager.listOfFilterMovieYear]
-     * */
-
-    override var listOfFilterMovieYear: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
-
-
-    /**
-     * [ChannelManager.listOfFilterMovieGenre]
-     * */
-
-    override var listOfFilterMovieGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
+    override var listOfFilterGenre: MutableLiveData<MutableList<String>> = MutableLiveData(ArrayList())
 
 
     /**
@@ -498,14 +484,6 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                     val listGroupedSeries = ArrayList<GroupedMedia>()
 
-                    listOfFilterMovieYear.value?.clear()
-                    listOfFilterMovieGenre.value?.clear()
-
-
-                    val listYear = ArrayList<String>()
-                    val listGenre = ArrayList<String>()
-
-
 
 
 
@@ -527,28 +505,10 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                                 val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseSeriesByCat)
                                 listGroupedSeries.add(genreSeries)
-                                listGroupedSeries.forEach { item ->
-                                    item.listSeries.forEach { mediaItem ->
-                                        if (mediaItem.date.isNotEmpty())
-                                            listYear.add(mediaItem.date.split("-")[0])
-                                        if (mediaItem.genre.isNotEmpty()) {
-                                            listGenre.add(mediaItem.genre)
-                                            listGenre.toSet().toList()
-                                        }
-
-                                    }
-                                }
 
                             }
                         }
                     }
-
-                    val genres = processGenres(listGenre)
-
-                    listOfFilterSeriesYear.value?.addAll(listYear.distinct().sortedByDescending { it })
-                    listOfFilterSeriesGenre.value?.addAll(genres.distinct().sortedByDescending { it })
-                    listOfFilterSeriesYear.value!!.add(0, "Tous")
-                    listOfFilterSeriesGenre.value!!.add(0, "Tous")
 
 
 
@@ -610,13 +570,9 @@ class ChannelImp(private var application: Application) : ChannelManager {
                     val gson = Gson()
                     val modelResponseCategory = gson.fromJson(jsonStringResult, ResponseCategory::class.java)
                     Log.d("fetchCategoryMovies", "modelResponsePackage ${modelResponseCategory.toString()} ")
-                    listOfFilterMovieYear.value?.clear()
-                    listOfFilterMovieGenre.value?.clear()
 
                     val listGroupedMovies = ArrayList<GroupedMedia>()
 
-                    val listYear = ArrayList<String>()
-                    val listGenre = ArrayList<String>()
 
 
                     modelResponseCategory.forEach { cat ->
@@ -637,32 +593,10 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
                                 val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseMoviesByCat)
                                 listGroupedMovies.add(genreSeries)
-
-                                listGroupedMovies.forEach { item ->
-                                    item.listSeries.forEach { mediaItem ->
-                                        if (mediaItem.date.isNotEmpty())
-                                            listYear.add(mediaItem.date.split("-")[0])
-                                        if (mediaItem.genre.isNotEmpty()) {
-                                            listGenre.add(mediaItem.genre)
-                                            listGenre.toSet().toList()
-                                        }
-
-                                    }
-                                }
-
                             }
                         }
 
                     }
-                    val genres = processGenres(listGenre)
-
-
-
-
-                    listOfFilterMovieYear.value?.addAll(listYear.distinct().sortedByDescending { it })
-                    listOfFilterMovieGenre.value?.addAll(genres.distinct().sortedByDescending { it })
-                    listOfFilterMovieGenre.value!!.add(0, "Tous")
-                    listOfFilterMovieYear.value!!.add(0, "Tous")
 
 
                     allListGroupedMovieByCategory.value = listGroupedMovies

@@ -88,19 +88,21 @@ fun TopBarDashBoard(
 
         Spacer(Modifier.width(10.dp))
 
-        TextFieldItem(
-            textValue = searchValue.value,
-            colorBorder = backTextFiledLight,
-            leadingIcon = R.drawable.ic_search,
-            hint = "Search for Something",
-            modifier = Modifier
-                .width(300.dp)
-                .height(54.dp),
-            customKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-        ) {
-            searchValue.value = it
-            onSearchValueChange(it)
-        }
+        if (selectedNavigationItem != NavigationItem.Home)
+            TextFieldItem(
+                textValue = searchValue.value,
+                colorBorder = backTextFiledLight,
+                leadingIcon = R.drawable.ic_search,
+                isReadOnly = true,
+                hint = "Search for Something",
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(54.dp),
+                customKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+            ) {
+                searchValue.value = it
+                onSearchValueChange(it)
+            }
 
         Spacer(Modifier.width(10.dp))
 

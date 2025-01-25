@@ -68,7 +68,7 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
                 Spacer(modifier = Modifier.height(8.dp))
                 LargeDropdownMenu(
                     selected = viewModel.bindingModel.selectedFilteredYear.value,
-                    items = channelManager.listOfFilterMovieYear.value!!,
+                    items = channelManager.listOfFilterYear.value!!,
                     onItemSelected = { it -> viewModel.bindingModel.selectedFilteredYear.value = it },
                 )
 
@@ -79,7 +79,7 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
                 Spacer(modifier = Modifier.height(8.dp))
                 LargeDropdownMenu(
                     selected = viewModel.bindingModel.selectedFilteredGenre.value,
-                    items = channelManager.listOfFilterMovieGenre.value!!,
+                    items = channelManager.listOfFilterGenre.value!!,
                     onItemSelected = { it -> viewModel.bindingModel.selectedFilteredGenre.value = it },
                 )
 

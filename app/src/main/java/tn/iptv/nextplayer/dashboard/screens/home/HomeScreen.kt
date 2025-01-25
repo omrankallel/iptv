@@ -24,14 +24,13 @@ import coil.request.ImageRequest
 import coil.size.Scale
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
-import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.packages.CategoryMedia
 import tn.iptv.nextplayer.domain.models.packages.ResponsePackageItem
@@ -41,12 +40,11 @@ import kotlin.math.absoluteValue
 @SuppressLint("LogNotTimber")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -> Unit) {
+fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -> Unit, pagerState: PagerState) {
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listOfPackages = channelManager.listOfPackages.value
     val isLoading = viewModel.bindingModel.isLoadingHome
-    val pagerState = rememberPagerState(initialPage = 1)
 
 
     Box(

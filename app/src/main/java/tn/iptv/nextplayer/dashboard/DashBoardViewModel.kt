@@ -30,6 +30,28 @@ class DashBoardViewModel : BaseViewModel() {
 
         observeFavorite()
 
+        channelManager.listOfFilterYear.value!!.clear()
+        channelManager.listOfFilterGenre.value!!.clear()
+
+        val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+        channelManager.listOfFilterYear.value = (1960..currentYear).map { it.toString() }.toMutableList()
+        channelManager.listOfFilterYear.value!!.reverse()
+        channelManager.listOfFilterYear.value!!.add(0, "Tous")
+        channelManager.listOfFilterGenre.value!!.addAll(
+            listOf(
+                "دراما", "كوميديا", "مغامرة", "فانتازيا", "حركة", "جريمة", "إثارة", "موسيقى", "رومنسية",
+                "عائلي", "تاريخ", "رعب", "خيال علمي", "وثائقي", "تشويق", "حرب", "غموض", "سياسة",
+                "سيرة ذاتية", "أكشن", "كوارث", "رومانسي", "تاريخي", "موسيقية", "خيال", "إثارة نفسية",
+                "دراما كوميدية", "كوميديا سوداء", "تسجيلي", "دراما رومانسية", "دراما تاريخية",
+                "دراما حرب", "دراما اجتماعية", "خيال علمي درامي", "دراما عائلية", "مغامرات كوميدية",
+                "action", "adventure", "animation", "crime", "documentaire", "drama", "drame", "fantastique", "Comédie", "War & Politics",
+                "familial", "histoire", "horreur", "mystère", "romance", "science-fiction", "thriller", "western", "Action & Adventure", "Comedy", "Divertissement", "Mystery", "Reality",
+                "Documentary", "Family", "Soap", "Aksiyon & Macera", "Aile", "Suç", "Pembe Dizi", "Savaş & Politik", "Bilim Kurgu & Fantazi", "Gizem",
+            ),
+        )
+        channelManager.listOfFilterGenre.value!!.add(0, "Tous")
+
+
     }
 
     private fun observeLiveTV() {

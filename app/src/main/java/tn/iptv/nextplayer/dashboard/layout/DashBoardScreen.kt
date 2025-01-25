@@ -7,6 +7,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN_LEFT
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN_RIGHT
+import android.view.KeyEvent.KEYCODE_DPAD_LEFT
+import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
+import android.view.KeyEvent.KEYCODE_DPAD_UP
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
@@ -30,12 +36,17 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -43,8 +54,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import com.google.gson.Gson
 import fetchString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
@@ -105,7 +121,7 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
         derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
     }
     Log.d("DashBoardScreen", "screenWidth  ${screenWidth.value}")
-    val offsetValue by remember { derivedStateOf { (screenWidth.value / 12).dp } }
+    val offsetValue by remember { derivedStateOf { (screenWidth.value / 8).dp } }
     Log.d("DashBoardScreen", "offsetValue  $offsetValue")
     val animatedOffset by animateDpAsState(
         targetValue = if (drawerState.isOpened()) offsetValue else 90.dp,
@@ -279,6 +295,12 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
                     channelManager.movieSelected.value = movieSelected
 
                 },
+                onDrawerOpen = {
+                    drawerState = CustomDrawerState.Opened
+                },
+                onDrawerClose = {
+                    drawerState = CustomDrawerState.Closed
+                },
 
                 )
         }
@@ -308,23 +330,27 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalPagerApi::class, ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "LogNotTimber", "SuspiciousIndentation")
 @Composable
 fun MainContent(
     viewModel: DashBoardViewModel,
     favoriteViewModel: FavoriteViewModel,
-    // modifier: Modifier = Modifier,
     searchValueInitial: MutableState<String>,
     drawerState: CustomDrawerState,
     selectedNavigationItem: NavigationItem,
     onDrawerClick: (CustomDrawerState) -> Unit,
     onShowScreenDetailSerie: (MediaItem) -> Unit,
     onShowScreenDetailMovie: (MediaItem) -> Unit,
+    onDrawerOpen: () -> Unit,
+    onDrawerClose: () -> Unit,
 ) {
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val context = LocalContext.current
+    val pagerState = rememberPagerState(initialPage = 0)
+    var isDrawerOpen by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
 
 
@@ -386,7 +412,75 @@ fun MainContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(end = if (drawerState.isOpened()) 190.dp else 90.dp),
+                    .padding(end = if (drawerState.isOpened()) 190.dp else 90.dp)
+                    .onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.nativeKeyEvent.keyCode) {
+                                KEYCODE_DPAD_LEFT -> {
+                                    if (viewModel.bindingModel.index.value > 0) {
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.Main) {
+                                                viewModel.bindingModel.index.value--
+                                                pagerState.animateScrollToPage((viewModel.bindingModel.index.value))
+                                            }
+                                        }
+                                    } else if (viewModel.bindingModel.index.value == 0 && !isDrawerOpen) {
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.Main) {
+                                                onDrawerOpen()
+                                                isDrawerOpen = true
+                                            }
+                                        }
+                                    }
+                                    true
+                                }
+
+                                KEYCODE_DPAD_RIGHT -> {
+                                    if (viewModel.bindingModel.index.value == 0 && isDrawerOpen) {
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.Main) {
+                                                onDrawerClose()
+                                                isDrawerOpen = false
+                                            }
+                                        }
+                                    } else if (viewModel.bindingModel.index.value < channelManager.listOfPackages.value!!.size - 1) {
+                                        coroutineScope.launch {
+                                            withContext(Dispatchers.Main) {
+                                                viewModel.bindingModel.index.value++
+                                                pagerState.animateScrollToPage((viewModel.bindingModel.index.value))
+                                            }
+                                        }
+                                    }
+                                    true
+                                }
+                                KEYCODE_DPAD_UP -> {
+                                    navigateToPreviousMenuItem(viewModel)
+                                    true
+                                }
+                                KEYCODE_DPAD_DOWN -> {
+                                    navigateToNextMenuItem(viewModel)
+                                    true
+                                }
+
+                                KEYCODE_DPAD_DOWN_LEFT -> {
+                                    Log.d("vvvvvvvvvvvv3", KEYCODE_DPAD_DOWN_LEFT.toString())
+                                    true
+                                }
+
+                                KEYCODE_DPAD_DOWN_RIGHT -> {
+                                    Log.d("vvvvvvvvvvvv4", KEYCODE_DPAD_DOWN_RIGHT.toString())
+                                    true
+                                }
+
+
+                                else -> {
+                                    false
+                                }
+                            }
+                        } else {
+                            false
+                        }
+                    },
 
                 ) {
 
@@ -396,11 +490,11 @@ fun MainContent(
                         HomeScreen(
                             viewModel,
                             onSelectPackage = { tvChannelSelected ->
-                                Log.d("dashBoard", "tvChannelSelected --> ${tvChannelSelected.toString()}")
                                 channelManager.homeSelected.value = tvChannelSelected
                                 channelManager.fetchPackages()
 
                             },
+                            pagerState = pagerState,
                         )
                     }
 
@@ -411,15 +505,10 @@ fun MainContent(
                             viewModel,
                             onSelectTVChannel = { groupOFChannel, tvChannelSelected ->
 
-                                Log.d("dashBoard_onSelTVCha", "GroupOFChannel --> ${groupOFChannel.toString()}")
-                                Log.d("dashBoard_onSelTVCha", "tvChannelSelected --> ${tvChannelSelected.toString()}")
 
                                 val indexOfChannel = groupOFChannel.listSeries.indexOf(tvChannelSelected)
-                                Log.d("dashBoard_onSelTVCha", "indexOfChannel --> $indexOfChannel")
 
-                                // openUrlWithVLC(app, tvChannelSelected.url)
 
-                                // Serialize GroupedMedia object to JSON string
                                 val gson = Gson()
                                 val jsonStringGroupOFChannel = gson.toJson(groupOFChannel)
 
@@ -430,30 +519,12 @@ fun MainContent(
                                     intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
                                     intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
                                     intent.data = Uri.parse(tvChannelSelected.url)
-                                    Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
                                     app.startActivity(intent)
 
 
                                 } catch (error: Exception) {
                                     Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
                                 }
-
-
-                                /*try {
-
-                                    val intent = Intent(app, PlayerActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-                                    intent.putExtra("GROUP_OF_CHANNEL",jsonStringGroupOFChannel)
-                                    intent.data = Uri.parse(tvChannelSelected.url)
-                                    Log.d("PlayerActivity", "------ channel  ${tvChannelSelected.url}")
-                                    app.startActivity(intent)
-
-
-                                } catch (error: Exception) {
-                                    Toast.makeText(app, "Error While loading your Channel TV , Please try again", Toast.LENGTH_LONG).show()
-                                }
-                                */
 
                             },
                         )
@@ -465,10 +536,6 @@ fun MainContent(
                         viewModel.bindingModel.selectedPage = Page.SERIES
                         viewModel.bindingModel.selectedFilteredYear.value = "Tous"
                         viewModel.bindingModel.selectedFilteredGenre.value = "Tous"
-                        channelManager.listOfFilterSeriesYear.value!!.clear()
-                        channelManager.listOfFilterSeriesGenre.value!!.clear()
-                        channelManager.listOfFilterMovieYear.value!!.clear()
-                        channelManager.listOfFilterMovieGenre.value!!.clear()
 
 
                         SeriesScreen(
@@ -491,10 +558,6 @@ fun MainContent(
                         viewModel.bindingModel.selectedPage = Page.MOVIES
                         viewModel.bindingModel.selectedFilteredYear.value = "Tous"
                         viewModel.bindingModel.selectedFilteredGenre.value = "Tous"
-                        channelManager.listOfFilterSeriesYear.value!!.clear()
-                        channelManager.listOfFilterSeriesGenre.value!!.clear()
-                        channelManager.listOfFilterMovieYear.value!!.clear()
-                        channelManager.listOfFilterMovieGenre.value!!.clear()
 
 
                         MoviesScreen(
@@ -577,4 +640,19 @@ fun MainContent(
     )
 
 
+}
+fun navigateToPreviousMenuItem(viewModel: DashBoardViewModel) {
+    val items = NavigationItem.values() // Liste des éléments de navigation
+    val currentIndex = items.indexOf(viewModel.bindingModel.selectedNavigationItem.value)
+    if (currentIndex > 0) {
+        viewModel.bindingModel.selectedNavigationItem.value = items[currentIndex - 1]
+    }
+}
+
+fun navigateToNextMenuItem(viewModel: DashBoardViewModel) {
+    val items = NavigationItem.values() // Liste des éléments de navigation
+    val currentIndex = items.indexOf(viewModel.bindingModel.selectedNavigationItem.value)
+    if (currentIndex < items.size - 1) {
+        viewModel.bindingModel.selectedNavigationItem.value = items[currentIndex + 1]
+    }
 }

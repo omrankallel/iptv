@@ -69,7 +69,7 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
                 Spacer(modifier = Modifier.height(8.dp))
                 LargeDropdownMenu(
                     selected = viewModel.bindingModel.selectedFilteredYear.value,
-                    items = channelManager.listOfFilterSeriesYear.value!!,
+                    items = channelManager.listOfFilterYear.value!!,
                     onItemSelected = { it -> viewModel.bindingModel.selectedFilteredYear.value = it },
                 )
 
@@ -80,7 +80,7 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
                 Spacer(modifier = Modifier.height(8.dp))
                 LargeDropdownMenu(
                     selected = viewModel.bindingModel.selectedFilteredGenre.value,
-                    items = channelManager.listOfFilterSeriesGenre.value!!,
+                    items = channelManager.listOfFilterGenre.value!!,
                     onItemSelected = { it -> viewModel.bindingModel.selectedFilteredGenre.value = it },
                 )
 
