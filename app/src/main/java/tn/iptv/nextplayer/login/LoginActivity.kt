@@ -50,7 +50,7 @@ class LoginActivity : MVVMBaseActivity<LoginViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       // PreferencesHelper.saveLoginStatus(app, true, "617294811674")
+        PreferencesHelper.saveLoginStatus(app, true, "617294811674")
 
         if (PreferencesHelper.isUserLoggedIn(this)) {
             startActivity(Intent(this, DashBoardActivity::class.java))

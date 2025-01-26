@@ -454,11 +454,11 @@ fun MainContent(
                                     true
                                 }
                                 KEYCODE_DPAD_UP -> {
-                                    navigateToPreviousMenuItem(viewModel)
+                                    navigateToPreviousMenuItem(viewModel,onDrawerClose)
                                     true
                                 }
                                 KEYCODE_DPAD_DOWN -> {
-                                    navigateToNextMenuItem(viewModel)
+                                    navigateToNextMenuItem(viewModel,onDrawerClose)
                                     true
                                 }
 
@@ -468,6 +468,7 @@ fun MainContent(
                                 }
 
                                 KEYCODE_DPAD_DOWN_RIGHT -> {
+
                                     Log.d("vvvvvvvvvvvv4", KEYCODE_DPAD_DOWN_RIGHT.toString())
                                     true
                                 }
@@ -641,18 +642,21 @@ fun MainContent(
 
 
 }
-fun navigateToPreviousMenuItem(viewModel: DashBoardViewModel) {
+fun navigateToPreviousMenuItem(viewModel: DashBoardViewModel , onDrawerClose: () -> Unit) {
     val items = NavigationItem.values() // Liste des éléments de navigation
     val currentIndex = items.indexOf(viewModel.bindingModel.selectedNavigationItem.value)
     if (currentIndex > 0) {
         viewModel.bindingModel.selectedNavigationItem.value = items[currentIndex - 1]
     }
+    onDrawerClose()
 }
 
-fun navigateToNextMenuItem(viewModel: DashBoardViewModel) {
+fun navigateToNextMenuItem(viewModel: DashBoardViewModel,onDrawerClose: () -> Unit) {
     val items = NavigationItem.values() // Liste des éléments de navigation
     val currentIndex = items.indexOf(viewModel.bindingModel.selectedNavigationItem.value)
     if (currentIndex < items.size - 1) {
         viewModel.bindingModel.selectedNavigationItem.value = items[currentIndex + 1]
     }
+    onDrawerClose()
+
 }
