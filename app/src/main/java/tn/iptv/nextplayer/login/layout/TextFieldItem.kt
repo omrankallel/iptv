@@ -37,7 +37,7 @@ fun TextFieldItem(
     leadingIcon: Int = R.drawable.ic_activation_check,
     textSize: TextUnit = 17.sp,
     textAlign: TextAlign = TextAlign.Start,
-    colorTextError: Color=Color.Red,
+    colorTextError: Color = Color.Red,
     colorBorder: Color,
     modifier: Modifier = Modifier
         .fillMaxWidth()

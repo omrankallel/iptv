@@ -132,7 +132,7 @@ fun LayoutDetailsOfMovie(movieItem: MediaItem, favoriteViewModel: FavoriteViewMo
                     if (exist) {
                         favoriteViewModel.deleteFavoriteById(movieItem.id)
                     } else {
-                        favoriteViewModel.addFavorite(movieItem.id, movieItem.name, movieItem.icon, movieItem.url, movieItem.plot, movieItem.cast, movieItem.genre, movieItem.date, "", "", "", "Movies","")
+                        favoriteViewModel.addFavorite(movieItem.id, movieItem.name, movieItem.icon, movieItem.url, movieItem.plot, movieItem.cast, movieItem.genre, movieItem.date, "", "", "", "Movies", "")
                     }
                     favoriteViewModel.isFavoriteExists(movieItem.id) { exists ->
                         exist = exists

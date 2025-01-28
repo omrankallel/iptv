@@ -5,34 +5,31 @@ import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.login.app
 
 
-enum class LanguageItem  (
-    val label  :String  ,
-     val  selected  :Boolean = false  ) {
+enum class LanguageItem(
+    val label: String,
+    val selected: Boolean = false,
+) {
 
-    FRENCH (
-        label  = fetchString( app , R.string.french)
+    FRENCH(
+        label = fetchString(app, R.string.french),
     ),
 
-    ANGLAIS (
-        label  = fetchString( app , R.string.anglais),
-        selected =  true
+    ANGLAIS(
+        label = fetchString(app, R.string.anglais),
+        selected = true,
     ),
 
-    DEUTCH (
-        label  = fetchString( app , R.string.deutch)
+    DEUTCH(
+        label = fetchString(app, R.string.deutch),
     ),
 
-    ITALIAN (
-        label  = fetchString( app , R.string.italian)
+    ITALIAN(
+        label = fetchString(app, R.string.italian),
     ),
 
-    ESPAGNOL (
-        label  = fetchString( app , R.string.espagnol)
+    ESPAGNOL(
+        label = fetchString(app, R.string.espagnol),
     ),
-
-
-
-
 
 
 }

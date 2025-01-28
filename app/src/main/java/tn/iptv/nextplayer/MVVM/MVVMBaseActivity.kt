@@ -1,16 +1,10 @@
 package tn.iptv.nextplayer.MVVM
 
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 
 
 abstract class MVVMBaseActivity<VM : BaseViewModel> : ComponentActivity() {
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,8 +19,6 @@ abstract class MVVMBaseActivity<VM : BaseViewModel> : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
     }
-
-
 
 
     lateinit var viewModel: VM

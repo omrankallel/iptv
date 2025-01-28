@@ -4,5 +4,5 @@ data class ResponseCategoryItem(
     val icon: String,
     val id: String,
     val lang: String,
-    val name: String
+    val name: String,
 )

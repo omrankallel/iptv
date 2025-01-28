@@ -1,7 +1,6 @@
 package tn.iptv.nextplayer.dashboard.customdrawer.model
 
 
-
 enum class CustomDrawerState {
     Opened,
     Closed

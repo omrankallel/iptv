@@ -9,7 +9,6 @@ import retrofit2.http.Query
 import tn.iptv.nextplayer.domain.models.ChannelResponse
 
 
-
 interface ChannelsApi {
 
     @GET("Gltvpromax.json")  //Globaltvpro2025.json

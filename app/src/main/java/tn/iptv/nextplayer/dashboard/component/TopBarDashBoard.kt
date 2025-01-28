@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,11 +31,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import tn.iptv.nextplayer.R
-import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
-import tn.iptv.nextplayer.dashboard.customdrawer.model.isOpened
 import tn.iptv.nextplayer.listchannels.ui.theme.backTextFiledLight
 import tn.iptv.nextplayer.listchannels.ui.theme.gray
 import tn.iptv.nextplayer.listchannels.ui.theme.white
@@ -48,7 +47,7 @@ import java.util.Locale
 @Composable
 fun TopBarDashBoard(
     titlePage: String,
-    drawerState: CustomDrawerState,
+    drawerState: DrawerState,
     selectedNavigationItem: NavigationItem,
     searchValue: MutableState<String>,
     onSearchValueChange: (String) -> Unit,
@@ -62,7 +61,7 @@ fun TopBarDashBoard(
             .height(65.dp)
 
             // .background(back_application_start_color)
-            .padding(end = if (drawerState.isOpened()) 180.dp else 80.dp),
+            .padding(end = if (drawerState.isOpen) 180.dp else 80.dp),
         /* colors = TopAppBarDefaults.topAppBarColors(
              containerColor = back_application_start_color
          ),)**/

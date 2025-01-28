@@ -1,7 +1,6 @@
 package tn.iptv.nextplayer.dashboard.screens.tvChannel
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,96 +40,107 @@ import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 
 
-
 @Composable
-fun  ItemLiveChannel (mediaType : MediaType,  seriesItem : MediaItem, onSelectLiveChannel : (MediaItem) -> Unit){
+fun ItemLiveChannel(mediaType: MediaType, seriesItem: MediaItem, onSelectLiveChannel: (MediaItem) -> Unit) {
 
-Box (
-    modifier = Modifier
-        .width(210.dp)
-        .height(220.dp)
-        .clip(RoundedCornerShape(5.dp))
-        .background(backCardMovie)
-        .shadow(1.dp)
-        .padding(2.dp)
-        .clickable {
-            onSelectLiveChannel(seriesItem)
-        }
+    Box(
+        modifier = Modifier
+            .width(210.dp)
+            .height(220.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(backCardMovie)
+            .shadow(1.dp)
+            .padding(2.dp)
+            .clickable {
+                onSelectLiveChannel(seriesItem)
+            },
 
-)
-
-{
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(6.dp))
+        )
 
     {
-        Column(modifier = Modifier
-            .fillMaxSize()) {
 
-            Box  (  modifier = Modifier
-                .height(180.dp)
-                .fillMaxWidth()){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp),
+        )
 
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize()
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(backCardMovie),
-                    model = ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(seriesItem.icon)
-                        .crossfade(true)
-                        .scale(Scale.FILL)
-                        .listener(
-                            onError = { request, throwable ->
-                                Log.e("ImageLoadError", "Failed to load image: ${throwable.throwable.message}")
-                            },
-                        )
-                        .build(),
-                    contentDescription = null,
-                    placeholder = painterResource(R.drawable.placeholder_image),
-                    error = painterResource(R.drawable.error_image),
-                    contentScale = ContentScale.Crop)
+        {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
 
-                // Tags Row
-                if (seriesItem.genre.isNotEmpty() ){
-                    // Split the string by comma and trim spaces
-                    val castList = seriesItem.genre.split(",").map { it.trim() }
-                    Row(
-                        modifier = Modifier.align(Alignment.BottomStart).padding(5.dp).horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        castList.take(2) .forEach { cast ->
+                Box(
+                    modifier = Modifier
+                        .height(180.dp)
+                        .fillMaxWidth(),
+                ) {
+
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(backCardMovie),
+                        model = ImageRequest
+                            .Builder(LocalContext.current)
+                            .data(seriesItem.icon)
+                            .crossfade(true)
+                            .scale(Scale.FILL)
+                            .listener(
+                                onError = { request, throwable ->
+                                    Log.e("ImageLoadError", "Failed to load image: ${throwable.throwable.message}")
+                                },
+                            )
+                            .build(),
+                        contentDescription = null,
+                        placeholder = painterResource(R.drawable.placeholder_image),
+                        error = painterResource(R.drawable.error_image),
+                        contentScale = ContentScale.Crop,
+                    )
+
+                    // Tags Row
+                    if (seriesItem.genre.isNotEmpty()) {
+                        // Split the string by comma and trim spaces
+                        val castList = seriesItem.genre.split(",").map { it.trim() }
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(5.dp)
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            castList.take(2).forEach { cast ->
                                 Chip(cast)
                             }
+                        }
                     }
+
                 }
 
-            }
 
+                Spacer(modifier = Modifier.height(7.dp))
 
-            Spacer(modifier = Modifier.height(7 .dp))
+                Row(Modifier.fillMaxSize()) {
 
-            Row (Modifier.fillMaxSize()){
+                    Text(
+                        text = AppHelper.cleanChannelName(seriesItem.name),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 2,
+                        color = Color.White,
+                        lineHeight = 15.sp,
+                    )
 
-                Text(
-                    text = AppHelper.cleanChannelName(seriesItem.name),
-                    fontSize =10.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    color = Color.White,
-                    lineHeight = 15.sp)
+                    Spacer(modifier = Modifier.weight(1f))
 
-                Spacer(modifier = Modifier.weight(1f))
+                }
 
             }
 
         }
 
     }
-
-}
 
 
 }

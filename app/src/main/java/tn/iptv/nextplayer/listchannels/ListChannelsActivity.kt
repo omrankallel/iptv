@@ -127,7 +127,6 @@ class ListChannelsActivity : MVVMBaseActivity<ListChannelViewModel>() {
     }
 
 
-
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Use WindowInsetsController to hide system bars

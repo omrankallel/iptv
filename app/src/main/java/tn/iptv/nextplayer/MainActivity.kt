@@ -28,14 +28,14 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import tn.iptv.nextplayer.core.common.storagePermission
 import tn.iptv.nextplayer.core.media.services.MediaService
 import tn.iptv.nextplayer.core.media.sync.MediaSynchronizer
 import tn.iptv.nextplayer.core.model.ThemeConfig
 import tn.iptv.nextplayer.core.ui.theme.NextPlayerTheme
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 import tn.iptv.nextplayer.feature.player.PlayerActivity
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

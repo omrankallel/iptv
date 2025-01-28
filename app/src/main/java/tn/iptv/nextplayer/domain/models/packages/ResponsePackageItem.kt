@@ -8,5 +8,5 @@ data class ResponsePackageItem(
 
     val live: List<PackageMedia>,
     val movies: List<PackageMedia>,
-    val series: List<PackageMedia>
+    val series: List<PackageMedia>,
 )

@@ -3,45 +3,44 @@ package tn.iptv.nextplayer.dashboard.customdrawer.model
 import tn.iptv.nextplayer.R
 
 
-
 enum class NavigationItem(
     val title: String,
-    val icon: Int
+    val icon: Int,
 ) {
     Home(
         icon = R.drawable.ic_home,
-        title = "Home"
+        title = "Home",
     ),
     TVChannels(
         icon = R.drawable.ic_tv_channles,
-        title = "Live TV"
+        title = "Live TV",
     ),
 
     Series(
         icon = R.drawable.ic_series,
-        title = "Series"
+        title = "Series",
     ),
 
     DetailSeries(
         icon = R.drawable.ic_series,
-        title = "Series"
+        title = "Series",
     ),
 
 
     Movies(
         icon = R.drawable.icl_movies,
-        title = "Movies"
+        title = "Movies",
     ),
 
 
     DetailMovies(
         icon = R.drawable.icl_movies,
-        title = "Movies"
+        title = "Movies",
     ),
 
     Favorite(
         icon = R.drawable.ic_favorite,
-        title = "Favorite"
+        title = "Favorite",
     ),
 
     /*ComingSoon(
@@ -51,11 +50,11 @@ enum class NavigationItem(
 
     Settings(
         icon = R.drawable.ic_settings,
-        title = "Settings"
+        title = "Settings",
     ),
 
     Logout(
         icon = R.drawable.ic_logout,
-        title = "Logout"
+        title = "Logout",
     )
 }

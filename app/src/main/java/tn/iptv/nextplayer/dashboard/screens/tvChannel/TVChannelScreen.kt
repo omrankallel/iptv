@@ -1,9 +1,6 @@
 package tn.iptv.nextplayer.dashboard.screens.tvChannel
 
 import android.annotation.SuppressLint
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,19 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.coroutineScope
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
@@ -54,7 +41,6 @@ fun TVChannelScreen(viewModel: DashBoardViewModel, onSelectTVChannel: (GroupedMe
     val groupedLiveTV = viewModel.bindingModel.listLiveByCategory
     val isLoading = viewModel.bindingModel.isLoadingLiveTV
 
-    var selectedCategoryIndex by remember { mutableStateOf(0) }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -79,22 +65,24 @@ fun TVChannelScreen(viewModel: DashBoardViewModel, onSelectTVChannel: (GroupedMe
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
-                    .onKeyEvent { keyEvent ->
-                        if (keyEvent.type == KeyEventType.KeyDown) {
-                            when (keyEvent.key) {
-                                Key.DirectionDown -> {
-                                    // Ensure the index doesn't go out of bounds
-                                    if (selectedCategoryIndex < groupedLiveTV.value.size - 1) {
-                                        selectedCategoryIndex++
-                                    }
-                                    true
-                                }
-                                else -> false
-                            }
-                        } else false
-                    }
-                    .focusable(), // Makes LazyColumn focusable for key events
+                    .padding(16.dp),
+//                    .onKeyEvent { keyEvent ->
+//                        if (keyEvent.type == KeyEventType.KeyDown) {
+//                            when (keyEvent.key) {
+//                                Key.DirectionDown -> {
+//                                    // Ensure the index doesn't go out of bounds
+//                                    coroutineScope.launch {
+//                                        if (selectedCategoryIndex < groupedLiveTV.value.size - 1) {
+//                                            selectedCategoryIndex++
+//                                        }
+//                                    }
+//
+//                                    true
+//                                }
+//                                else -> false
+//                            }
+//                        } else false
+//                    }
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(groupedLiveTV.value) { groupedLiveChannel ->
@@ -102,15 +90,15 @@ fun TVChannelScreen(viewModel: DashBoardViewModel, onSelectTVChannel: (GroupedMe
                         mediaType, groupedLiveChannel,
                         onSelectMediaItem = {
                             onSelectTVChannel(groupedLiveChannel, it)
-                        }
+                        },
                     )
                 }
             }
         }
     }
-    LaunchedEffect(selectedCategoryIndex) {
-        listState.animateScrollToItem(selectedCategoryIndex)
-    }
+//    LaunchedEffect(selectedCategoryIndex) {
+//        listState.animateScrollToItem(selectedCategoryIndex)
+//    }
 }
 
 

@@ -28,7 +28,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess: () -> Unit, onFailure: () 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
 
     //val inputActivationCode = remember { mutableStateOf("617294811674") }
-   // val inputActivationCode = remember { mutableStateOf("933555612584") }
+    // val inputActivationCode = remember { mutableStateOf("933555612584") }
     val inputActivationCode = remember { mutableStateOf("922522917722") }
     val colorBorder = remember { mutableStateOf(backTextFiledLight) }
     val errorText = remember { mutableStateOf<String?>(null) }
@@ -54,7 +54,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSuccess: () -> Unit, onFailure: () 
             leadingIcon = R.drawable.ic_activation_check,
             hint = if (isRestoreMode.value) "Click in button restore." else "Insert activation code.",
             errorMessage = errorText.value,
-            colorTextError = colorTextError.value
+            colorTextError = colorTextError.value,
         ) {
             inputActivationCode.value = it
         }

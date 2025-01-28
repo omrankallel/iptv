@@ -3,11 +3,9 @@ package tn.iptv.nextplayer.login
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
-import android.content.Context
 import android.os.Build
 import android.os.Build.UNKNOWN
 import android.provider.Settings.Secure
-import android.util.Log
 import tn.iptv.nextplayer.MVVM.BaseViewModel
 import java.lang.reflect.Method
 import java.net.NetworkInterface

@@ -9,8 +9,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +46,10 @@ import kotlin.math.absoluteValue
 @SuppressLint("LogNotTimber")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -> Unit, pagerState: PagerState) {
+fun HomeScreen(
+    viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -> Unit, pagerState: PagerState, onDrawerOpen: () -> Unit,
+    onDrawerClose: () -> Unit,
+) {
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listOfPackages = channelManager.listOfPackages.value
@@ -48,7 +57,9 @@ fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -
 
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+
+            .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
 

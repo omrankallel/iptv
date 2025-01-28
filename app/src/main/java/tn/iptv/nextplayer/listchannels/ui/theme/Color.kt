@@ -13,17 +13,17 @@ val Pink40 = Color(0xFF7D5260)
 val backTextFiledLight = Color(0xFFBFBFC4)
 val colorHint = Color(0xFF797A85)
 val backButton = Color(0xFFB4A1FB)
-val  colorTextButton  = Color(0xFF1B1A1F)
-val  colorBackSelectedElement   = Color(0xFFB4A1FB)
+val colorTextButton = Color(0xFF1B1A1F)
+val colorBackSelectedElement = Color(0xFFB4A1FB)
 
-val  redLogout    = Color(0xFFFC3939)
-
-
-val  white    = Color(0xFFFFFFFF)
-val  gray    = Color(0xFF707070)
+val redLogout = Color(0xFFFC3939)
 
 
-val  transparent    = Color(0x14616161)
+val white = Color(0xFFFFFFFF)
+val gray = Color(0xFF707070)
+
+
+val transparent = Color(0x14616161)
 
 
 

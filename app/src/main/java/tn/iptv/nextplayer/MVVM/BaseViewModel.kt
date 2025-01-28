@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import org.koin.java.KoinJavaComponent
 
 
-abstract class  BaseViewModel : ViewModel() {
+abstract class BaseViewModel : ViewModel() {
 
     val app: Application by KoinJavaComponent.inject(Application::class.java)
 

@@ -50,8 +50,8 @@ fun ItemShowAll(mediaType: MediaType, onClickToShowAll: () -> Unit) {
 
     {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             GridIcon(
                 modifier = Modifier.size(48.dp),
             )

@@ -21,7 +21,6 @@ interface ChannelManager {
     }
 
 
-
     /**
      * [ChannelImp.listOfFilterYear]
      * */
@@ -32,7 +31,6 @@ interface ChannelManager {
      * [ChannelImp.listOfFilterGenre]
      * */
     var listOfFilterGenre: MutableLiveData<MutableList<String>>
-
 
 
     /**
@@ -65,7 +63,6 @@ interface ChannelManager {
     var listOfPackages: MutableLiveData<MutableList<ResponsePackageItem>>
 
 
-
     /////////////////////////////   Live TV   ///////////////////////////////
     /**
      * [ChannelImp.listOfPackagesOfLiveTV]
@@ -80,8 +77,6 @@ interface ChannelManager {
 
     /////////////////////////////   Favorites     ///////////////////////////////
     var listOfFavorites: MutableLiveData<MutableList<Favorite>>
-
-
 
 
     /////////////////////////////   Movies     ///////////////////////////////
@@ -132,7 +127,6 @@ interface ChannelManager {
      * [ChannelImp.favoriteIsLoading]
      * */
     var favoriteIsLoading: MutableLiveData<Boolean>
-
 
 
     /**

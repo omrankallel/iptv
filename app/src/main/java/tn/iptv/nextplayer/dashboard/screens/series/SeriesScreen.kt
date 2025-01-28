@@ -100,7 +100,7 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
             TextButton(
                 onClick = {
 
-                    showAllState.value=null
+                    showAllState.value = null
                     groupedSeriesFiltered.value = groupedSeries.value
 
 

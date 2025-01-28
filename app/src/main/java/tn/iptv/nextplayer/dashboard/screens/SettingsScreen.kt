@@ -11,17 +11,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun  SettingsScreen (){
+fun SettingsScreen() {
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "Setting",
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Medium,
-            color = Color.White
+            color = Color.White,
         )
     }
 }

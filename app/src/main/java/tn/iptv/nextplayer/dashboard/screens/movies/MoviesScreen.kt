@@ -99,7 +99,7 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
             TextButton(
                 onClick = {
 
-                    showAllState.value=null
+                    showAllState.value = null
 
                     groupedMoviesFiltered.value = groupedMovies.value
 

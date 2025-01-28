@@ -2,9 +2,6 @@ package tn.iptv.nextplayer
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
-import tn.iptv.nextplayer.core.common.di.ApplicationScope
-import tn.iptv.nextplayer.core.data.repository.PreferencesRepository
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -12,6 +9,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import timber.log.Timber
+import tn.iptv.nextplayer.core.common.di.ApplicationScope
+import tn.iptv.nextplayer.core.data.repository.PreferencesRepository
+import javax.inject.Inject
 
 @HiltAndroidApp
 class NextPlayerApplication : Application() {

@@ -1,10 +1,10 @@
 package tn.iptv.nextplayer.domain.config
 
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
-import javax.crypto.spec.IvParameterSpec
 import android.util.Base64
 import java.security.MessageDigest
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 object AES256Cipher {
 

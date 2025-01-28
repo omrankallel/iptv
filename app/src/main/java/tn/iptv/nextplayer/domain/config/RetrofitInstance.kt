@@ -16,11 +16,13 @@ object RetrofitInstance {
     private var BASE_URL = "https://multiacs.com/"
 
     private val client: OkHttpClient by lazy {
-        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        })
+        val trustAllCerts = arrayOf<TrustManager>(
+            object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+            },
+        )
 
         val sslContext = SSLContext.getInstance("SSL")
         sslContext.init(null, trustAllCerts, java.security.SecureRandom())
@@ -48,7 +50,7 @@ object RetrofitInstance {
 
     fun changeBaseUrl(newUrl: String) {
         BASE_URL = newUrl
-        Log.d("changeBaseUrl","$BASE_URL")
+        Log.d("changeBaseUrl", "$BASE_URL")
         initializeApi()
     }
 

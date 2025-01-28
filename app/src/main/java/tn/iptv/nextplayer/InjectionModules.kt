@@ -10,8 +10,6 @@ import tn.iptv.nextplayer.listchannels.ListChannelViewModel
 import tn.iptv.nextplayer.login.LoginViewModel
 
 
-
-
 val appModules = module {
     single<ChannelManager> { ChannelImp(androidApplication()) }
 }
