@@ -54,7 +54,6 @@ fun NavigationItemView(
                 if (selected) Color.Black else Color.White
             } else redLogout,
         )
-        if (drawerState.isOpen) {
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = navigationItem.title,
@@ -64,6 +63,6 @@ fun NavigationItemView(
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                 lineHeight = 20.sp,
             )
-        }
+
     }
 }
