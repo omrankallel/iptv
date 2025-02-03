@@ -42,7 +42,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TopBarDashBoard(
@@ -52,25 +51,31 @@ fun TopBarDashBoard(
     searchValue: MutableState<String>,
     onSearchValueChange: (String) -> Unit,
     onClickFilter: () -> Unit,
+    onDrawerOpen: () -> Unit, // New callback to open the drawer
 ) {
-
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(65.dp)
-
-            // .background(back_application_start_color)
-            .padding(end = if (drawerState.isOpen) 180.dp else 80.dp),
-        /* colors = TopAppBarDefaults.topAppBarColors(
-             containerColor = back_application_start_color
-         ),)**/
+            .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-    )
-    {
-
+    ) {
+        // 🔹 Menu Icon to Open Drawer
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clickable { onDrawerOpen() }, // Open drawer when clicked
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_front), // Use your menu icon
+                contentDescription = "Menu Icon",
+                tint = White
+            )
+        }
 
         Spacer(Modifier.width(10.dp))
+
         Text(
             text = titlePage,
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
@@ -79,13 +84,7 @@ fun TopBarDashBoard(
         )
 
         Spacer(Modifier.width(20.dp))
-        CustomSeparator()
-        Spacer(Modifier.width(20.dp))
-        DisplayDateTime()
 
-        Spacer(Modifier.weight(1f))
-
-        Spacer(Modifier.width(10.dp))
 
         if (selectedNavigationItem != NavigationItem.Home)
             TextFieldItem(
@@ -111,98 +110,30 @@ fun TopBarDashBoard(
                     painter = painterResource(id = R.drawable.ic_filter),
                     contentDescription = "Filter Icon",
                     tint = White,
-                    modifier = Modifier
-                        .clickable { onClickFilter() },
+                    modifier = Modifier.clickable { onClickFilter() },
                 )
             }
         }
 
-        Box(
-            modifier = Modifier.size(50.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_favorite),
-                contentDescription = "favorite Icon",
-                tint = White,
-            )
-
-        }
-        Box(
-            modifier = Modifier.size(50.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_settings),
-                contentDescription = "settings Icon",
-                tint = White,
-            )
-        }
-
-        Box(
-            modifier = Modifier.size(50.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_notification),
-                contentDescription = "Notification Icon",
-                tint = White,
-            )
-        }
+        IconButtonItem(R.drawable.ic_favorite, "Favorite Icon")
+        IconButtonItem(R.drawable.ic_settings, "Settings Icon")
+        IconButtonItem(R.drawable.ic_notification, "Notification Icon")
 
         Spacer(Modifier.width(10.dp))
-
     }
-
-
 }
 
-
+// 🔹 Extracted Reusable Icon Button Component
 @Composable
-fun CustomSeparator() {
+fun IconButtonItem(iconId: Int, contentDescription: String) {
     Box(
-        modifier = Modifier
-            .fillMaxHeight()  // Full height
-            .width(1.dp)    // 1.dp width
-            .padding(vertical = 10.dp)
-            .background(white), // Set color of the separator
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun DisplayDateTime() {
-
-    // Current date and time
-    val current = LocalDateTime.now()
-
-    // Formatter for time in 12-hour format with AM/PM
-    val timeFormatter = DateTimeFormatter.ofPattern("h:mma", Locale.ENGLISH)
-    val time = current.format(timeFormatter)
-
-    // Formatter for date with day, month (in French), and year
-    val dateFormatter = DateTimeFormatter.ofPattern("d, MMMM yyyy", Locale.ENGLISH)
-    val date = current.format(dateFormatter)
-
-
-    Column {
-
-        Text(
-            text = time,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.Medium,
-            color = white,
-        )
-
-
-        Text(
-            text = date,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.Medium,
-            color = gray,
+        modifier = Modifier.size(50.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(id = iconId),
+            contentDescription = contentDescription,
+            tint = White,
         )
     }
-
 }

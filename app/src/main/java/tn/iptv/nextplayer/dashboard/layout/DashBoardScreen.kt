@@ -1,64 +1,83 @@
 package tn.iptv.nextplayer.dashboard.layout
 
 
-//import tn.iptv.nextplayer.dashboard.component.CustomDrawer
+
 import PreferencesHelper
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN_LEFT
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN_RIGHT
+import android.view.KeyEvent.KEYCODE_DPAD_LEFT
+import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
+import android.view.KeyEvent.KEYCODE_DPAD_UP
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.google.gson.Gson
 import fetchString
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
-import tn.iptv.nextplayer.dashboard.component.NavigationItemView
 import tn.iptv.nextplayer.dashboard.component.TopBarDashBoard
 import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
@@ -71,7 +90,6 @@ import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Settings
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.TVChannels
-import tn.iptv.nextplayer.dashboard.customdrawer.model.isOpened
 import tn.iptv.nextplayer.dashboard.screens.FavoriteScreen
 import tn.iptv.nextplayer.dashboard.screens.SettingsScreen
 import tn.iptv.nextplayer.dashboard.screens.detailmovies.MovieDetailScreen
@@ -86,16 +104,12 @@ import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.feature.player.model.grouped_media.GroupedMedia
-import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end2_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_application_end_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_application_start_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_series_center_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_series_end_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_series_start2_color
-import tn.iptv.nextplayer.listchannels.ui.theme.back_series_start_color
+import tn.iptv.nextplayer.listchannels.ui.theme.Purple40
+import tn.iptv.nextplayer.listchannels.ui.theme.colorBackSelectedElement
+import tn.iptv.nextplayer.listchannels.ui.theme.colorTextButton
+import tn.iptv.nextplayer.listchannels.ui.theme.redLogout
 import tn.iptv.nextplayer.login.LoginActivity
 import tn.iptv.nextplayer.login.app
-import kotlin.math.roundToInt
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -104,110 +118,54 @@ import kotlin.math.roundToInt
 fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
-    var drawerState by remember { mutableStateOf(CustomDrawerState.Opened) }
 
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current.density
-
-    val screenWidth = remember {
-        derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
-    }
-    Log.d("DashBoardScreen", "screenWidth  ${screenWidth.value}")
-    val offsetValue by remember { derivedStateOf { (screenWidth.value / 8).dp } }
-    Log.d("DashBoardScreen", "offsetValue  $offsetValue")
-    val animatedOffset by animateDpAsState(
-        targetValue = if (drawerState.isOpened()) offsetValue else 90.dp,
-        label = "Animated Offset",
-    )
     val searchValueInitial = remember { mutableStateOf("") }
 
-    BackHandler(enabled = drawerState.isOpened()) {
-        drawerState = CustomDrawerState.Closed
+    if (viewModel.bindingModel.selectedSerie.value.id.isNotEmpty()) {
+        if (viewModel.bindingModel.selectedSerie.value.icon.isNotEmpty())
+            Image(
+                painter = rememberAsyncImagePainter(viewModel.bindingModel.selectedSerie.value.icon), // Replace with your image resource
+                contentDescription = "Image with gradient background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop, // Adjust the image scaling
+            )
     }
-    Box(
-        modifier = Modifier
-            .offset(x = animatedOffset)
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        back_application_start_color,
-                        back_application_end_color,
-                        back_application_end2_color,
-                    ),
-                ),
-            ),
-    ) {
-
-
-        if (viewModel.bindingModel.selectedSerie.value.id.isNotEmpty()) {
-            if (viewModel.bindingModel.selectedSerie.value.icon.isNotEmpty())
-                Image(
-                    painter = rememberAsyncImagePainter(viewModel.bindingModel.selectedSerie.value.icon), // Replace with your image resource
-                    contentDescription = "Image with gradient background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop, // Adjust the image scaling
-                )
-        }
-        if (viewModel.bindingModel.selectedMovie.value.id.isNotEmpty()) {
-            if (viewModel.bindingModel.selectedMovie.value.icon.isNotEmpty())
-                Image(
-                    painter = rememberAsyncImagePainter(viewModel.bindingModel.selectedMovie.value.icon), // Replace with your image resource
-                    contentDescription = "Image with gradient background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop, // Adjust the image scaling
-                )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            back_series_start_color,
-                            back_series_start2_color,
-                            back_series_center_color,
-                            back_series_end_color,
-                        ),
-                    ),
-                ),
-        )
-
-        MainContent(
-            viewModel = viewModel,
-            favoriteViewModel = favoriteViewModel,
-            searchValueInitial = searchValueInitial,
-            selectedNavigationItem = viewModel.bindingModel.selectedNavigationItem.value,
-            onDrawerClick = { drawerState = it },
-            onShowScreenDetailSerie = { serieSelected ->
-                viewModel.bindingModel.selectedNavigationItem.value = DetailSeries
-
-                viewModel.bindingModel.selectedSerie.value = serieSelected
-                viewModel.bindingModel.selectedEpisodeToWatch.value = EpisodeItem()
-                channelManager.serieSelected.value = serieSelected
-
-                channelManager.fetchSaisonBySerie()
-
-            },
-            onShowScreenDetailMovie = { movieSelected ->
-
-                viewModel.bindingModel.selectedNavigationItem.value = DetailMovies
-                viewModel.bindingModel.selectedMovie.value = movieSelected
-                channelManager.movieSelected.value = movieSelected
-
-            },
-            onDrawerOpen = {
-                drawerState = CustomDrawerState.Opened
-            },
-            onDrawerClose = {
-                drawerState = CustomDrawerState.Closed
-            },
-
+    if (viewModel.bindingModel.selectedMovie.value.id.isNotEmpty()) {
+        if (viewModel.bindingModel.selectedMovie.value.icon.isNotEmpty())
+            Image(
+                painter = rememberAsyncImagePainter(viewModel.bindingModel.selectedMovie.value.icon), // Replace with your image resource
+                contentDescription = "Image with gradient background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop, // Adjust the image scaling
             )
     }
 
+    MainContent(
+        viewModel = viewModel,
+        favoriteViewModel = favoriteViewModel,
+        searchValueInitial = searchValueInitial,
+        selectedNavigationItem = viewModel.bindingModel.selectedNavigationItem.value,
+        onDrawerClick = { },
+        onShowScreenDetailSerie = { serieSelected ->
+            viewModel.bindingModel.selectedNavigationItem.value = DetailSeries
 
+            viewModel.bindingModel.selectedSerie.value = serieSelected
+            viewModel.bindingModel.selectedEpisodeToWatch.value = EpisodeItem()
+            channelManager.serieSelected.value = serieSelected
+
+            channelManager.fetchSaisonBySerie()
+
+        },
+        onShowScreenDetailMovie = { movieSelected ->
+
+            viewModel.bindingModel.selectedNavigationItem.value = DetailMovies
+            viewModel.bindingModel.selectedMovie.value = movieSelected
+            channelManager.movieSelected.value = movieSelected
+        },
+        onDrawerOpen = {
+        },
+        onDrawerClose = {
+        },)
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -234,12 +192,22 @@ fun MainContent(
     BackHandler(enabled = drawerState.isOpen) {
         coroutineScope.launch { drawerState.close() }
     }
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }  // Track the selected index
+    val selectedIndex = rememberSaveable { mutableIntStateOf(0) }
 
+    val drawerFocusRequester = remember { FocusRequester() }
+    val focusedIndex = remember { mutableIntStateOf(0) }
+    val focusRequesters = remember { List(NavigationItem.entries.size) { FocusRequester() } }
+    val focusManager = LocalFocusManager.current // Focus manager
+
+    LaunchedEffect(drawerState.isClosed) {
+        if (drawerState.isClosed) {
+            focusManager.clearFocus(force = true) // Remove focus from drawer when closed
+        }
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(modifier = Modifier.width(360.dp)) {
+            ModalDrawerSheet() {
                 Spacer(modifier = Modifier.height(12.dp))
                 Image(
                     painter = rememberAsyncImagePainter(channelManager.channelSelected.value!!.icon),
@@ -249,17 +217,73 @@ fun MainContent(
                     contentDescription = "Channel Icon",
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .background(colorTextButton)
+                        .fillMaxHeight()
+                        .padding(12.dp)
+                        .focusRequester(drawerFocusRequester)
+                        .onFocusChanged { focusState ->
+                            if (!focusState.hasFocus && drawerState.isOpen) {
+                                drawerFocusRequester.requestFocus()
+                            }
+                        }
+                        .onKeyEvent { keyEvent: KeyEvent ->
+                            if (keyEvent.type == KeyEventType.KeyDown) {
+                                when (keyEvent.nativeKeyEvent.keyCode) {
+                                    KEYCODE_DPAD_UP -> {
+                                        if (focusedIndex.intValue > 0) {
+                                            focusedIndex.intValue -= 1
+                                            focusRequesters[focusedIndex.intValue].requestFocus()
+                                        }
+                                        true
+                                    }
+                                    KEYCODE_DPAD_DOWN -> {
+                                        if (focusedIndex.intValue < focusRequesters.size - 1) {
+                                            focusedIndex.intValue += 1
+                                            focusRequesters[focusedIndex.intValue].requestFocus()
+                                        }
+                                        true
+                                    }
+                                    else -> false
+                                }
+                            } else {
+                                false
+                            }
+                        }
+                        .verticalScroll(rememberScrollState())
+                        .focusable(),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
                     NavigationItem.entries.filterNot {
                         it in listOf(DetailSeries, DetailMovies)
                     }.forEachIndexed { index, navigationItem ->
-                        // Use forEachIndexed to get the index
-                        NavigationItemView(
-                            drawerState = drawerState,
-                            navigationItem = navigationItem,
+                        NavigationDrawerItem(
+                            modifier = Modifier
+                                .focusRequester(focusRequesters[index])
+                                .clip(shape = RoundedCornerShape(12.dp))
+                                .background(
+                                    when {
+                                        navigationItem == viewModel.bindingModel.selectedNavigationItem.value -> colorBackSelectedElement // Keep selected color
+                                        focusedIndex.intValue == index -> Color.Gray // Highlight focused item
+                                        else -> Color.Transparent
+                                    }
+                                )
+                                .focusable(),
+                            label = { Text(text = navigationItem.title) },
+                            icon = {
+                                Icon(
+                                    painter = painterResource(id = navigationItem.icon),
+                                    contentDescription = "Navigation Item Icon",
+                                    tint = if (navigationItem.title != "Logout") {
+                                        if (navigationItem == viewModel.bindingModel.selectedNavigationItem.value) Color.Black else Color.White
+                                    } else redLogout,
+                                )
+                            },
                             selected = navigationItem == viewModel.bindingModel.selectedNavigationItem.value,
                             onClick = {
-                                selectedIndex.value = index  // Update the selected index when an item is clicked
+                                selectedIndex.intValue = index
                                 viewModel.bindingModel.selectedNavigationItem.value = navigationItem
                                 searchValueInitial.value = ""
                                 when (viewModel.bindingModel.selectedNavigationItem.value) {
@@ -272,12 +296,10 @@ fun MainContent(
                                                 channelManager.selectedPackageOfLiveTV.value = channelManager.listOfPackagesOfLiveTV.value!!.first()
 
                                             }
-
                                         }
                                         channelManager.fetchCategoryLiveTVAndLiveTV("")
 
                                     }
-
                                     Series -> {
                                         channelManager.listOfPackages.value?.forEach { packageItem ->
 
@@ -288,7 +310,6 @@ fun MainContent(
 
                                         }
                                         channelManager.fetchCategorySeriesAndSeries("")
-
                                     }
 
                                     DetailSeries -> {}
@@ -329,7 +350,15 @@ fun MainContent(
                                 coroutineScope.launch { drawerState.close() }
                                 handleNavigationClick(navigationItem, viewModel, channelManager, favoriteViewModel)
                             },
+                            colors = NavigationDrawerItemDefaults.colors(
+                                selectedContainerColor = colorBackSelectedElement,
+                                unselectedContainerColor = Color.Transparent,
+                                selectedTextColor = Color.Black,
+                                unselectedTextColor = Color.White,
+                            ),
                         )
+
+
                     }
                 }
             }
@@ -338,7 +367,6 @@ fun MainContent(
         Scaffold(
             containerColor = Color.Transparent,
             modifier = Modifier
-                //.//background(Color.Transparent)
                 .clickable(enabled = drawerState.isOpen) {
                     onDrawerClick(CustomDrawerState.Closed)
                 },
@@ -354,8 +382,6 @@ fun MainContent(
                     Logout -> fetchString(context, R.string.label_logout)
 
                 }
-
-
                 TopBarDashBoard(
                     titlePage = titlePage, drawerState = drawerState, searchValue = searchValueInitial,
                     selectedNavigationItem = selectedNavigationItem,
@@ -379,27 +405,28 @@ fun MainContent(
                                 channelManager.searchCategoryMoviesAndMovies(searchVal)
                             }
                         }
-
-
                     },
+             onDrawerOpen = fun() {
+                        Log.d("Drawer", "Drawer open")
+                        coroutineScope.launch {
+                            drawerState.open()
+                            drawerFocusRequester.requestFocus() // Request focus when the drawer opens
+                        }
+                    },// Open drawer
                     onClickFilter = {
                         viewModel.bindingModel.showFilters.value = !viewModel.bindingModel.showFilters.value
                     },
                 )
 
             },
-
             content = { paddingValues ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-
-
                     ) {
 
                     when (selectedNavigationItem) {
-
                         Home -> {
                             HomeScreen(
                                 viewModel,
@@ -413,7 +440,6 @@ fun MainContent(
                                 onDrawerClose = onDrawerClose,
                             )
                         }
-
                         TVChannels -> {
                             viewModel.bindingModel.selectedPage = Page.TV_CHANNEL
 
@@ -457,7 +483,6 @@ fun MainContent(
                             SeriesScreen(
                                 viewModel,
                                 onSelectSerie = { serieSelected ->
-                                    //  SerieDetailsScreen()
                                     onShowScreenDetailSerie(serieSelected)
                                 },
                             )
@@ -496,31 +521,35 @@ fun MainContent(
                             FavoriteScreen(
                                 viewModel,
                                 onSelectFavorite = {
-                                    if (it.type == "Series") {
-                                        val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        onShowScreenDetailSerie(serieSelected)
-                                    } else if (it.type == "Movies") {
-                                        val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        onShowScreenDetailMovie(movieSelected)
-                                    } else if (it.type == "Live TV") {
-                                        val mediaItem = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
-                                        try {
-                                            val gson = Gson()
-                                            val groupOfChannel: GroupedMedia = gson.fromJson(it.groupOFChannel, GroupedMedia::class.java)
-                                            val indexOfChannel = groupOfChannel.listSeries.indexOfFirst { serie ->
-                                                serie.id == it.itemId
+                                    when (it.type) {
+                                        "Series" -> {
+                                            val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                            onShowScreenDetailSerie(serieSelected)
+                                        }
+                                        "Movies" -> {
+                                            val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                            onShowScreenDetailMovie(movieSelected)
+                                        }
+                                        "Live TV" -> {
+                                            val mediaItem = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
+                                            try {
+                                                val gson = Gson()
+                                                val groupOfChannel: GroupedMedia = gson.fromJson(it.groupOFChannel, GroupedMedia::class.java)
+                                                val indexOfChannel = groupOfChannel.listSeries.indexOfFirst { serie ->
+                                                    serie.id == it.itemId
+                                                }
+
+                                                val intent = Intent(app, PlayerActivity::class.java)
+                                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                                intent.putExtra("GROUP_OF_CHANNEL", it.groupOFChannel)
+                                                intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
+                                                intent.data = Uri.parse(mediaItem.url)
+                                                app.startActivity(intent)
+
+
+                                            } catch (error: Exception) {
+                                                Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
                                             }
-
-                                            val intent = Intent(app, PlayerActivity::class.java)
-                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                            intent.putExtra("GROUP_OF_CHANNEL", it.groupOFChannel)
-                                            intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
-                                            intent.data = Uri.parse(mediaItem.url)
-                                            app.startActivity(intent)
-
-
-                                        } catch (error: Exception) {
-                                            Toast.makeText(app, "Error While loading your movie , Please try again", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 },

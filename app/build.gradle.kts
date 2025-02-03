@@ -134,6 +134,8 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-video:3.0.0-rc02")
 
+    implementation(libs.androidx.tv.material)
+
 
     // Media3
     implementation(libs.androidx.media3.common)

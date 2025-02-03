@@ -37,6 +37,7 @@ material = "1.7.2"
 nextlib = "0.8.2"
 room = "2.6.1"
 timber = "5.0.1"
+tvMaterial = "1.0.0"
 universalChardet = "2.5.0"
 retrofit = "2.11.0"
 bumptechGlide = "4.15.1"
@@ -91,6 +92,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxTestExt" }
+androidx-tv-material = { module = "androidx.tv:tv-material", version.ref = "tvMaterial" }
 coil-kt-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 github-albfernandez-juniversalchardet = { group = "com.github.albfernandez", name = "juniversalchardet", version.ref = "universalChardet" }
 github-anilbeesetti-nextlib-media3ext = { group = "com.github.anilbeesetti.nextlib", name = "nextlib-media3ext", version.ref = "nextlib" }
