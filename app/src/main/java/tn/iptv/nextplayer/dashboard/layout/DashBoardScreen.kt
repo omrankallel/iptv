@@ -207,7 +207,9 @@ fun MainContent(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet() {
+            ModalDrawerSheet(
+                drawerContainerColor = colorTextButton
+            ) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Image(
                     painter = rememberAsyncImagePainter(channelManager.channelSelected.value!!.icon),
