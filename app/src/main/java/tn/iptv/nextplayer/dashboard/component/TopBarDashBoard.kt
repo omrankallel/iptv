@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -46,12 +47,11 @@ import java.util.Locale
 @Composable
 fun TopBarDashBoard(
     titlePage: String,
-    drawerState: DrawerState,
     selectedNavigationItem: NavigationItem,
     searchValue: MutableState<String>,
     onSearchValueChange: (String) -> Unit,
     onClickFilter: () -> Unit,
-    onDrawerOpen: () -> Unit, // New callback to open the drawer
+
 ) {
     Row(
         modifier = Modifier
@@ -60,28 +60,20 @@ fun TopBarDashBoard(
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // 🔹 Menu Icon to Open Drawer
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { onDrawerOpen() }, // Open drawer when clicked
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_front), // Use your menu icon
-                contentDescription = "Menu Icon",
-                tint = White
-            )
-        }
+
 
         Spacer(Modifier.width(10.dp))
 
-        Text(
-            text = titlePage,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-            fontWeight = FontWeight.W500,
-            color = white,
-        )
+        Box(
+            modifier = Modifier.clickable {  }
+        ){
+            Text(
+                text = titlePage,
+                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                fontWeight = FontWeight.W500,
+                color = white,
+            )
+        }
 
         Spacer(Modifier.width(20.dp))
 
@@ -123,7 +115,6 @@ fun TopBarDashBoard(
     }
 }
 
-// 🔹 Extracted Reusable Icon Button Component
 @Composable
 fun IconButtonItem(iconId: Int, contentDescription: String) {
     Box(

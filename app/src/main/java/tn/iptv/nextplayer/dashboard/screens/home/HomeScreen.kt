@@ -2,8 +2,11 @@ package tn.iptv.nextplayer.dashboard.screens.home
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,15 +15,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -32,6 +40,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
@@ -43,137 +53,30 @@ import tn.iptv.nextplayer.domain.models.packages.ResponsePackageItem
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 import kotlin.math.absoluteValue
 
-@SuppressLint("LogNotTimber")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun HomeScreen(
-    viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -> Unit, pagerState: PagerState, onDrawerOpen: () -> Unit,
-    onDrawerClose: () -> Unit,
+    viewModel: DashBoardViewModel,
 ) {
-
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listOfPackages = channelManager.listOfPackages.value
     val isLoading = viewModel.bindingModel.isLoadingHome
+    val pagerState = rememberPagerState(initialPage = 0)
+    val focusedIndex = remember { mutableIntStateOf(0) }
 
+    // Initialize focus requesters safely
+    val focusRequesters = remember {
+        listOfPackages?.let { List(it.size) { FocusRequester() } } ?: emptyList()
+    }
 
-    Box(
-        modifier = Modifier
+    val coroutineScope = rememberCoroutineScope() // Ensure a valid coroutine scope
 
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-
-        if (isLoading.value)
-            CircularProgressIndicator(color = borderFrame)
-        else Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-            HorizontalPager(
-                count = listOfPackages!!.size,
-                state = pagerState,
-                contentPadding = PaddingValues(horizontal = 270.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-
-                ) { page ->
-
-                Box(
-
-                    modifier = Modifier
-                        .background(Color.Transparent)
-                        .graphicsLayer {
-                            val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-                            lerp(
-                                start = 0.75f,
-                                stop = 1f,
-                                fraction = 1 - pageOffset.coerceIn(0f, 1f),
-                            ).also { scale ->
-                                scaleX = scale
-                                scaleY = scale
-
-                            }
-                            alpha = lerp(
-                                start = 0.50f,
-                                stop = 1f,
-                                fraction = 1 - pageOffset.coerceIn(0f, 1f),
-                            )
-
-                        }
-                        .clickable {
-                            val packageItem: ResponsePackageItem = listOfPackages.map { it }[page]
-
-                            when (packageItem.screen) {
-                                "1" -> {
-
-                                    channelManager.listOfPackagesOfLiveTV.value = packageItem.live.toMutableList()
-                                    channelManager.selectedPackageOfLiveTV.value = channelManager.listOfPackagesOfLiveTV.value!!.first()
-                                    runBlocking {
-                                        channelManager.searchValue.value?.let { channelManager.fetchCategoryLiveTVAndLiveTV(it) }
-                                    }
-                                    viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.TVChannels
-
-                                }
-
-                                "2" -> {
-
-                                    channelManager.listOfPackagesOfMovies.value = packageItem.movies.toMutableList()
-                                    channelManager.selectedPackageOfMovies.value = channelManager.listOfPackagesOfMovies.value!!.first()
-                                    runBlocking {
-                                        channelManager.searchValue.value?.let { channelManager.fetchCategoryMoviesAndMovies(it) }
-                                    }
-
-                                    viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.Movies
-
-                                }
-
-                                "3" -> {
-
-                                    channelManager.listOfPackagesOfSeries.value = packageItem.series.toMutableList()
-                                    channelManager.selectedPackageOfSeries.value = channelManager.listOfPackagesOfSeries.value!!.first()
-                                    runBlocking {
-                                        channelManager.searchValue.value?.let { channelManager.fetchCategorySeriesAndSeries(it) }
-                                    }
-                                    viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.Series
-
-                                }
-                            }
-
-
-                        },
-
-
-                    ) {
-
-                    val iconUrl = listOfPackages.map { it.icon }[page]
-                    Log.d("ImageURL", iconUrl) // Check if the URL is correct
-
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(iconUrl)
-                            .crossfade(true)
-                            .scale(Scale.FILL)
-                            .listener(
-                                onError = { request, throwable ->
-                                    Log.e("ImageLoadError", "Failed to load image: ${throwable.throwable.message}")
-                                },
-                            )
-                            .build(),
-                        contentDescription = null,
-                        placeholder = painterResource(R.drawable.placeholder_image),
-                        error = painterResource(R.drawable.error_image),
-
-                        )
-
-                }
-
-            }
-
+    // Ensure focus when loading is complete
+    LaunchedEffect(isLoading.value) {
+        if (!isLoading.value && focusRequesters.isNotEmpty()) {
+            focusRequesters[0].requestFocus() // Focus on first item
+            focusedIndex.intValue = 0
         }
-
-
     }
 
 
