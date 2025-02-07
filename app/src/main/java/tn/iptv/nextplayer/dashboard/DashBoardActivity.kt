@@ -27,7 +27,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.MVVM.MVVMBaseActivity
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
-import tn.iptv.nextplayer.dashboard.layout.DashBoardScreen
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.listchannels.IgnoreStatusBarScreen
 import tn.iptv.nextplayer.listchannels.ui.theme.IptvTheme
