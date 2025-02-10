@@ -167,7 +167,7 @@ fun MainContent(
         Box() {
             Column(
                 Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize().background(Color(0xFF262435)),
                 Arrangement.Center,
                 Alignment.CenterHorizontally
             ) {
