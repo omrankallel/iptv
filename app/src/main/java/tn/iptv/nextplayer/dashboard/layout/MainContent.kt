@@ -197,7 +197,7 @@ fun MainContent(
                                 channelManager.searchValue.value = searchVal
                                 when (viewModel.bindingModel.selectedPage) {
                                     Page.HOME->{
-
+                                        channelManager.searchForCategoryLiveTVAndLiveTV(searchVal)
                                     }
                                     Page.NOTHING -> {}
 
@@ -224,7 +224,7 @@ fun MainContent(
                     content = { paddingValues ->
                         Box(
                             modifier = Modifier
-                                .background(colorTextButton)
+
                                 .fillMaxSize()
                                 .padding(paddingValues),
                         ) {
@@ -496,7 +496,7 @@ fun MainContent(
                 Modifier
                     .fillMaxHeight()
                     .width(widthAnim)
-                    .clip(shape = RoundedCornerShape(12.dp))
+                    .clip(shape = RoundedCornerShape(bottomEnd = 8.dp, topEnd = 8.dp))
                     .background(colorTextButton)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 horizontalAlignment = Alignment.Start
