@@ -224,6 +224,7 @@ fun MainContent(
                     content = { paddingValues ->
                         Box(
                             modifier = Modifier
+                                .background(colorTextButton)
                                 .fillMaxSize()
                                 .padding(paddingValues),
                         ) {
