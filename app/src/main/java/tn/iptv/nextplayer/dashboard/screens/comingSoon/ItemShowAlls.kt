@@ -17,21 +17,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coloredShadow
 import tn.iptv.nextplayer.domain.models.series.MediaType
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
-import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 
 @Composable
 fun ItemShowAll(mediaType: MediaType, onClickToShowAll: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -39,9 +45,16 @@ fun ItemShowAll(mediaType: MediaType, onClickToShowAll: () -> Unit) {
             .height(if (mediaType == MediaType.LIVE_TV) 220.dp else 260.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(backCardMovie)
-            .border(2.dp, borderFrame, RoundedCornerShape(10.dp))
+            .border(
+                width = 2.dp,
+                color = if (isFocused) Color(0xFFB4A1FB) else Color.Gray,
+                shape = RoundedCornerShape(8.dp),
+            )
             .shadow(1.dp)
             .padding(2.dp)
+            .onFocusChanged { focusState ->
+                isFocused = focusState.isFocused
+            }
             .clickable {
                 onClickToShowAll()
             },
@@ -53,13 +66,16 @@ fun ItemShowAll(mediaType: MediaType, onClickToShowAll: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             GridIcon(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(48.dp).coloredShadow(
+                    color = if (isFocused) Color(0xFFB4A1FB) else Color.Gray,
+                ),
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "Afficher tout",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
             )
         }
     }

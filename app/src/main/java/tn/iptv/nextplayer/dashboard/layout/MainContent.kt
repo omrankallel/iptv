@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
@@ -400,7 +401,10 @@ fun MainContent(
 
                                 DetailSeries -> {
                                     viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    SerieDetailsScreen(viewModel, favoriteViewModel)
+                                    SerieDetailsScreen(viewModel, favoriteViewModel, onBack = {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Series
+                                        viewModel.bindingModel.selectedPage = Page.SERIES
+                                    })
                                 }
 
                                 Movies -> {
@@ -422,7 +426,10 @@ fun MainContent(
 
                                 DetailMovies -> {
                                     viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    MovieDetailScreen(viewModel, favoriteViewModel)
+                                    MovieDetailScreen(viewModel, favoriteViewModel, onBack = {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                        viewModel.bindingModel.selectedPage = Page.MOVIES
+                                    })
                                 }
 
                                 Favorite -> {

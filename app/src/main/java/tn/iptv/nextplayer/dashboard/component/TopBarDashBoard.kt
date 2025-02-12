@@ -1,16 +1,17 @@
 package tn.iptv.nextplayer.dashboard.component
 
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,9 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardOptions
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -46,12 +45,9 @@ import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
 import tn.iptv.nextplayer.listchannels.ui.theme.backTextFiledLight
-import tn.iptv.nextplayer.listchannels.ui.theme.gray
-import tn.iptv.nextplayer.listchannels.ui.theme.white
 import tn.iptv.nextplayer.login.layout.TextFieldItem
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -62,7 +58,9 @@ fun TopBarDashBoard(
     onSearchValueChange: (String) -> Unit,
     onClickFilter: () -> Unit,
 
-) {
+    ) {
+    var isFocused by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,31 +90,38 @@ fun TopBarDashBoard(
             modifier = Modifier
                 .width(1.dp)
                 .height(32.dp)
-                .background(White)
+                .background(White),
         )
 
         Spacer(Modifier.width(20.dp))
 
         DateTimeDisplay()
 
-        Spacer(Modifier.width(20.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-            TextFieldItem(
-                textValue = searchValue.value,
-                colorBorder = backTextFiledLight,
-                leadingIcon = R.drawable.ic_search,
-                isReadOnly = true,
-                hint = "Search for Something",
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(54.dp),
-                customKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-            ) {
-                searchValue.value = it
-                onSearchValueChange(it)
-            }
+        TextFieldItem(
+            textValue = searchValue.value,
+            colorBorder = backTextFiledLight,
+            leadingIcon = R.drawable.ic_search,
+            hint = "Search for Something",
 
-        Spacer(Modifier.width(10.dp))
+            modifier = Modifier
+                .width(300.dp)
+                .height(54.dp)
+                .border(
+                    width = 2.dp,
+                    color = if (isFocused) Color(0xFFB4A1FB) else Color.Gray,
+                    shape = RoundedCornerShape(8.dp),
+                )
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                },
+            customKeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+        ) {
+            searchValue.value = it
+            onSearchValueChange(it)
+        }
+
 
         if (selectedNavigationItem == Series || selectedNavigationItem == Movies) {
             Box(modifier = Modifier.size(50.dp), contentAlignment = Alignment.Center) {
@@ -132,8 +137,8 @@ fun TopBarDashBoard(
         IconButtonItem(R.drawable.ic_favorite, "Favorite Icon")
         IconButtonItem(R.drawable.ic_settings, "Settings Icon")
         IconButtonItem(R.drawable.ic_notification, "Notification Icon")
+        Spacer(Modifier.width(20.dp))
 
-        Spacer(Modifier.width(10.dp))
     }
 }
 
@@ -150,6 +155,7 @@ fun IconButtonItem(iconId: Int, contentDescription: String) {
         )
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DateTimeDisplay() {
@@ -158,19 +164,19 @@ fun DateTimeDisplay() {
     val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 
     Column(
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(
             text = currentDateTime.format(timeFormatter),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Bold,
-            color = White
+            color = White,
         )
         Text(
             text = currentDateTime.format(dateFormatter),
             fontSize = MaterialTheme.typography.bodyMedium.fontSize,
             fontWeight = FontWeight.Normal,
-            color = Color.Gray
+            color = Color.Gray,
         )
     }
 }
@@ -185,13 +191,13 @@ fun FocusableBox(titlePage: String) {
             .focusable()
             .clip(shape = RoundedCornerShape(8.dp))
             .background(if (isFocused) Color.Gray else Color.Transparent)
-            .padding(8.dp)
+            .padding(8.dp),
     ) {
         BasicText(
             text = titlePage,
             style = MaterialTheme.typography.titleMedium.copy(
-                color = if (isFocused) Color.Black else White
-            )
+                color = if (isFocused) Color.Black else White,
+            ),
         )
     }
 }

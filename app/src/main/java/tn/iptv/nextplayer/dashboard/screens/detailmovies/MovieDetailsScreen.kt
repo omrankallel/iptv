@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.dashboard.screens.detailmovies
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,10 +14,11 @@ import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 
 @Composable
-fun MovieDetailScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
+fun MovieDetailScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel, onBack: () -> Unit) {
 
     Log.d("MovieDetailScreen", "" + viewModel.bindingModel.selectedMovie.value.toString())
 
+    BackHandler(onBack = { onBack() })
 
     Row(modifier = Modifier.fillMaxWidth()) {
         // Colonne 75%

@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.dashboard.screens.serieDetails
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,8 +16,9 @@ import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 
 @Composable
-fun SerieDetailsScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
+fun SerieDetailsScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel, onBack: () -> Unit) {
 
+    BackHandler(onBack = { onBack() })
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
 
