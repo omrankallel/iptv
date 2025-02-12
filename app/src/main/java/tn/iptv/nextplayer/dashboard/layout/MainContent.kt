@@ -1,13 +1,13 @@
 package tn.iptv.nextplayer.dashboard.layout
 
 
-
 import PreferencesHelper
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_BACK
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
@@ -135,17 +135,17 @@ fun MainContent(
     onShowScreenDetailSerie: (MediaItem) -> Unit,
     onShowScreenDetailMovie: (MediaItem) -> Unit,
 
-) {
+    ) {
     val context = LocalContext.current
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember {
         mutableStateOf(false)
     }
-    val widthAnim by animateDpAsState(targetValue = if(isExpanded) 220.dp else 70.dp, label = "")
+    val widthAnim by animateDpAsState(targetValue = if (isExpanded) 220.dp else 70.dp, label = "")
 
     BackHandler(enabled = isExpanded) {
-        coroutineScope.launch { isExpanded !=isExpanded }
+        coroutineScope.launch { isExpanded != isExpanded }
     }
     val selectedIndex = rememberSaveable { mutableIntStateOf(0) }
 
@@ -168,16 +168,17 @@ fun MainContent(
         Box() {
             Column(
                 Modifier
-                    .fillMaxSize().background(Color(0xFF262435)),
+                    .fillMaxSize()
+                    .background(Color(0xFF262435)),
                 Arrangement.Center,
-                Alignment.CenterHorizontally
+                Alignment.CenterHorizontally,
             ) {
                 Scaffold(
                     containerColor = Color.Transparent,
                     modifier = Modifier
                         .padding(start = 70.dp)
                         .clickable(enabled = isExpanded) {
-                           isExpanded = !isExpanded
+                            isExpanded = !isExpanded
                         },
                     topBar = {
 
@@ -192,14 +193,15 @@ fun MainContent(
 
                         }
                         TopBarDashBoard(
-                            titlePage = titlePage,  searchValue = searchValueInitial,
+                            titlePage = titlePage, searchValue = searchValueInitial,
                             selectedNavigationItem = selectedNavigationItem,
                             onSearchValueChange = { searchVal ->
                                 channelManager.searchValue.value = searchVal
                                 when (viewModel.bindingModel.selectedPage) {
-                                    Page.HOME->{
+                                    Page.HOME -> {
                                         channelManager.searchForCategoryLiveTVAndLiveTV(searchVal)
                                     }
+
                                     Page.NOTHING -> {}
 
                                     Page.TV_CHANNEL -> {
@@ -248,7 +250,9 @@ fun MainContent(
                                                     count = listOfPackages.size,
                                                     state = pagerState,
                                                     contentPadding = PaddingValues(horizontal = 270.dp),
-                                                    modifier = Modifier.fillMaxWidth().weight(1f),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .weight(1f),
                                                 ) { page ->
                                                     Box(
                                                         modifier = Modifier
@@ -266,6 +270,7 @@ fun MainContent(
                                                                         }
                                                                         true
                                                                     }
+
                                                                     android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
                                                                         if (pagerState.currentPage < listOfPackages.size - 1) {
                                                                             runBlocking {
@@ -277,7 +282,9 @@ fun MainContent(
                                                                         true
                                                                     }
 
-                                                                    else -> {false}
+                                                                    else -> {
+                                                                        false
+                                                                    }
                                                                 }
                                                             }
                                                             .background(Color.Transparent)
@@ -349,6 +356,7 @@ fun MainContent(
                                         }
                                     }
                                 }
+
                                 TVChannels -> {
                                     viewModel.bindingModel.selectedPage = Page.TV_CHANNEL
 
@@ -401,10 +409,13 @@ fun MainContent(
 
                                 DetailSeries -> {
                                     viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    SerieDetailsScreen(viewModel, favoriteViewModel, onBack = {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Series
-                                        viewModel.bindingModel.selectedPage = Page.SERIES
-                                    })
+                                    SerieDetailsScreen(
+                                        viewModel, favoriteViewModel,
+                                        onBack = {
+                                            viewModel.bindingModel.selectedNavigationItem.value = Series
+                                            viewModel.bindingModel.selectedPage = Page.SERIES
+                                        },
+                                    )
                                 }
 
                                 Movies -> {
@@ -426,10 +437,13 @@ fun MainContent(
 
                                 DetailMovies -> {
                                     viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    MovieDetailScreen(viewModel, favoriteViewModel, onBack = {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
-                                        viewModel.bindingModel.selectedPage = Page.MOVIES
-                                    })
+                                    MovieDetailScreen(
+                                        viewModel, favoriteViewModel,
+                                        onBack = {
+                                            viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                            viewModel.bindingModel.selectedPage = Page.MOVIES
+                                        },
+                                    )
                                 }
 
                                 Favorite -> {
@@ -441,10 +455,12 @@ fun MainContent(
                                                     val serieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
                                                     onShowScreenDetailSerie(serieSelected)
                                                 }
+
                                                 "Movies" -> {
                                                     val movieSelected = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
                                                     onShowScreenDetailMovie(movieSelected)
                                                 }
+
                                                 "Live TV" -> {
                                                     val mediaItem = MediaItem(it.cast, "", it.date, "", it.genre, it.icon, it.itemId, it.name, it.plot, it.url)
                                                     try {
@@ -473,7 +489,7 @@ fun MainContent(
 
                                 Settings -> {
                                     viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    SettingsScreen()
+                                    SettingsScreen(viewModel)
                                     viewModel.bindingModel.selectedSerie.value = MediaItem()
                                     viewModel.bindingModel.selectedMovie.value = MediaItem()
                                 }
@@ -506,7 +522,7 @@ fun MainContent(
                     .clip(shape = RoundedCornerShape(bottomEnd = 8.dp, topEnd = 8.dp))
                     .background(colorTextButton)
                     .padding(horizontal = 4.dp, vertical = 10.dp),
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(channelManager.channelSelected.value!!.icon),
@@ -528,6 +544,7 @@ fun MainContent(
                             }
                         }
                         .onKeyEvent { keyEvent: KeyEvent ->
+                            Log.d("KeyEvent", keyEvent.toString())
                             if (keyEvent.type == KeyEventType.KeyDown) {
                                 when (keyEvent.nativeKeyEvent.keyCode) {
                                     KEYCODE_DPAD_UP -> {
@@ -537,12 +554,14 @@ fun MainContent(
                                         }
                                         true
                                     }
+
                                     KEYCODE_DPAD_RIGHT -> {
-                                            coroutineScope.launch {
-                                                isExpanded = !isExpanded;
-                                            }
+                                        coroutineScope.launch {
+                                            isExpanded = !isExpanded;
+                                        }
                                         true
                                     }
+
                                     KEYCODE_DPAD_DOWN -> {
                                         if (focusedIndex.intValue < focusRequesters.size - 1) {
                                             focusedIndex.intValue += 1
@@ -550,6 +569,13 @@ fun MainContent(
                                         }
                                         true
                                     }
+
+                                    KEYCODE_BACK -> {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Home
+                                        viewModel.bindingModel.selectedPage = Page.HOME
+                                        true
+                                    }
+
                                     else -> false
                                 }
                             } else {
@@ -573,66 +599,71 @@ fun MainContent(
                                         navigationItem == viewModel.bindingModel.selectedNavigationItem.value -> colorBackSelectedElement // Keep selected color
                                         focusedIndex.intValue == index -> Color.Gray // Highlight focused item
                                         else -> Color.Transparent
-                                    }
-                                ).clickable {
-                                        selectedIndex.intValue = index
-                                        viewModel.bindingModel.selectedNavigationItem.value = navigationItem
-                                        searchValueInitial.value = ""
-                                    coroutineScope.launch {  isExpanded !=isExpanded }
-                                        when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                            Home -> {}
-                                            TVChannels -> {
-                                                channelManager.listOfPackages.value?.forEach { packageItem ->
-                                                    if (packageItem.screen == "1" && packageItem.name == "Live TV") {
-                                                        channelManager.listOfPackagesOfLiveTV.value = packageItem.live.toMutableList()
-                                                        channelManager.selectedPackageOfLiveTV.value = channelManager.listOfPackagesOfLiveTV.value!!.first()
-                                                    }
+                                    },
+                                )
+                                .clickable {
+                                    selectedIndex.intValue = index
+                                    viewModel.bindingModel.selectedNavigationItem.value = navigationItem
+                                    searchValueInitial.value = ""
+                                    coroutineScope.launch { isExpanded != isExpanded }
+                                    when (viewModel.bindingModel.selectedNavigationItem.value) {
+                                        Home -> {}
+                                        TVChannels -> {
+                                            channelManager.listOfPackages.value?.forEach { packageItem ->
+                                                if (packageItem.screen == "1" && packageItem.name == "Live TV") {
+                                                    channelManager.listOfPackagesOfLiveTV.value = packageItem.live.toMutableList()
+                                                    channelManager.selectedPackageOfLiveTV.value = channelManager.listOfPackagesOfLiveTV.value!!.first()
                                                 }
-                                                channelManager.fetchCategoryLiveTVAndLiveTV("")
                                             }
-                                            Series -> {
-                                                channelManager.listOfPackages.value?.forEach { packageItem ->
-                                                    if (packageItem.screen == "3" && packageItem.name == "Series") {
-                                                        channelManager.listOfPackagesOfSeries.value = packageItem.series.toMutableList()
-                                                        channelManager.selectedPackageOfSeries.value = channelManager.listOfPackagesOfSeries.value!!.first()
-                                                    }
-                                                }
-                                                channelManager.fetchCategorySeriesAndSeries("")
-                                            }
-                                            DetailSeries -> {}
-                                            Movies -> {
-                                                channelManager.listOfPackages.value?.forEach { packageItem ->
-                                                    if (packageItem.screen == "2" && packageItem.name == "Movies") {
-                                                        channelManager.listOfPackagesOfMovies.value = packageItem.movies.toMutableList()
-                                                        channelManager.selectedPackageOfMovies.value = channelManager.listOfPackagesOfMovies.value!!.first()
-                                                    }
-                                                }
-                                                channelManager.fetchCategoryMoviesAndMovies("")
-                                            }
-                                            DetailMovies -> {}
-                                            Favorite -> {
-                                                channelManager.fetchFavorites(favoriteViewModel)
-                                            }
-                                            Settings -> {}
-                                            Logout -> {
-                                                PreferencesHelper.logoutUser(app)
-                                                viewModel.bindingModel.selectedPage = Page.NOTHING
-                                                viewModel.bindingModel.selectedSerie.value = MediaItem()
-                                                viewModel.bindingModel.selectedMovie.value = MediaItem()
-
-                                                val intent = Intent(app, LoginActivity::class.java)
-                                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clear the activity stack
-                                                app.startActivity(intent)
-                                            }
+                                            channelManager.fetchCategoryLiveTVAndLiveTV("")
                                         }
 
-                                        handleNavigationClick(navigationItem, viewModel, channelManager, favoriteViewModel)
+                                        Series -> {
+                                            channelManager.listOfPackages.value?.forEach { packageItem ->
+                                                if (packageItem.screen == "3" && packageItem.name == "Series") {
+                                                    channelManager.listOfPackagesOfSeries.value = packageItem.series.toMutableList()
+                                                    channelManager.selectedPackageOfSeries.value = channelManager.listOfPackagesOfSeries.value!!.first()
+                                                }
+                                            }
+                                            channelManager.fetchCategorySeriesAndSeries("")
+                                        }
+
+                                        DetailSeries -> {}
+                                        Movies -> {
+                                            channelManager.listOfPackages.value?.forEach { packageItem ->
+                                                if (packageItem.screen == "2" && packageItem.name == "Movies") {
+                                                    channelManager.listOfPackagesOfMovies.value = packageItem.movies.toMutableList()
+                                                    channelManager.selectedPackageOfMovies.value = channelManager.listOfPackagesOfMovies.value!!.first()
+                                                }
+                                            }
+                                            channelManager.fetchCategoryMoviesAndMovies("")
+                                        }
+
+                                        DetailMovies -> {}
+                                        Favorite -> {
+                                            channelManager.fetchFavorites(favoriteViewModel)
+                                        }
+
+                                        Settings -> {}
+                                        Logout -> {
+                                            PreferencesHelper.logoutUser(app)
+                                            viewModel.bindingModel.selectedPage = Page.NOTHING
+                                            viewModel.bindingModel.selectedSerie.value = MediaItem()
+                                            viewModel.bindingModel.selectedMovie.value = MediaItem()
+
+                                            val intent = Intent(app, LoginActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clear the activity stack
+                                            app.startActivity(intent)
+                                        }
+                                    }
+
+                                    handleNavigationClick(navigationItem, viewModel, channelManager, favoriteViewModel)
                                 }
                                 .focusable(),
 
-                        ){
+                            ) {
                             Icon(
-                                painter = painterResource(id = navigationItem.icon,),
+                                painter = painterResource(id = navigationItem.icon),
                                 modifier = Modifier.padding(all = 4.dp),
                                 contentDescription = "Navigation Item Icon",
                                 tint = if (navigationItem.title != "Logout") {
@@ -641,27 +672,28 @@ fun MainContent(
                             )
                             AnimatedContent(
                                 targetState = isExpanded,
-                                transitionSpec ={
-                                    fadeIn(animationSpec = tween(150,150)) with fadeOut(
-                                        tween(150)
+                                transitionSpec = {
+                                    fadeIn(animationSpec = tween(150, 150)) with fadeOut(
+                                        tween(150),
                                     ) using SizeTransform { initialSize, targetSize ->
                                         keyframes {
-                                            IntSize(targetSize.width,initialSize.height) at 150
+                                            IntSize(targetSize.width, initialSize.height) at 150
                                             durationMillis = 300
                                         }
 
                                     }
                                 },
-                                label = ""
-                            ) {
-                                    targetState ->
+                                label = "",
+                            ) { targetState ->
                                 if (targetState) {
 
-                                    Row( Modifier
-                                           .padding(all = 4.dp)
-                                        .fillMaxWidth() ) {
+                                    Row(
+                                        Modifier
+                                            .padding(all = 4.dp)
+                                            .fillMaxWidth(),
+                                    ) {
                                         Spacer(modifier = Modifier.width(10.dp))
-                                        Text(text = navigationItem.title, color = Color.White,)
+                                        Text(text = navigationItem.title, color = Color.White)
                                     }
                                 }
                             }

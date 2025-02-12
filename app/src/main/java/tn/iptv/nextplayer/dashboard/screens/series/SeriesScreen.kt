@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.dashboard.screens.series
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -29,9 +31,11 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.component.LargeDropdownMenu
 import tn.iptv.nextplayer.component.SortByRow
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.AllItemsScreen
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.series.MediaItem
@@ -41,10 +45,15 @@ import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 
 @OptIn(ExperimentalLayoutApi::class)
-@SuppressLint("LogNotTimber")
+@SuppressLint("LogNotTimber", "StateFlowValueCalledInComposition")
 @Composable
 fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Unit) {
-
+    BackHandler(
+        onBack = {
+            viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.Home
+            viewModel.bindingModel.selectedPage = Page.HOME
+        },
+    )
     val mediaType = MediaType.SERIES
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listPackagesSeries = channelManager.listOfPackagesOfSeries.value
@@ -55,7 +64,6 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
     val groupedSeriesFiltered = viewModel.bindingModel.listSeriesByCategoryFiltered
     val groupedSeries = viewModel.bindingModel.listSeriesByCategory
     val isLoading = viewModel.bindingModel.isLoadingSeries
-    val showAllState = rememberSaveable { mutableStateOf<GroupedMedia?>(null) }
     val selectedSort = rememberSaveable { mutableStateOf<Boolean>(false) }
 
 
@@ -100,7 +108,9 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
             TextButton(
                 onClick = {
 
-                    showAllState.value = null
+                    channelManager.showAllStateSeriesFiltered.value = null
+                    channelManager.showAllStateSeries.value = null
+
                     groupedSeriesFiltered.value = groupedSeries.value
 
 
@@ -151,13 +161,17 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
     )
 
 
-    if (showAllState.value != null) {
+    if (channelManager.showAllStateSeries.collectAsState().value != null) {
+        if(channelManager.showAllStateSeriesFiltered.collectAsState().value != null)
         AllItemsScreen(
-            title = AppHelper.cleanChannelName(showAllState.value!!.labelGenre),
+            title = AppHelper.cleanChannelName(channelManager.showAllStateSeriesFiltered.collectAsState().value!!.labelGenre),
             mediaType = mediaType,
-            items = showAllState.value!!.listSeries,
+            items = channelManager.showAllStateSeriesFiltered.collectAsState().value!!.listSeries,
             onSelectMediaItem = onSelectSerie,
-            onBack = { showAllState.value = null },
+            onBack = {
+                channelManager.showAllStateSeries.value = null
+                channelManager.showAllStateSeriesFiltered.value = null
+            },
         )
     } else {
         Box(
@@ -196,7 +210,10 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
                             mediaType = mediaType,
                             groupedMediaItem = groupedSer,
                             onSelectMediaItem = { onSelectSerie(it) },
-                            onShowAll = { showAllState.value = it },
+                            onShowAll = {
+                                channelManager.showAllStateSeriesFiltered.value = it
+                                channelManager.showAllStateSeries.value = it
+                            },
                         )
                     }
                 }

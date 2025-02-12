@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -114,11 +115,30 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * */
     override var listOfPackagesOfSeries: MutableLiveData<MutableList<PackageMedia>> = MutableLiveData(ArrayList())
 
+    /**
+     * [ChannelManager.showAllStateSeries]
+     * */
+    override var showAllStateSeries: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
+
+    /**
+     * [ChannelManager.showAllStateSeriesFiltered]
+     * */
+    override var showAllStateSeriesFiltered: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
 
     /**
      * [ChannelManager.listOfPackagesOfMovies]
      * */
     override var listOfPackagesOfMovies: MutableLiveData<MutableList<PackageMedia>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.showAllStateMovie]
+     * */
+    override var showAllStateMovie: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
+
+    /**
+     * [ChannelManager.showAllStateMovie]
+     * */
+    override var showAllStateMovieFiltered: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
 
 
     /**
@@ -503,7 +523,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
                                 val modelResponseSeriesByCat = gson.fromJson(jsonStringResult, ListSeriesByCategory::class.java)
                                 Log.e("fetchSeriesByCategory", "modelResponseSeriesByCat ${modelResponseSeriesByCat.toString()} ")
 
-                                val genreSeries = GroupedMedia(cat.name, listSeries = modelResponseSeriesByCat)
+                                val genreSeries = GroupedMedia(id = cat.id, labelGenre = cat.name, icon = cat.icon, listSeries = modelResponseSeriesByCat)
                                 listGroupedSeries.add(genreSeries)
 
                             }
@@ -533,7 +553,11 @@ class ChannelImp(private var application: Application) : ChannelManager {
     override fun searchCategorySeriesAndSeries(searchValue: String) {
         if (searchValue.isEmpty()) {
             listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value
-        } else listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateSeriesFiltered.value = showAllStateSeries.value
+        } else {
+            listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateSeriesFiltered.value = showAllStateSeries.value?.let { filterListByNameShowAll(it, searchValue) }
+        }
 
     }
 
@@ -633,7 +657,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
         if (searchValue.isEmpty()) {
             listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value
-        } else listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateMovieFiltered.value = showAllStateMovie.value
+        } else {
+            listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateMovieFiltered.value = showAllStateMovie.value?.let { filterListByNameShowAll(it, searchValue) }
+
+        }
     }
 
 
@@ -728,6 +757,25 @@ class ChannelImp(private var application: Application) : ChannelManager {
         if (searchValue.isEmpty()) {
             listGroupedLiveTVByCategory.value = allListGroupedLiveTVByCategory.value
         } else listGroupedLiveTVByCategory.value = allListGroupedLiveTVByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+    }
+
+    private fun filterListByNameShowAll(grpTV: GroupedMedia, searchValue: String): GroupedMedia? {
+
+
+        val newArrayMediaItem: ArrayList<MediaItem> = ArrayList<MediaItem>()
+
+        grpTV.listSeries.forEach { mediaItem ->
+            if (mediaItem.name.lowercase(Locale.getDefault()).contains(searchValue.lowercase(Locale.getDefault())))
+
+                newArrayMediaItem.add(mediaItem)
+        }
+        if (newArrayMediaItem.isNotEmpty()) {
+            val genreSeries = GroupedMedia(grpTV.labelGenre, listSeries = newArrayMediaItem)
+            return genreSeries
+        } else {
+            return null
+        }
+
     }
 
 

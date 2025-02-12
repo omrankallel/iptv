@@ -1,6 +1,8 @@
 package tn.iptv.nextplayer.dashboard.screens.movies
 
 
+import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -28,9 +31,11 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.component.LargeDropdownMenu
 import tn.iptv.nextplayer.component.SortByRow
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.AllItemsScreen
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.series.MediaItem
@@ -39,9 +44,17 @@ import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Unit) {
+
+    BackHandler(
+        onBack = {
+            viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.Home
+            viewModel.bindingModel.selectedPage = Page.HOME
+        },
+    )
 
     val mediaType = MediaType.MOVIES
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
@@ -55,7 +68,6 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
 
 
     // State to manage navigation
-    val showAllState = rememberSaveable { mutableStateOf<GroupedMedia?>(null) }
     val selectedSort = rememberSaveable { mutableStateOf<Boolean>(false) }
 
     if (viewModel.bindingModel.showFilters.value) AlertDialog(
@@ -99,7 +111,8 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
             TextButton(
                 onClick = {
 
-                    showAllState.value = null
+                    channelManager.showAllStateMovie.value = null
+                    channelManager.showAllStateMovieFiltered.value = null
 
                     groupedMoviesFiltered.value = groupedMovies.value
 
@@ -151,14 +164,18 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
     )
 
 
-    if (showAllState.value != null) {
-        AllItemsScreen(
-            title = AppHelper.cleanChannelName(showAllState.value!!.labelGenre),
-            mediaType = mediaType,
-            items = showAllState.value!!.listSeries,
-            onSelectMediaItem = onSelectMovie,
-            onBack = { showAllState.value = null },
-        )
+    if (channelManager.showAllStateMovie.collectAsState().value != null) {
+        if (channelManager.showAllStateMovieFiltered.collectAsState().value != null)
+            AllItemsScreen(
+                title = AppHelper.cleanChannelName(channelManager.showAllStateMovieFiltered.value!!.labelGenre),
+                mediaType = mediaType,
+                items = channelManager.showAllStateMovieFiltered.value!!.listSeries,
+                onSelectMediaItem = onSelectMovie,
+                onBack = {
+                    channelManager.showAllStateMovie.value = null
+                    channelManager.showAllStateMovieFiltered.value = null
+                },
+            )
     } else {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -194,7 +211,10 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
                                 mediaType = mediaType,
                                 groupedMediaItem = groupedMov,
                                 onSelectMediaItem = { onSelectMovie(it) },
-                                onShowAll = { showAllState.value = it },
+                                onShowAll = {
+                                    channelManager.showAllStateMovie.value = it
+                                    channelManager.showAllStateMovieFiltered.value = it
+                                },
                             )
                         }
                     }

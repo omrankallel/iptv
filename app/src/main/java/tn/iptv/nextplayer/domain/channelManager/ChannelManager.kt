@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.domain.channelManager
 
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.domain.models.Channel
@@ -86,6 +87,17 @@ interface ChannelManager {
     var listOfPackagesOfMovies: MutableLiveData<MutableList<PackageMedia>>
 
     /**
+     * [ChannelImp.showAllStateMovie]
+     * */
+    var showAllStateMovie: MutableStateFlow<GroupedMedia?>
+
+    /**
+     * [ChannelImp.showAllStateMovieFiltered]
+     * */
+    var showAllStateMovieFiltered: MutableStateFlow<GroupedMedia?>
+
+
+    /**
      * [ChannelImp.selectedPackageOfMovies]
      * */
     var selectedPackageOfMovies: MutableLiveData<PackageMedia>
@@ -101,6 +113,16 @@ interface ChannelManager {
      * [ChannelImp.listOfPackagesOfSeries]
      * */
     var listOfPackagesOfSeries: MutableLiveData<MutableList<PackageMedia>>
+
+    /**
+     * [ChannelImp.showAllStateSeries]
+     * */
+    var showAllStateSeries: MutableStateFlow<GroupedMedia?>
+
+    /**
+     * [ChannelImp.showAllStateSeriesFiltered]
+     * */
+    var showAllStateSeriesFiltered: MutableStateFlow<GroupedMedia?>
 
     /**
      * [ChannelImp.selectedPackageOfSeries]

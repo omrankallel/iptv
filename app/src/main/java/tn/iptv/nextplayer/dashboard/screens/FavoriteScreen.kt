@@ -52,7 +52,9 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
 import tn.iptv.nextplayer.dashboard.screens.serieDetails.Chip
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
@@ -61,7 +63,12 @@ import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FavoriteScreen(viewModel: DashBoardViewModel, onSelectFavorite: (Favorite) -> Unit) {
-
+    BackHandler(
+        onBack = {
+            viewModel.bindingModel.selectedNavigationItem.value = NavigationItem.Home
+            viewModel.bindingModel.selectedPage = Page.HOME
+        },
+    )
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listOfFavorites = channelManager.listOfFavorites.value
     val isLoading = viewModel.bindingModel.isLoadingFavorite
