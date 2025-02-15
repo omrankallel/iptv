@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.dashboard.screens.tvChannel
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
@@ -41,9 +48,14 @@ fun TVChannelScreen(viewModel: DashBoardViewModel, onSelectTVChannel: (GroupedMe
     val selectedPackage = viewModel.bindingModel.selectedPackageOfLiveTV
     val groupedLiveTV = viewModel.bindingModel.listLiveByCategory
     val isLoading = viewModel.bindingModel.isLoadingLiveTV
+    var isFocused by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+            .focusRequester(viewModel.bindingModel.boxFocusRequesterLive.value),
         contentAlignment = Alignment.Center,
     ) {
         if (isLoading.value)

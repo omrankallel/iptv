@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.domain.channelManager
 
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.domain.models.Channel
@@ -78,17 +79,21 @@ interface ChannelManager {
     var selectedPackageOfLiveTV: MutableLiveData<PackageMedia>
 
 
-    /////////////////////////////   Favorites     ///////////////////////////////
-    var listOfFavorites: MutableLiveData<MutableList<Favorite>>
-
-
-
-
     /////////////////////////////   Movies     ///////////////////////////////
     /**
      * [ChannelImp.listOfPackagesOfMovies]
      * */
     var listOfPackagesOfMovies: MutableLiveData<MutableList<PackageMedia>>
+
+    /**
+     * [ChannelImp.showAllStateMovies]
+     * */
+    var showAllStateMovies: MutableStateFlow<GroupedMedia?>
+
+    /**
+     * [ChannelImp.showAllStateMoviesFiltered]
+     * */
+    var showAllStateMoviesFiltered: MutableStateFlow<GroupedMedia?>
 
     /**
      * [ChannelImp.selectedPackageOfMovies]
@@ -111,6 +116,17 @@ interface ChannelManager {
      * [ChannelImp.selectedPackageOfSeries]
      * */
     var selectedPackageOfSeries: MutableLiveData<PackageMedia>
+
+
+    /**
+     * [ChannelImp.showAllStateSeries]
+     * */
+    var showAllStateSeries: MutableStateFlow<GroupedMedia?>
+
+    /**
+     * [ChannelImp.showAllStateSeriesFiltered]
+     * */
+    var showAllStateSeriesFiltered: MutableStateFlow<GroupedMedia?>
 
 
     /**
@@ -169,6 +185,30 @@ interface ChannelManager {
      * [ChannelImp.allListGroupedMovieByCategory]
      * */
     var allListGroupedMovieByCategory: MutableLiveData<MutableList<GroupedMedia>>
+
+
+    /**
+     * [ChannelImp.listFavorites]
+     * */
+    var listFavorites: MutableLiveData<MutableList<Favorite>>
+
+    /**
+     * [ChannelImp.allListFavorites]
+     * */
+    var allListFavorites: MutableLiveData<MutableList<Favorite>>
+
+
+    /**
+     * [ChannelImp.showAllStateFavorites]
+     * */
+    var showAllStateFavorites: MutableStateFlow<List<Favorite>>
+
+    /**
+     * [ChannelImp.showAllStateFavoritesFiltered]
+     * */
+    var showAllStateFavoritesFiltered: MutableStateFlow<List<Favorite>>
+
+
 
 
     /**
@@ -238,7 +278,7 @@ interface ChannelManager {
     /**
      * [ChannelImp.fetchFavorites]
      * */
-    fun fetchFavorites(favoriteViewModel: FavoriteViewModel)
+    fun fetchFavorites(favoriteViewModel: FavoriteViewModel,searchValue: String)
 
 
     /**
@@ -262,6 +302,12 @@ interface ChannelManager {
      * [ChannelImp.searchCategoryMoviesAndMovies]
      * */
     fun searchCategoryMoviesAndMovies(searchValue: String)
+
+
+    /**
+     * [ChannelImp.searchCategoryFavoritesAndFavorites]
+     * */
+    fun searchCategoryFavoritesAndFavorites(searchValue: String)
 
 
     /**

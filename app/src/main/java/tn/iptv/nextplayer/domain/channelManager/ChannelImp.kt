@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -103,22 +104,34 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
 
     /**
-     * [ChannelManager.listOfFavorites]
-     * */
-
-    override var listOfFavorites: MutableLiveData<MutableList<Favorite>> = MutableLiveData(ArrayList())
-
-
-    /**
      * [ChannelManager.listOfPackagesOfSeries]
      * */
     override var listOfPackagesOfSeries: MutableLiveData<MutableList<PackageMedia>> = MutableLiveData(ArrayList())
 
+    /**
+     * [ChannelManager.showAllStateSeries]
+     * */
+    override var showAllStateSeries: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
+
+    /**
+     * [ChannelManager.showAllStateSeriesFiltered]
+     * */
+    override var showAllStateSeriesFiltered: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
 
     /**
      * [ChannelManager.listOfPackagesOfMovies]
      * */
     override var listOfPackagesOfMovies: MutableLiveData<MutableList<PackageMedia>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.showAllStateMovies]
+     * */
+    override var showAllStateMovies: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
+
+    /**
+     * [ChannelManager.showAllStateMoviesFiltered]
+     * */
+    override var showAllStateMoviesFiltered: MutableStateFlow<GroupedMedia?> = MutableStateFlow(null)
 
 
     /**
@@ -193,6 +206,27 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * */
     override var allListGroupedMovieByCategory: MutableLiveData<MutableList<GroupedMedia>> = MutableLiveData(ArrayList())
 
+    /**
+     * [ChannelManager.allListFavorites]
+     * */
+    override var allListFavorites: MutableLiveData<MutableList<Favorite>> = MutableLiveData(ArrayList())
+
+    /**
+     * [ChannelManager.listFavorites]
+     * */
+    override var listFavorites: MutableLiveData<MutableList<Favorite>> = MutableLiveData(ArrayList())
+
+
+    /**
+     * [ChannelManager.showAllStateFavorites]
+     * */
+    override var showAllStateFavorites: MutableStateFlow<List<Favorite>> = MutableStateFlow(ArrayList())
+
+    /**
+     * [ChannelManager.showAllStateFavoritesFiltered]
+     * */
+    override var showAllStateFavoritesFiltered: MutableStateFlow<List<Favorite>> = MutableStateFlow(ArrayList())
+
 
     /**
      * [ChannelManager.listGroupedLiveTVByCategory]
@@ -212,8 +246,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
     /**
      * [ChannelManager.homeSelected]
      * */
-    override var homeSelected: MutableLiveData<CategoryMedia> =
-        MutableLiveData(CategoryMedia())
+    override var homeSelected: MutableLiveData<CategoryMedia> = MutableLiveData(CategoryMedia())
 
     /**
      * [ChannelManager.serieSelected]
@@ -425,20 +458,24 @@ class ChannelImp(private var application: Application) : ChannelManager {
      * [ChannelManager.fetchFavorites]
      * */
     @SuppressLint("LogNotTimber")
-    override fun fetchFavorites(favoriteViewModel: FavoriteViewModel) {
+    override fun fetchFavorites(favoriteViewModel: FavoriteViewModel, searchValue: String) {
         Log.d(TAG, "fetchFavorites")
         job?.cancel()
         job = scopeMain.launch {
-            listOfFavorites.value?.clear()
+
             favoriteIsLoading.postValue(true)
-            Log.d("kkkkkkkkkkkkkkkkkkkk", "kkkkkkkkkkkkkkkk")
+
+            val list = ArrayList<Favorite>()
 
             favoriteViewModel.getAllFavorite().map { favorites ->
-                listOfFavorites.value?.add(favorites)
+                list.add(favorites)
             }
-            Log.d("kkkkkkkkkkkkkkkkkkkk", "kkkkkkkkkkkkkkkk")
+            allListFavorites.value = list
 
-            Log.d("TestOmran", listOfFavorites.value?.size.toString())
+            if (searchValue.isEmpty()) {
+                listFavorites.value = list
+
+            } else listFavorites.value = filterListByNameFavorites(list, searchValue)
 
             favoriteIsLoading.postValue(false)
         }
@@ -533,7 +570,11 @@ class ChannelImp(private var application: Application) : ChannelManager {
     override fun searchCategorySeriesAndSeries(searchValue: String) {
         if (searchValue.isEmpty()) {
             listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value
-        } else listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateSeriesFiltered.value = showAllStateSeries.value
+        } else {
+            listGroupedSeriesByCategory.value = allListGroupedSeriesByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateSeriesFiltered.value = showAllStateSeries.value?.let { filterListByNameShowAll(it, searchValue) }
+        }
 
     }
 
@@ -615,8 +656,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
     }
 
     fun processGenres(genres: List<String>): List<String> {
-        return genres
-            .flatMap { it.split(",") } // Divise chaque chaîne en plusieurs genres
+        return genres.flatMap { it.split(",") } // Divise chaque chaîne en plusieurs genres
             .map { it.trim() }         // Supprime les espaces autour de chaque genre
             .filter { it.isNotEmpty() } // Retire les genres vides
             .toSet()                   // Supprime les doublons
@@ -633,7 +673,28 @@ class ChannelImp(private var application: Application) : ChannelManager {
 
         if (searchValue.isEmpty()) {
             listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value
-        } else listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateMoviesFiltered.value = showAllStateMovies.value
+
+        } else {
+            listGroupedMovieByCategory.value = allListGroupedMovieByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
+            showAllStateMoviesFiltered.value = showAllStateMovies.value?.let { filterListByNameShowAll(it, searchValue) }
+        }
+    }
+
+    /**
+     * [ChannelManager.searchCategoryFavoritesAndFavorites]
+     * */
+    override fun searchCategoryFavoritesAndFavorites(searchValue: String) {
+
+        if (searchValue.isEmpty()) {
+            listFavorites.value = allListFavorites.value
+            showAllStateFavoritesFiltered.value = showAllStateFavorites.value
+
+        } else {
+            listFavorites.value = allListFavorites.value?.toCollection(ArrayList())?.let { filterListByNameFavorites(it, searchValue) }
+            showAllStateFavoritesFiltered.value =  filterListByNameFavorites(ArrayList(showAllStateFavorites.value), searchValue)
+        }
+
     }
 
 
@@ -730,6 +791,25 @@ class ChannelImp(private var application: Application) : ChannelManager {
         } else listGroupedLiveTVByCategory.value = allListGroupedLiveTVByCategory.value?.toCollection(ArrayList())?.let { filterListByName(it, searchValue) }
     }
 
+    private fun filterListByNameShowAll(grpTV: GroupedMedia, searchValue: String): GroupedMedia? {
+
+
+        val newArrayMediaItem: ArrayList<MediaItem> = ArrayList<MediaItem>()
+
+        grpTV.listSeries.forEach { mediaItem ->
+            if (mediaItem.name.lowercase(Locale.getDefault()).contains(searchValue.lowercase(Locale.getDefault())))
+
+                newArrayMediaItem.add(mediaItem)
+        }
+        if (newArrayMediaItem.isNotEmpty()) {
+            val genreSeries = GroupedMedia(grpTV.labelGenre, listSeries = newArrayMediaItem)
+            return genreSeries
+        } else {
+            return null
+        }
+
+    }
+
 
     private fun filterListByName(listGroupedLiveTV: ArrayList<GroupedMedia>, searchValue: String): ArrayList<GroupedMedia> {
 
@@ -751,6 +831,18 @@ class ChannelImp(private var application: Application) : ChannelManager {
         Log.e("dashBord", "searchValue $searchValue  ---- newArray  ${newArray.size}")
         return newArray
     }
+
+    private fun filterListByNameFavorites(listFavorites: ArrayList<Favorite>, searchValue: String): ArrayList<Favorite> {
+        val newArray = ArrayList<Favorite>()
+        listFavorites.forEach { favorite ->
+            if (favorite.name.lowercase(Locale.getDefault()).contains(searchValue.lowercase(Locale.getDefault()))) {
+                newArray.add(favorite)
+            }
+        }
+        return newArray
+    }
+
+
 
 
     /**

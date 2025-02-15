@@ -3,9 +3,12 @@ package tn.iptv.nextplayer.dashboard.screens.serieDetails
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_BACK
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,14 +31,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
-import tn.iptv.nextplayer.domain.channelManager.ChannelManager
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Favorite
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.feature.player.PlayerActivity
@@ -44,7 +53,7 @@ import tn.iptv.nextplayer.login.app
 
 
 @Composable
-fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel){
+fun LayoutDetailsOfSerie(serieItem: MediaItem, viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
     var exist by remember { mutableStateOf(false) }
     LaunchedEffect(serieItem.id) {
         favoriteViewModel.isFavoriteExists(serieItem.id) { exists ->
@@ -56,63 +65,92 @@ fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, f
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 40.dp, top = 20.dp, end = 16.dp, bottom = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
 
         Text(
             text = serieItem.name,
             style = MaterialTheme.typography.h4,
-            color = Color.White
+            color = Color.White,
         )
 
         // Tags Row
-        if (serieItem.genre.isNotEmpty() ){
+        if (serieItem.genre.isNotEmpty()) {
 
             // Split the string by comma and trim spaces
             val castList = serieItem.genre.split(",").map { it.trim() }
 
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    castList
-                        .forEach { cast ->
-                            Chip(cast)
-                        }
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                castList.forEach { cast ->
+                    Chip(cast)
                 }
+            }
         }
 
 
         // Rating, Year, Language, Seasons Row
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.star),
                 contentDescription = "Example Image",
-                modifier = Modifier
-                    .size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
             Text(text = "8.9/10", color = Color.White)
-            Text(text = serieItem.date , color = Color.White)
-           // Text(text = "-  ", color = Color.White)
+            Text(text = serieItem.date, color = Color.White)
+            // Text(text = "-  ", color = Color.White)
 
             Text(text = "-  ${viewModel.bindingModel.listSaisonOfSerie.value!!.size} Seasons", color = Color.White)
         }
 
         // Description
         Text(
-            text = serieItem.plot  ,
-            color = Color.White
+            text = serieItem.plot,
+            color = Color.White,
         )
 
         // Buttons
         Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            var isFocusedPlayNow by remember { mutableStateOf(false) }
+            var isFocusedMyWishlist by remember { mutableStateOf(false) }
+
             Button(
-                modifier = Modifier.size(width = 150.dp, height = 40.dp),
+                modifier = Modifier
+                    .size(width = 150.dp, height = 40.dp)
+                    .onFocusChanged { isFocusedPlayNow = it.isFocused }
+                    .border(
+                        width = 2.dp,
+                        color = if (isFocusedPlayNow) Color(0xFFB4A1FB) else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .focusable()
+                    .onKeyEvent { keyEvent: KeyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.nativeKeyEvent.keyCode) {
+                                KEYCODE_BACK -> {
+                                    if (viewModel.bindingModel.selectedNavigationSeriesOrFavorite.value == Favorite) {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Favorite
+                                        viewModel.bindingModel.selectedPage = Page.FAVORITES
+                                    } else {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Series
+                                        viewModel.bindingModel.selectedPage = Page.SERIES
+                                    }
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
                 onClick = {
 
                     try {
@@ -121,12 +159,10 @@ fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, f
                             val intent = Intent(app, PlayerActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             intent.data = Uri.parse(videoSelected.url)
-                            Log.d("PlayerActivity","------ series  ${videoSelected.url}")
+                            Log.d("PlayerActivity", "------ series  ${videoSelected.url}")
 
                             app.startActivity(intent)
-                        }
-                        else
-                            Toast.makeText(app, "Please select an episode as a first step ", Toast.LENGTH_LONG).show()
+                        } else Toast.makeText(app, "Please select an episode as a first step ", Toast.LENGTH_LONG).show()
                     } catch (error: Exception) {
                         Toast.makeText(app, "Error While loading your episode , Please try again", Toast.LENGTH_LONG).show()
                     }
@@ -136,29 +172,54 @@ fun LayoutDetailsOfSerie(serieItem : MediaItem, viewModel: DashBoardViewModel, f
             ) {
 
 
-
                 Text("Play now", color = Color.White)
             }
             Button(
-                modifier = Modifier.size(width = 150.dp, height = 40.dp),
+                modifier = Modifier
+                    .size(width = 150.dp, height = 40.dp)
+                    .onFocusChanged { isFocusedMyWishlist = it.isFocused }
+                    .border(
+                        width = 2.dp,
+                        color = if (isFocusedMyWishlist) Color(0xFFB4A1FB) else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .focusable()
+                    .onKeyEvent { keyEvent: KeyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.nativeKeyEvent.keyCode) {
+                                KEYCODE_BACK -> {
+                                    if (viewModel.bindingModel.selectedNavigationSeriesOrFavorite.value == Favorite) {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Favorite
+                                        viewModel.bindingModel.selectedPage = Page.FAVORITES
+                                    } else {
+                                        viewModel.bindingModel.selectedNavigationItem.value = Series
+                                        viewModel.bindingModel.selectedPage = Page.SERIES
+                                    }
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
                 onClick = {
                     if (exist) {
                         favoriteViewModel.deleteFavoriteById(serieItem.id)
                     } else {
-                        favoriteViewModel.addFavorite(serieItem.id, serieItem.name, serieItem.icon, serieItem.url, serieItem.plot, serieItem.cast, serieItem.genre, serieItem.date, "", "", "", "Series","")
+                        favoriteViewModel.addFavorite(serieItem.id, serieItem.name, serieItem.icon, serieItem.url, serieItem.plot, serieItem.cast, serieItem.genre, serieItem.date, "", "", "", "Series", "")
                     }
                     favoriteViewModel.isFavoriteExists(serieItem.id) { exists ->
                         exist = exists
                     }
-                    Log.d("existssssss", exist.toString()+ " "+serieItem.name)
+                    Log.d("existssssss", exist.toString() + " " + serieItem.name)
 
                 },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black),
             ) {
-                if (exist)
-                    Text(" - My Wishlist", color = Color.White)
-                else
-                    Text(" + My Wishlist", color = Color.White)
+                if (exist) Text(" - My Wishlist", color = Color.White)
+                else Text(" + My Wishlist", color = Color.White)
             }
         }
     }
@@ -170,7 +231,7 @@ fun Chip(text: String) {
     Box(
         modifier = Modifier
             .background(backTag, shape = RoundedCornerShape(2.dp))
-            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(text = text, color = Color.White)
     }

@@ -101,6 +101,9 @@ class DashBoardViewModel : BaseViewModel() {
         channelManager.favoriteIsLoading.observeForever {
             bindingModel.isLoadingFavorite.value = it
         }
+        channelManager.listFavorites.observeForever {
+            bindingModel.listFavoriteFiltered.value = it
+        }
     }
 
     private fun observeSeries() {

@@ -3,9 +3,12 @@ package tn.iptv.nextplayer.dashboard.screens.detailmovies
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_BACK
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,11 +31,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
+import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Favorite
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.listchannels.ui.theme.backTag
@@ -40,7 +52,7 @@ import tn.iptv.nextplayer.login.app
 
 
 @Composable
-fun LayoutDetailsOfMovie(movieItem: MediaItem, favoriteViewModel: FavoriteViewModel) {
+fun LayoutDetailsOfMovie(movieItem: MediaItem, viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
     var exist by remember { mutableStateOf(false) }
     LaunchedEffect(movieItem.id) {
         favoriteViewModel.isFavoriteExists(movieItem.id) { exists ->
@@ -104,8 +116,40 @@ fun LayoutDetailsOfMovie(movieItem: MediaItem, favoriteViewModel: FavoriteViewMo
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            var isFocusedPlayNow by remember { mutableStateOf(false) }
+            var isFocusedMyWishlist by remember { mutableStateOf(false) }
+
             Button(
-                modifier = Modifier.size(width = 150.dp, height = 40.dp),
+                modifier = Modifier
+                    .size(width = 150.dp, height = 40.dp)
+                    .onFocusChanged { isFocusedPlayNow = it.isFocused }
+                    .border(
+                        width = 2.dp,
+                        color = if (isFocusedPlayNow) Color(0xFFB4A1FB) else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .focusable()
+                    .onKeyEvent { keyEvent: KeyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.nativeKeyEvent.keyCode) {
+                                KEYCODE_BACK -> {
+                                    if(viewModel.bindingModel.selectedNavigationMoviesOrFavorite.value==Favorite){
+                                        viewModel.bindingModel.selectedNavigationItem.value = Favorite
+                                        viewModel.bindingModel.selectedPage = Page.FAVORITES
+                                    }else{
+                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                        viewModel.bindingModel.selectedPage = Page.MOVIES
+                                    }
+
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
                 onClick = {
 
                     try {
@@ -127,7 +171,35 @@ fun LayoutDetailsOfMovie(movieItem: MediaItem, favoriteViewModel: FavoriteViewMo
                 Text("Play now", color = Color.White)
             }
             Button(
-                modifier = Modifier.size(width = 150.dp, height = 40.dp),
+                modifier = Modifier
+                    .size(width = 150.dp, height = 40.dp)
+                    .onFocusChanged { isFocusedMyWishlist = it.isFocused }
+                    .border(
+                        width = 2.dp,
+                        color = if (isFocusedMyWishlist) Color(0xFFB4A1FB) else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    .focusable()
+                    .onKeyEvent { keyEvent: KeyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.nativeKeyEvent.keyCode) {
+                                KEYCODE_BACK -> {
+                                    if(viewModel.bindingModel.selectedNavigationMoviesOrFavorite.value==Favorite){
+                                        viewModel.bindingModel.selectedNavigationItem.value = Favorite
+                                        viewModel.bindingModel.selectedPage = Page.FAVORITES
+                                    }else{
+                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                        viewModel.bindingModel.selectedPage = Page.MOVIES
+                                    }
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
                 onClick = {
                     if (exist) {
                         favoriteViewModel.deleteFavoriteById(movieItem.id)

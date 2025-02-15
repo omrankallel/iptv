@@ -18,7 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import org.koin.java.KoinJavaComponent
@@ -31,9 +31,13 @@ import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 @Composable
 fun CustomDrawer(
     drawerState: CustomDrawerState,
-    widthMenu: Dp = 90.dp,
+    modifier: Modifier = Modifier
+        .fillMaxHeight()
+        .width(90.dp)
+        .padding(horizontal = 12.dp),
     selectedNavigationItem: NavigationItem,
     onNavigationItemClick: (NavigationItem) -> Unit,
+    selectedIndex: Int,
 
     ) {
 
@@ -41,10 +45,7 @@ fun CustomDrawer(
 
 
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .width(widthMenu)
-            .padding(horizontal = 12.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
@@ -78,19 +79,23 @@ fun CustomDrawer(
                 .verticalScroll(rememberScrollState()), // Make the area scrollable
         ) {
             Column {
-                NavigationItem.entries.toTypedArray().filter { (it !in listOf(NavigationItem.DetailSeries, NavigationItem.DetailMovies)) }.take(7).forEach { navigationItem ->
+                NavigationItem.entries.toTypedArray()
+                    .filter { it !in listOf(NavigationItem.DetailSeries, NavigationItem.DetailMovies, NavigationItem.Logout) }
+                    .take(6)
+                    .forEachIndexed { index, navigationItem ->
+
+                        NavigationItemView(
+                            drawerState = drawerState,
+                            navigationItem = navigationItem,
+                            selected = navigationItem == selectedNavigationItem,
+                            onClick = { onNavigationItemClick(navigationItem) },
+                            isFocused = selectedIndex == index,
+
+                            )
+                        Spacer(modifier = Modifier.height(4.dp))
 
 
-                    NavigationItemView(
-                        drawerState = drawerState,
-                        navigationItem = navigationItem,
-                        selected = navigationItem == selectedNavigationItem,
-                        onClick = { onNavigationItemClick(navigationItem) },
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-
-
-                }
+                    }
             }
         }
 
@@ -103,6 +108,7 @@ fun CustomDrawer(
                 navigationItem = navigationItem,
                 isLogoutItem = true,
                 selected = false,
+                isFocused = selectedIndex == 6,
                 onClick = {
                     when (navigationItem) {
                         NavigationItem.Settings -> {

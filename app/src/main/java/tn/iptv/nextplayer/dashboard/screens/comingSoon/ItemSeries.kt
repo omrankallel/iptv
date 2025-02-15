@@ -3,7 +3,9 @@ package tn.iptv.nextplayer.dashboard.screens.comingSoon
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +22,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -44,144 +51,157 @@ import tn.iptv.nextplayer.domain.models.series.MediaType
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 
 
-
 @Composable
-fun  ItemSeries (mediaType : MediaType,  seriesItem : MediaItem, onSelectSerie : (MediaItem) -> Unit){
+fun ItemSeries(mediaType: MediaType, seriesItem: MediaItem, onSelectSerie: (MediaItem) -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
 
-Box (
-    modifier = Modifier
-        .width(WIDHT_CARD)
-        .height(HEIGHT_CARD)
+    Box(
+        modifier = Modifier
+            .width(WIDHT_CARD)
+            .height(HEIGHT_CARD)
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+            .border(
+                width = 2.dp,
+                color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp),
+            )
+            .clip(RoundedCornerShape(5.dp))
+            .background(backCardMovie)
+            .shadow(1.dp)
+            .padding(2.dp)
+            .clickable {
+                onSelectSerie(seriesItem)
+            },
 
-        .clip(RoundedCornerShape(5.dp))
-        .background(backCardMovie)
-        .shadow(1.dp)
-        .padding(2.dp)
-        .clickable {
-            onSelectSerie(seriesItem)
-        }
-
-)
-
-{
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(6.dp))
+        )
 
     {
-        Column(modifier = Modifier
-            .fillMaxSize()) {
 
-            Box  (  modifier = Modifier
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp),
+        )
 
-                .height(HEIGHT_IMAGE)
-                .fillMaxWidth()
+        {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
 
-            ){
+                Box(
+                    modifier = Modifier
 
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize()
-                        .clip(RoundedCornerShape(3.dp))
-                        .background(backCardMovie),
-                    model = ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(seriesItem.icon)
-                        .crossfade(true)
-                        .scale(Scale.FILL)
-                        .listener(
-                            onError = { request, throwable ->
-                                Log.e("ImageLoadError", "Failed to load image: ${throwable.throwable.message}")
-                            },
-                        )
-                        .build(),
-                    contentDescription = null,
-                    placeholder = painterResource(R.drawable.placeholder_image),
-                    error = painterResource(R.drawable.error_image),
-                    contentScale = ContentScale.FillBounds)
+                        .height(HEIGHT_IMAGE)
+                        .fillMaxWidth(),
 
-                // Tags Row
-                if (seriesItem.genre.isNotEmpty() ){
-                    // Split the string by comma and trim spaces
-                    val castList = seriesItem.genre.split(",").map { it.trim() }
-                    Row(
-                        modifier = Modifier.align(Alignment.BottomStart).padding(5.dp).horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        castList.take(2) .forEach { cast ->
+
+                    AsyncImage(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(backCardMovie),
+                        model = ImageRequest
+                            .Builder(LocalContext.current)
+                            .data(seriesItem.icon)
+                            .crossfade(true)
+                            .scale(Scale.FILL)
+                            .listener(
+                                onError = { request, throwable ->
+                                    Log.e("ImageLoadError", "Failed to load image: ${throwable.throwable.message}")
+                                },
+                            )
+                            .build(),
+                        contentDescription = null,
+                        placeholder = painterResource(R.drawable.placeholder_image),
+                        error = painterResource(R.drawable.error_image),
+                        contentScale = ContentScale.FillBounds,
+                    )
+
+                    // Tags Row
+                    if (seriesItem.genre.isNotEmpty()) {
+                        // Split the string by comma and trim spaces
+                        val castList = seriesItem.genre.split(",").map { it.trim() }
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(5.dp)
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            castList.take(2).forEach { cast ->
                                 Chip(cast)
                             }
+                        }
                     }
+
                 }
 
-            }
 
+                Spacer(modifier = Modifier.height(5.dp))
 
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Column  (Modifier.fillMaxSize()){
-
-                Text(
-                    text = seriesItem.name,
-                    fontSize =10.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    color = Color.White,
-                    lineHeight = 15.sp
-                )
-
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Row (Modifier.fillMaxWidth() ) {
+                Column(Modifier.fillMaxSize()) {
 
                     Text(
-                        text = seriesItem.date,
-                        fontSize =10.sp,
+                        text = seriesItem.name,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
-                        maxLines =1,
+                        maxLines = 2,
                         color = Color.White,
-
+                        lineHeight = 15.sp,
                     )
+
 
                     Spacer(modifier = Modifier.weight(1f))
 
-
-                    Row  (verticalAlignment =  Alignment.CenterVertically){
-
-                        Image(
-                            painter = painterResource(id = R.drawable.star),
-                            contentDescription = "Example Image",
-                            modifier = Modifier
-                                .size(12.dp)
-                        )
-
-                        Spacer(modifier = Modifier.width(2.dp))
+                    Row(Modifier.fillMaxWidth()) {
 
                         Text(
-                            text =  seriesItem.rate ,// movieModel.rating   ,
-                            fontSize =10.sp,
+                            text = seriesItem.date,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
-                            maxLines = 2,
+                            maxLines = 1,
                             color = Color.White,
-                        )
+
+                            )
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            Image(
+                                painter = painterResource(id = R.drawable.star),
+                                contentDescription = "Example Image",
+                                modifier = Modifier
+                                    .size(12.dp),
+                            )
+
+                            Spacer(modifier = Modifier.width(2.dp))
+
+                            Text(
+                                text = seriesItem.rate,// movieModel.rating   ,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 2,
+                                color = Color.White,
+                            )
+
+                        }
 
                     }
+
 
                 }
 
 
             }
-
-
-
-
 
         }
 
     }
-
-}
 
 
 }

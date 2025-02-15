@@ -19,6 +19,9 @@ import tn.iptv.nextplayer.domain.models.series.MediaType
 
 @Composable
 fun AllItemsScreen(
+    modifier: Modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp),
     title: String,
     mediaType: MediaType,
     items: List<MediaItem>,

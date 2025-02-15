@@ -1,10 +1,14 @@
 package tn.iptv.nextplayer.dashboard.screens
 
 
+import android.annotation.SuppressLint
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_BACK
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,13 +30,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,61 +57,85 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
+import coloredShadow
 import com.google.accompanist.pager.ExperimentalPagerApi
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Home
 import tn.iptv.nextplayer.dashboard.screens.serieDetails.Chip
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun FavoriteScreen(viewModel: DashBoardViewModel, onSelectFavorite: (Favorite) -> Unit) {
 
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
-    val listOfFavorites = channelManager.listOfFavorites.value
+    val listOfFavorites = viewModel.bindingModel.listFavoriteFiltered.value
     val isLoading = viewModel.bindingModel.isLoadingFavorite
-    val showAllState = rememberSaveable { mutableStateOf<List<Favorite>?>(null) }
     val itemShowAllState = rememberSaveable { mutableStateOf<String?>(null) }
+    var isFocused by remember { mutableStateOf(false) }
 
-    if (showAllState.value != null) {
-        AllItemsFavorite(
-            type = itemShowAllState.value!!,
-            items = showAllState.value!!,
-            onSelectFavorite = onSelectFavorite,
-            onBack = { showAllState.value = null },
-        )
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
 
-            if (isLoading.value)
-                CircularProgressIndicator(color = borderFrame)
-            else {
-                val groupedFavorites = listOfFavorites?.groupBy { it.type }
-                if (groupedFavorites != null) {
-                    FavoritesList(
-                        groupedFavorites = groupedFavorites, onSelectFavorite,
-                        onShowAll = { type, favorites ->
-                            itemShowAllState.value = type
-                            showAllState.value = favorites
-                        },
-                    )
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+            .focusRequester(viewModel.bindingModel.boxFocusRequesterFavorite.value),
+    ) {
+        if (channelManager.showAllStateFavorites.collectAsState().value.isNotEmpty()) {
+            if (channelManager.showAllStateFavoritesFiltered.collectAsState().value.isNotEmpty()) {
+                AllItemsFavorite(
+                    channelManager,
+                    viewModel,
+                    type = itemShowAllState.value!!,
+                    items = channelManager.showAllStateFavoritesFiltered.collectAsState().value,
+                    onSelectFavorite = onSelectFavorite,
+                    onBack = {
+                        channelManager.showAllStateFavorites.value = ArrayList()
+                        channelManager.showAllStateFavoritesFiltered.value = ArrayList()
+                    },
+                )
             }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
 
+                if (isLoading.value)
+                    CircularProgressIndicator(color = borderFrame)
+                else {
+                    val groupedFavorites = listOfFavorites?.groupBy { it.type }
+                    if (groupedFavorites != null) {
+                        FavoritesList(
+                            channelManager,
+                            viewModel,
+                            groupedFavorites = groupedFavorites, onSelectFavorite,
+                            onShowAll = { type, favorites ->
+                                itemShowAllState.value = type
+                                channelManager.showAllStateFavorites.value = favorites
+                                channelManager.showAllStateFavoritesFiltered.value = favorites
+                            },
+                        )
+                    }
+                }
+
+            }
         }
     }
+
 }
 
 @Composable
-fun FavoritesList(groupedFavorites: Map<String, List<Favorite>>, onSelectFavorite: (Favorite) -> Unit, onShowAll: (String, List<Favorite>) -> Unit) {
+fun FavoritesList(channelManager: ChannelManager, viewModel: DashBoardViewModel, groupedFavorites: Map<String, List<Favorite>>, onSelectFavorite: (Favorite) -> Unit, onShowAll: (String, List<Favorite>) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -105,13 +144,23 @@ fun FavoritesList(groupedFavorites: Map<String, List<Favorite>>, onSelectFavorit
     ) {
         groupedFavorites.forEach { (type, favorites) ->
             item {
-
-                Text(
-                    text = type,
-                    fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White,
+                var isFocused by remember { mutableStateOf(false) }
+                Box(
+                    modifier = Modifier
+                        .onFocusChanged { isFocused = it.isFocused }
+                        .focusable()
+                        .clip(shape = RoundedCornerShape(8.dp))
+                        .background(if (isFocused) Color(0xFFB4A1FB) else Color.Transparent)
+                        .padding(8.dp),
                 )
+                {
+                    Text(
+                        text = type,
+                        fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.White,
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(5.dp))
             }
@@ -123,7 +172,7 @@ fun FavoritesList(groupedFavorites: Map<String, List<Favorite>>, onSelectFavorit
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(favorites.take(4)) { favorite ->
-                        FavoriteItem(favorite = favorite, onSelectFavorite)
+                        FavoriteItem(channelManager, viewModel, favorite = favorite, onSelectFavorite)
                     }
 
                     if (favorites.size > 4) item {
@@ -139,6 +188,8 @@ fun FavoritesList(groupedFavorites: Map<String, List<Favorite>>, onSelectFavorit
 
 @Composable
 fun AllItemsFavorite(
+    channelManager: ChannelManager,
+    viewModel: DashBoardViewModel,
     type: String,
     items: List<Favorite>,
     onSelectFavorite: (Favorite) -> Unit,
@@ -162,7 +213,7 @@ fun AllItemsFavorite(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(rowItems.take(6)) { favorite ->
-                    FavoriteItem(favorite, onSelectFavorite = { onSelectFavorite(it) })
+                    FavoriteItem(channelManager, viewModel, favorite, onSelectFavorite = { onSelectFavorite(it) })
                 }
 
             }
@@ -173,37 +224,81 @@ fun AllItemsFavorite(
 
 @Composable
 fun ShowAllCard(onClick: () -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .width(210.dp)
             .height(220.dp)
             .clip(RoundedCornerShape(5.dp))
             .background(Color.Gray.copy(alpha = 0.2f))
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+            .border(
+                width = 2.dp,
+                color = if (isFocused) Color(0xFFB4A1FB) else Color.Gray,
+                shape = RoundedCornerShape(8.dp),
+            )
             .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            GridIcon(
-                modifier = Modifier.size(48.dp),
+            tn.iptv.nextplayer.dashboard.screens.comingSoon.GridIcon(
+                modifier = Modifier
+                    .size(48.dp)
+                    .coloredShadow(
+                        color = if (isFocused) Color(0xFFB4A1FB) else Color.Gray,
+                    ),
             )
             Spacer(modifier = Modifier.height(10.dp))
             androidx.compose.material3.Text(
                 text = "Afficher tout",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
+                color = if (isFocused) Color.White else Color.Gray,
             )
         }
     }
 }
 
 @Composable
-fun FavoriteItem(favorite: Favorite, onSelectFavorite: (Favorite) -> Unit) {
+fun FavoriteItem(channelManager: ChannelManager, viewModel: DashBoardViewModel, favorite: Favorite, onSelectFavorite: (Favorite) -> Unit) {
+    var isFocused by remember { mutableStateOf(false) }
+    val isNotEmpty = channelManager.showAllStateFavorites.collectAsState().value.isNotEmpty()
+    val focusRequester = remember { FocusRequester() }
     Box(
         modifier = Modifier
             .width(210.dp)
             .height(220.dp)
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusRequester(focusRequester)
+            .focusable()
+            .onKeyEvent { keyEvent: KeyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown) {
+                    when (keyEvent.nativeKeyEvent.keyCode) {
+                        KEYCODE_BACK -> {
+                            if (isNotEmpty) {
+                                channelManager.showAllStateFavorites.value = ArrayList()
+                                channelManager.showAllStateFavoritesFiltered.value = ArrayList()
+                            } else {
+                                viewModel.bindingModel.selectedNavigationItem.value = Home
+                                viewModel.bindingModel.selectedPage = Page.NOTHING
+                            }
+                            true
+                        }
+
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            }
+            .border(
+                width = 2.dp,
+                color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp),
+            )
             .clip(RoundedCornerShape(5.dp))
             .background(backCardMovie)
             .shadow(1.dp)
@@ -296,30 +391,5 @@ fun FavoriteItem(favorite: Favorite, onSelectFavorite: (Favorite) -> Unit) {
 
         }
 
-    }
-}
-
-@Composable
-fun GridIcon(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        repeat(2) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                repeat(2) {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color(0xFF9C89E0)),
-                    )
-                }
-            }
-        }
     }
 }
