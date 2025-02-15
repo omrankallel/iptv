@@ -685,7 +685,7 @@ fun MainContent(
 
                     Settings -> {
                         viewModel.bindingModel.selectedPage = Page.NOTHING
-                        SettingsScreen()
+                        SettingsScreen(viewModel)
                         viewModel.bindingModel.selectedSerie.value = MediaItem()
                         viewModel.bindingModel.selectedMovie.value = MediaItem()
                     }
