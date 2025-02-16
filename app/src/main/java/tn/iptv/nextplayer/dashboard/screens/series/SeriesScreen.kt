@@ -20,6 +20,8 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,7 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.component.LargeDropdownMenu
 import tn.iptv.nextplayer.component.SortByRow
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.AllItemsScreen
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
@@ -50,9 +53,8 @@ import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 @OptIn(ExperimentalLayoutApi::class)
 @SuppressLint("LogNotTimber")
 @Composable
-fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Unit) {
+fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Unit, searchValueInitial: MutableState<String>) {
 
-    val mediaType = MediaType.SERIES
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     val listPackagesSeries = channelManager.listOfPackagesOfSeries.value
 
@@ -72,6 +74,14 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
             .focusable()
             .focusRequester(viewModel.bindingModel.boxFocusRequesterSeries.value),
     ) {
+        LaunchedEffect(!isLoading.value) {
+            if (!isLoading.value) {
+                if (viewModel.bindingModel.drawerState.value == CustomDrawerState.Closed) {
+                    viewModel.bindingModel.boxFocusRequesterSeries.value.requestFocus()
+                }
+            }
+        }
+
         if (viewModel.bindingModel.showFilters.value) AlertDialog(
             onDismissRequest = { viewModel.bindingModel.showFilters.value = false },
             backgroundColor = Color.DarkGray,
@@ -169,11 +179,7 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
             if (channelManager.showAllStateSeriesFiltered.collectAsState().value != null) {
 
                 AllItemsScreen(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    title = AppHelper.cleanChannelName(channelManager.showAllStateSeriesFiltered.collectAsState().value!!.labelGenre),
-                    mediaType = mediaType,
+                    viewModel,
                     items = channelManager.showAllStateSeriesFiltered.collectAsState().value!!.listSeries,
                     onSelectMediaItem = onSelectSerie,
                     onBack = {
@@ -194,10 +200,13 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
                     if (selectedPackage.value != null) {
                         if (listPackagesSeries != null) {
                             PackagesLayout(
+                                viewModel,
                                 selectedPackage, listPackagesSeries,
                                 onSelectPackage = { newCategorySelected ->
                                     channelManager.selectedPackageOfSeries.value = newCategorySelected
-                                    channelManager.searchValue.value?.let { channelManager.fetchCategorySeriesAndSeries(it) }
+                                    searchValueInitial.value = ""
+                                    channelManager.searchValue.value = ""
+                                    channelManager.fetchCategorySeriesAndSeries("")
 
 
                                 },
@@ -217,7 +226,8 @@ fun SeriesScreen(viewModel: DashBoardViewModel, onSelectSerie: (MediaItem) -> Un
                             Log.e("ItemGenreSeries", "too Affich  $groupedSer")
 
                             ItemGenreSeries(
-                                mediaType = mediaType,
+                                viewModel,
+                                mediaType = MediaType.SERIES,
                                 groupedMediaItem = groupedSer,
                                 onSelectMediaItem = { onSelectSerie(it) },
                                 onShowAll = {

@@ -2,8 +2,14 @@ package tn.iptv.nextplayer.dashboard.screens.serieDetails
 
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_DPAD_CENTER
+import android.view.KeyEvent.KEYCODE_ENTER
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -54,7 +60,9 @@ import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
 import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.models.episode.EpisodeItem
 import tn.iptv.nextplayer.domain.models.episode.GroupedEpisode
+import tn.iptv.nextplayer.feature.player.PlayerActivity
 import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
+import tn.iptv.nextplayer.login.app
 
 
 @SuppressLint("NewApi")
@@ -170,12 +178,18 @@ fun EpisodeItemLayout(episode: EpisodeItem, viewModel: DashBoardViewModel) {
 
     Column {
         var isFocused by remember { mutableStateOf(false) }
+        var lastKeyPressTime by remember { mutableStateOf(0L) }
+        val doubleClickThreshold = 300L
 
         Row(
             modifier = borderModifier
                 .fillMaxWidth()
                 .onFocusChanged { isFocused = it.isFocused }
-                .background(color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent, shape = RoundedCornerShape(5.dp))
+                .border(
+                    width = 2.dp,
+                    color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent,
+                    shape = RoundedCornerShape(8.dp),
+                )
                 .focusable()
                 .onKeyEvent { keyEvent: KeyEvent ->
                     if (keyEvent.type == KeyEventType.KeyDown) {
@@ -183,6 +197,33 @@ fun EpisodeItemLayout(episode: EpisodeItem, viewModel: DashBoardViewModel) {
                             KEYCODE_BACK -> {
                                 viewModel.bindingModel.selectedNavigationItem.value = Series
                                 viewModel.bindingModel.selectedPage = Page.SERIES
+                                true
+                            }
+
+                            KEYCODE_ENTER, KEYCODE_DPAD_CENTER -> {
+                                val currentTime = System.currentTimeMillis()
+
+                                if (currentTime - lastKeyPressTime <= doubleClickThreshold) {
+                                    try {
+                                        if (viewModel.bindingModel.selectedEpisodeToWatch.value != EpisodeItem()) {
+                                            val videoSelected = viewModel.bindingModel.selectedEpisodeToWatch.value
+                                            val intent = Intent(app, PlayerActivity::class.java)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            intent.data = Uri.parse(videoSelected.url)
+
+
+                                            app.startActivity(intent)
+                                        } else Toast.makeText(app, "Please select an episode as a first step ", Toast.LENGTH_LONG).show()
+                                    } catch (error: Exception) {
+                                        Toast.makeText(app, "Error While loading your episode , Please try again", Toast.LENGTH_LONG).show()
+                                    }
+
+
+                                }else{
+                                    viewModel.bindingModel.selectedEpisodeToWatch.value = episode
+                                }
+
+                                lastKeyPressTime = currentTime
                                 true
                             }
 

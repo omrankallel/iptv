@@ -4,6 +4,7 @@ package tn.iptv.nextplayer.dashboard.screens
 import android.annotation.SuppressLint
 import android.util.Log
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
@@ -50,6 +52,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,6 +66,7 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.models.Favorite
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Home
 import tn.iptv.nextplayer.dashboard.screens.serieDetails.Chip
 import tn.iptv.nextplayer.dashboard.util.Page
@@ -145,22 +149,15 @@ fun FavoritesList(channelManager: ChannelManager, viewModel: DashBoardViewModel,
         groupedFavorites.forEach { (type, favorites) ->
             item {
                 var isFocused by remember { mutableStateOf(false) }
-                Box(
-                    modifier = Modifier
-                        .onFocusChanged { isFocused = it.isFocused }
-                        .focusable()
-                        .clip(shape = RoundedCornerShape(8.dp))
-                        .background(if (isFocused) Color(0xFFB4A1FB) else Color.Transparent)
-                        .padding(8.dp),
-                )
-                {
+
                     Text(
+                        modifier = Modifier.focusable(false),
                         text = type,
                         fontSize = androidx.compose.material3.MaterialTheme.typography.titleMedium.fontSize,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
                     )
-                }
+
 
                 Spacer(modifier = Modifier.height(5.dp))
             }
@@ -171,8 +168,8 @@ fun FavoritesList(channelManager: ChannelManager, viewModel: DashBoardViewModel,
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(favorites.take(4)) { favorite ->
-                        FavoriteItem(channelManager, viewModel, favorite = favorite, onSelectFavorite)
+                    itemsIndexed(favorites.take(4)) { index,favorite ->
+                        FavoriteItem(channelManager, viewModel,index, favorite = favorite, onSelectFavorite)
                     }
 
                     if (favorites.size > 4) item {
@@ -212,8 +209,8 @@ fun AllItemsFavorite(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(rowItems.take(6)) { favorite ->
-                    FavoriteItem(channelManager, viewModel, favorite, onSelectFavorite = { onSelectFavorite(it) })
+                itemsIndexed(rowItems.take(6)) { index,favorite ->
+                    FavoriteItem(channelManager, viewModel,index, favorite, onSelectFavorite = { onSelectFavorite(it) })
                 }
 
             }
@@ -263,20 +260,31 @@ fun ShowAllCard(onClick: () -> Unit) {
 }
 
 @Composable
-fun FavoriteItem(channelManager: ChannelManager, viewModel: DashBoardViewModel, favorite: Favorite, onSelectFavorite: (Favorite) -> Unit) {
+fun FavoriteItem(channelManager: ChannelManager, viewModel: DashBoardViewModel,index:Int, favorite: Favorite, onSelectFavorite: (Favorite) -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
     val isNotEmpty = channelManager.showAllStateFavorites.collectAsState().value.isNotEmpty()
-    val focusRequester = remember { FocusRequester() }
+   // val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     Box(
         modifier = Modifier
             .width(210.dp)
             .height(220.dp)
             .onFocusChanged { isFocused = it.isFocused }
-            .focusRequester(focusRequester)
+           // .focusRequester(focusRequester)
             .focusable()
             .onKeyEvent { keyEvent: KeyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown) {
                     when (keyEvent.nativeKeyEvent.keyCode) {
+                        KEYCODE_DPAD_LEFT -> {
+                            if (index == 0) {
+                                viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
+                                focusManager.clearFocus()
+                                true
+                            } else {
+                                false
+                            }
+
+                        }
                         KEYCODE_BACK -> {
                             if (isNotEmpty) {
                                 channelManager.showAllStateFavorites.value = ArrayList()

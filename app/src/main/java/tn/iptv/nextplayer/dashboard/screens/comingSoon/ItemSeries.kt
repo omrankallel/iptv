@@ -1,6 +1,8 @@
 package tn.iptv.nextplayer.dashboard.screens.comingSoon
 
 import android.util.Log
+import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,8 +34,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,18 +49,29 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
 import tn.iptv.nextplayer.R
+import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.DetailMovies
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.DetailSeries
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Favorite
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Home
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Movies
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Series
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.Settings
+import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem.TVChannels
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.UIUtils.HEIGHT_CARD
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.UIUtils.HEIGHT_IMAGE
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.UIUtils.WIDHT_CARD
 import tn.iptv.nextplayer.dashboard.screens.serieDetails.Chip
+import tn.iptv.nextplayer.dashboard.util.Page
 import tn.iptv.nextplayer.domain.models.series.MediaItem
-import tn.iptv.nextplayer.domain.models.series.MediaType
 import tn.iptv.nextplayer.listchannels.ui.theme.backCardMovie
 
 
 @Composable
-fun ItemSeries(mediaType: MediaType, seriesItem: MediaItem, onSelectSerie: (MediaItem) -> Unit) {
+fun ItemSeries(viewModel: DashBoardViewModel, index: Int, seriesItem: MediaItem, onSelectSerie: (MediaItem) -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
@@ -61,6 +79,53 @@ fun ItemSeries(mediaType: MediaType, seriesItem: MediaItem, onSelectSerie: (Medi
             .height(HEIGHT_CARD)
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
+            .onKeyEvent { keyEvent: KeyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown) {
+                    when (keyEvent.nativeKeyEvent.keyCode) {
+
+
+                        KEYCODE_DPAD_LEFT -> {
+                            if (index == 0) {
+                                viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
+                                focusManager.clearFocus()
+                                true
+                            } else {
+                                false
+                            }
+
+                        }
+
+                        KEYCODE_BACK -> {
+                            when (viewModel.bindingModel.selectedNavigationItem.value) {
+                                DetailSeries -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Series
+                                    viewModel.bindingModel.selectedPage = Page.SERIES
+                                }
+
+                                DetailMovies -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                    viewModel.bindingModel.selectedPage = Page.MOVIES
+                                }
+
+                                TVChannels, Series, Movies, Favorite, Settings -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Home
+                                    viewModel.bindingModel.selectedPage = Page.NOTHING
+                                }
+
+                                else -> {
+
+                                }
+                            }
+                            true
+                        }
+
+
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            }
             .border(
                 width = 2.dp,
                 color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent,

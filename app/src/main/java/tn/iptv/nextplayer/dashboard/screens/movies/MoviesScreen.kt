@@ -1,6 +1,7 @@
 package tn.iptv.nextplayer.dashboard.screens.movies
 
 
+import android.util.Log
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,8 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +38,7 @@ import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.component.LargeDropdownMenu
 import tn.iptv.nextplayer.component.SortByRow
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
+import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.screens.PackagesLayout
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.AllItemsScreen
 import tn.iptv.nextplayer.dashboard.screens.comingSoon.ItemGenreSeries
@@ -48,9 +52,8 @@ import tn.iptv.nextplayer.listchannels.ui.theme.borderFrame
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Unit) {
+fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Unit,searchValueInitial: MutableState<String>) {
 
-    val mediaType = MediaType.MOVIES
     val channelManager: ChannelManager by KoinJavaComponent.inject(ChannelManager::class.java)
     var listPackagesMovies = channelManager.listOfPackagesOfMovies.value
 
@@ -71,6 +74,13 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
             .focusable()
             .focusRequester(viewModel.bindingModel.boxFocusRequesterMovies.value),
     ) {
+        LaunchedEffect(!isLoading.value) {
+            if (!isLoading.value) {
+                if (viewModel.bindingModel.drawerState.value == CustomDrawerState.Closed) {
+                    viewModel.bindingModel.boxFocusRequesterMovies.value.requestFocus()
+                }
+            }
+        }
         if (viewModel.bindingModel.showFilters.value) AlertDialog(
             onDismissRequest = { viewModel.bindingModel.showFilters.value = false },
             backgroundColor = Color.DarkGray,
@@ -169,11 +179,7 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
             if (channelManager.showAllStateMoviesFiltered.collectAsState().value != null) {
 
                 AllItemsScreen(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    title = AppHelper.cleanChannelName(channelManager.showAllStateMoviesFiltered.collectAsState().value!!.labelGenre),
-                    mediaType = mediaType,
+                    viewModel,
                     items = channelManager.showAllStateMoviesFiltered.collectAsState().value!!.listSeries,
                     onSelectMediaItem = onSelectMovie,
                     onBack = {
@@ -197,10 +203,13 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
                         if (selectedPackage.value != null) {
                             listPackagesMovies?.let {
                                 PackagesLayout(
+                                    viewModel,
                                     selectedPackage, it,
                                     onSelectPackage = { newCategorySelected ->
                                         channelManager.selectedPackageOfMovies.value = newCategorySelected
-                                        channelManager.searchValue.value?.let { channelManager.fetchCategoryMoviesAndMovies(it) }
+                                        channelManager.searchValue.value=""
+                                        searchValueInitial.value=""
+                                        channelManager.fetchCategoryMoviesAndMovies("")
                                     },
                                 )
                             }
@@ -215,7 +224,8 @@ fun MoviesScreen(viewModel: DashBoardViewModel, onSelectMovie: (MediaItem) -> Un
                         ) {
                             items(groupedMoviesFiltered.value) { groupedMov ->
                                 ItemGenreSeries(
-                                    mediaType = mediaType,
+                                    viewModel,
+                                    mediaType = MediaType.MOVIES,
                                     groupedMediaItem = groupedMov,
                                     onSelectMediaItem = { onSelectMovie(it) },
                                     onShowAll = {

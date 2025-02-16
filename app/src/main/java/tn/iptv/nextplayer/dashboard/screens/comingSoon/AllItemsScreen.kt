@@ -10,28 +10,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import tn.iptv.nextplayer.dashboard.screens.tvChannel.ItemLiveChannel
+import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.domain.models.series.MediaItem
-import tn.iptv.nextplayer.domain.models.series.MediaType
 
 @Composable
 fun AllItemsScreen(
-    modifier: Modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp),
-    title: String,
-    mediaType: MediaType,
+    viewModel: DashBoardViewModel,
     items: List<MediaItem>,
     onSelectMediaItem: (MediaItem) -> Unit,
     onBack: () -> Unit,
 ) {
 
     BackHandler(onBack = { onBack() })
-
-
 
     LazyColumn(
         modifier = Modifier
@@ -45,12 +39,9 @@ fun AllItemsScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(rowItems.take(6)) { serie ->
-                    if (mediaType == MediaType.LIVE_TV) {
-                        ItemLiveChannel(mediaType, serie, onSelectLiveChannel = { onSelectMediaItem(it) })
-                    } else {
-                        ItemSeries(mediaType, serie, onSelectSerie = { onSelectMediaItem(it) })
-                    }
+                itemsIndexed(rowItems.take(6)) { index, item ->
+                    ItemSeries(viewModel, index, item, onSelectSerie = { onSelectMediaItem(it) })
+
                 }
 
             }

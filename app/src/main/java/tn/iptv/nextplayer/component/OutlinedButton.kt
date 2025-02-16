@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
@@ -15,44 +17,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tn.iptv.nextplayer.listchannels.ui.theme.backButton
+import tn.iptv.nextplayer.listchannels.ui.theme.colorTextButton
 import tn.iptv.nextplayer.listchannels.ui.theme.transparent
 
 
 @Composable
 fun OutlinedButtonIPTV(
-    labelButton: String, onClick: () -> Unit,
+    enabled: Boolean = true,
+    label: String = "Next",
+    sizeText: TextUnit = 18.sp,
+    shape: Dp = 10.dp,
+    paddingHorizontal: Dp = 100.dp,
     modifier: Modifier = Modifier
-        .height(40.dp)
-        .padding(horizontal = 10.dp),
+        .padding(horizontal = paddingHorizontal)
+        .height(50.dp),
     modifierText: Modifier = Modifier
         .fillMaxWidth()
         .background(color = Color.Transparent),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        backgroundColor = backButton,
+    ),
+    onClick: () -> Unit,
 ) {
 
 
-    OutlinedButton(
+    Button(
+        onClick = onClick,
+        enabled = enabled,
         modifier = modifier,
-        onClick = {
-            onClick()
-        },
-        border = BorderStroke(1.dp, backButton),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colors.primary,
-            backgroundColor = transparent,
+        shape = RoundedCornerShape(shape),
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            disabledElevation = 0.dp,
         ),
-        shape = RoundedCornerShape(5.dp),
+        colors = colors,
     ) {
         Text(
-            text = labelButton,
+            text = label,
             modifier = modifierText,
             textAlign = TextAlign.Center,
             color = Color.White,
-            fontSize = 13.sp,
+            fontSize = sizeText,
             fontWeight = FontWeight.W600,
-        )
+            )
     }
 
 }
+

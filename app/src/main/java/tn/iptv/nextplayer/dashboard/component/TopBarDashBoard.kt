@@ -2,7 +2,6 @@ package tn.iptv.nextplayer.dashboard.component
 
 
 import android.os.Build
-import android.util.Log
 import android.view.KeyEvent.KEYCODE_BACK
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
@@ -10,6 +9,7 @@ import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,11 +89,9 @@ fun TopBarDashBoard(
 ) {
     var isFocusedTextBox by remember { mutableStateOf(false) }
     var isFocusedTextFiled by remember { mutableStateOf(false) }
-    var isFocusedText by remember { mutableStateOf(false) }
     var isFocusedFavorite by remember { mutableStateOf(false) }
     var isFocusedSettings by remember { mutableStateOf(false) }
     var isFocusedFiltered by remember { mutableStateOf(false) }
-    var isFocusedNotification by remember { mutableStateOf(false) }
     val focusTextBoxRequester = remember { FocusRequester() }
     val focusTextFiledRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -102,87 +100,22 @@ fun TopBarDashBoard(
             .fillMaxWidth()
             .height(65.dp)
 
-            // .background(back_application_start_color)
             .padding(end = if (drawerState.isOpened()) 180.dp else 80.dp),
-        /* colors = TopAppBarDefaults.topAppBarColors(
-             containerColor = back_application_start_color
-         ),)**/
+
         verticalAlignment = Alignment.CenterVertically,
     )
     {
 
 
         Spacer(Modifier.width(10.dp))
-        Box(
-            modifier = Modifier
-                .onFocusChanged { isFocusedText = it.isFocused }
-                .focusable()
-                .clip(shape = RoundedCornerShape(8.dp))
-                .background(if (isFocusedText) Color(0xFFB4A1FB) else Color.Transparent)
-                .padding(8.dp)
-                .onKeyEvent { keyEvent: KeyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when (keyEvent.nativeKeyEvent.keyCode) {
-                            KEYCODE_BACK -> {
-                                when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                    DetailSeries -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Series
-                                        viewModel.bindingModel.selectedPage = Page.SERIES
-                                    }
-
-                                    DetailMovies -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
-                                        viewModel.bindingModel.selectedPage = Page.MOVIES
-                                    }
-
-                                    TVChannels, Series, Movies, Favorite, Settings -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Home
-                                        viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    }
-
-                                    else -> {
-
-                                    }
-                                }
-                                true
-                            }
-
-                            KEYCODE_DPAD_DOWN -> {
-                                when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                    Home -> viewModel.bindingModel.boxFocusRequesterHome.value.requestFocus()
-                                    TVChannels -> viewModel.bindingModel.boxFocusRequesterLive.value.requestFocus()
-                                    Series -> viewModel.bindingModel.boxFocusRequesterSeries.value.requestFocus()
-                                    DetailSeries -> viewModel.bindingModel.boxFocusRequesterDetailSeries.value.requestFocus()
-                                    Movies -> viewModel.bindingModel.boxFocusRequesterMovies.value.requestFocus()
-                                    DetailMovies -> viewModel.bindingModel.boxFocusRequesterDetailMovies.value.requestFocus()
-                                    Favorite -> viewModel.bindingModel.boxFocusRequesterFavorite.value.requestFocus()
-                                    Settings -> viewModel.bindingModel.boxFocusRequesterSettings.value.requestFocus()
-                                    Logout -> TODO()
-                                }
-                                true
-                            }
-
-                            KEYCODE_DPAD_LEFT -> {
-                                viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
-                                focusManager.clearFocus()
-                                true
-                            }
-
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
-                },
+        Text(
+            modifier = Modifier.focusable(false),
+            text = titlePage,
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+            fontWeight = FontWeight.W500,
+            color = White,
         )
-        {
-            Text(
-                text = titlePage,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                fontWeight = FontWeight.W500,
-                color = if (isFocusedText) Color.Black else White,
-            )
-        }
+
 
         Spacer(Modifier.width(20.dp))
         CustomSeparator()
@@ -205,7 +138,6 @@ fun TopBarDashBoard(
                     shape = RoundedCornerShape(8.dp),
                 )
                 .onKeyEvent { keyEvent: KeyEvent ->
-                    Log.d("KeyEventBox", keyEvent.toString())
                     if (keyEvent.type == KeyEventType.KeyDown) {
                         when (keyEvent.nativeKeyEvent.keyCode) {
                             KEYCODE_BACK -> {
@@ -249,6 +181,12 @@ fun TopBarDashBoard(
 
                             KEYCODE_DPAD_CENTER -> {
                                 focusTextFiledRequester.requestFocus()
+                                true
+                            }
+
+                            KEYCODE_DPAD_LEFT -> {
+                                viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
+                                focusManager.clearFocus()
                                 true
                             }
 
@@ -317,6 +255,12 @@ fun TopBarDashBoard(
                                     true
                                 }
 
+                                KEYCODE_DPAD_LEFT -> {
+                                    viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
+                                    focusManager.clearFocus()
+                                    true
+                                }
+
                                 KEYCODE_DPAD_CENTER -> {
                                     true
                                 }
@@ -334,7 +278,7 @@ fun TopBarDashBoard(
             }
         }
 
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(20.dp))
 
         if (selectedNavigationItem == Series || selectedNavigationItem == Movies) {
             Box(modifier = Modifier.size(50.dp), contentAlignment = Alignment.Center) {
@@ -400,6 +344,9 @@ fun TopBarDashBoard(
                             } else {
                                 false
                             }
+                        }
+                        .clickable {
+                            onClickFilter()
                         },
                 )
             }
@@ -465,6 +412,9 @@ fun TopBarDashBoard(
                     } else {
                         false
                     }
+                }
+                .clickable {
+                    onClickFavorite()
                 },
             contentAlignment = Alignment.Center,
         ) {
@@ -536,6 +486,9 @@ fun TopBarDashBoard(
                     } else {
                         false
                     }
+                }
+                .clickable {
+                    onClickSettings()
                 },
             contentAlignment = Alignment.Center,
         ) {
@@ -547,73 +500,7 @@ fun TopBarDashBoard(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .onFocusChanged { isFocusedNotification = it.isFocused }
-                .focusable()
-                .clip(shape = RoundedCornerShape(8.dp))
-                .background(if (isFocusedNotification) Color(0xFFB4A1FB) else Color.Transparent)
-                .padding(8.dp)
-                .onKeyEvent { keyEvent: KeyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when (keyEvent.nativeKeyEvent.keyCode) {
-                            KEYCODE_BACK -> {
-                                when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                    DetailSeries -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Series
-                                        viewModel.bindingModel.selectedPage = Page.SERIES
-                                    }
-
-                                    DetailMovies -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Movies
-                                        viewModel.bindingModel.selectedPage = Page.MOVIES
-                                    }
-
-                                    TVChannels, Series, Movies, Favorite, Settings -> {
-                                        viewModel.bindingModel.selectedNavigationItem.value = Home
-                                        viewModel.bindingModel.selectedPage = Page.NOTHING
-                                    }
-
-                                    else -> {
-
-                                    }
-                                }
-                                true
-                            }
-
-                            KEYCODE_DPAD_DOWN -> {
-                                when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                    Home -> viewModel.bindingModel.boxFocusRequesterHome.value.requestFocus()
-                                    TVChannels -> viewModel.bindingModel.boxFocusRequesterLive.value.requestFocus()
-                                    Series -> viewModel.bindingModel.boxFocusRequesterSeries.value.requestFocus()
-                                    DetailSeries -> viewModel.bindingModel.boxFocusRequesterDetailSeries.value.requestFocus()
-                                    Movies -> viewModel.bindingModel.boxFocusRequesterMovies.value.requestFocus()
-                                    DetailMovies -> viewModel.bindingModel.boxFocusRequesterDetailMovies.value.requestFocus()
-                                    Favorite -> viewModel.bindingModel.boxFocusRequesterFavorite.value.requestFocus()
-                                    Settings -> viewModel.bindingModel.boxFocusRequesterSettings.value.requestFocus()
-                                    Logout -> TODO()
-                                }
-                                true
-                            }
-
-
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_notification),
-                contentDescription = "Notification Icon",
-                tint = White,
-            )
-        }
-
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(20.dp))
 
     }
 
@@ -646,63 +533,12 @@ fun DisplayDateTime(viewModel: DashBoardViewModel) {
     // Formatter for date with day, month (in French), and year
     val dateFormatter = DateTimeFormatter.ofPattern("d, MMMM yyyy", Locale.ENGLISH)
     val date = current.format(dateFormatter)
-    var isFocused by remember { mutableStateOf(false) }
 
 
     Column(
         modifier = Modifier
-            .onFocusChanged { isFocused = it.isFocused }
-            .focusable()
-            .onKeyEvent { keyEvent: KeyEvent ->
-                if (keyEvent.type == KeyEventType.KeyDown) {
-                    when (keyEvent.nativeKeyEvent.keyCode) {
-                        KEYCODE_BACK -> {
-                            when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                DetailSeries -> {
-                                    viewModel.bindingModel.selectedNavigationItem.value = Series
-                                    viewModel.bindingModel.selectedPage = Page.SERIES
-                                }
-
-                                DetailMovies -> {
-                                    viewModel.bindingModel.selectedNavigationItem.value = Movies
-                                    viewModel.bindingModel.selectedPage = Page.MOVIES
-                                }
-
-                                TVChannels, Series, Movies, Favorite, Settings -> {
-                                    viewModel.bindingModel.selectedNavigationItem.value = Home
-                                    viewModel.bindingModel.selectedPage = Page.NOTHING
-                                }
-
-                                else -> {
-
-                                }
-                            }
-                            true
-                        }
-
-                        KEYCODE_DPAD_DOWN -> {
-                            when (viewModel.bindingModel.selectedNavigationItem.value) {
-                                Home -> viewModel.bindingModel.boxFocusRequesterHome.value.requestFocus()
-                                TVChannels -> viewModel.bindingModel.boxFocusRequesterLive.value.requestFocus()
-                                Series -> viewModel.bindingModel.boxFocusRequesterSeries.value.requestFocus()
-                                DetailSeries -> viewModel.bindingModel.boxFocusRequesterDetailSeries.value.requestFocus()
-                                Movies -> viewModel.bindingModel.boxFocusRequesterMovies.value.requestFocus()
-                                DetailMovies -> viewModel.bindingModel.boxFocusRequesterDetailMovies.value.requestFocus()
-                                Favorite -> viewModel.bindingModel.boxFocusRequesterFavorite.value.requestFocus()
-                                Settings -> viewModel.bindingModel.boxFocusRequesterSettings.value.requestFocus()
-                                Logout -> TODO()
-                            }
-                            true
-                        }
-
-                        else -> false
-                    }
-                } else {
-                    false
-                }
-            }
+            .focusable(false)
             .clip(shape = RoundedCornerShape(8.dp))
-            .background(if (isFocused) Color(0xFFB4A1FB) else Color.Transparent)
             .padding(8.dp),
 
         ) {
@@ -712,7 +548,7 @@ fun DisplayDateTime(viewModel: DashBoardViewModel) {
             text = time,
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Medium,
-            color = if (isFocused) Color.Black else White,
+            color = White,
         )
 
 
@@ -721,7 +557,7 @@ fun DisplayDateTime(viewModel: DashBoardViewModel) {
             text = date,
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
             fontWeight = FontWeight.Medium,
-            color = if (isFocused) Color.Black else gray,
+            color = gray,
         )
     }
 

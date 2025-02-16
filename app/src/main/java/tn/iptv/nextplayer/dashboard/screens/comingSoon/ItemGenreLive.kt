@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
+import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.screens.tvChannel.ItemLiveChannel
 import tn.iptv.nextplayer.domain.models.GroupedMedia
 import tn.iptv.nextplayer.domain.models.series.MediaItem
@@ -41,32 +43,23 @@ import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.login.app
 
 @Composable
-fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelectMediaItem: (MediaItem) -> Unit) {
+fun ItemGenreLive(viewModel: DashBoardViewModel, groupedMediaItem: GroupedMedia, onSelectMediaItem: (MediaItem) -> Unit) {
 
     val showOtherItems = rememberSaveable { mutableStateOf(false) }
-    var isFocused by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .onFocusChanged { isFocused = it.isFocused }
-                .focusable()
-                .clip(shape = RoundedCornerShape(8.dp))
-                .background(if (isFocused)  Color(0xFFB4A1FB) else Color.Transparent)
-                .padding(8.dp),
-        )
-        {
             Text(
+                modifier = Modifier.focusable(false),
                 text = AppHelper.cleanChannelName(groupedMediaItem.labelGenre),
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 fontWeight = FontWeight.Medium,
                 color = Color.White,
             )
-        }
+
 
         Spacer(modifier = Modifier.height(5.dp))
 
@@ -76,11 +69,12 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
 
-            // Show first 4 items
-            items(groupedMediaItem.listSeries.take(10)) { serie ->
+            itemsIndexed(groupedMediaItem.listSeries.take(10)) { index,item ->
 
                 ItemLiveChannel(
-                    mediaType, serie,
+                    viewModel,
+                    index,
+                    item,
                     onSelectLiveChannel = {
                         onSelectMediaItem(it)
                     },
@@ -93,13 +87,8 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
                 if (showOtherItems.value.not()) {
                     item {
                         ItemShowAll(
-                            mediaType,
+                            MediaType.LIVE_TV,
                             onClickToShowAll = {
-
-
-                                // openUrlWithVLC(app, tvChannelSelected.url)
-
-                                // Serialize GroupedMedia object to JSON string
                                 val gson = Gson()
                                 val jsonStringGroupOFChannel = gson.toJson(groupedMediaItem)
 
@@ -122,9 +111,11 @@ fun ItemGenreLive(mediaType: MediaType, groupedMediaItem: GroupedMedia, onSelect
                 }
 
                 if (showOtherItems.value) {
-                    items(groupedMediaItem.listSeries.drop(10)) { serie ->
+                    itemsIndexed(groupedMediaItem.listSeries.drop(10)) { index,item ->
                         ItemLiveChannel(
-                            mediaType, serie,
+                            viewModel,
+                            index,
+                            item,
                             onSelectLiveChannel = {
                                 onSelectMediaItem(it)
                             },

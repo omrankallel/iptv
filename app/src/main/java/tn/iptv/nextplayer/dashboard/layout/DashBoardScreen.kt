@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.view.KeyEvent.KEYCODE_BACK
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
@@ -107,7 +106,7 @@ import kotlin.math.roundToInt
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("LogNotTimber", "SuspiciousIndentation")
+@SuppressLint("LogNotTimber", "SuspiciousIndentation", "UseOfNonLambdaOffsetOverload")
 @Composable
 fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteViewModel) {
 
@@ -119,9 +118,7 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
     val screenWidth = remember {
         derivedStateOf { (configuration.screenWidthDp * density).roundToInt() }
     }
-    Log.d("DashBoardScreen", "screenWidth  ${screenWidth.value}")
     val offsetValue by remember { derivedStateOf { (screenWidth.value / 8).dp } }
-    Log.d("DashBoardScreen", "offsetValue  $offsetValue")
     val animatedOffset by animateDpAsState(
         targetValue = if (viewModel.bindingModel.drawerState.value.isOpened()) offsetValue else 90.dp,
         label = "Animated Offset",
@@ -224,7 +221,6 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
                             }
 
                             KEYCODE_ENTER, KEYCODE_DPAD_CENTER -> {
-                                Log.d("KeyEvent", "KEYCODE_ENTER")
                                 onNavigationItemClick(viewModel, searchValueInitial, channelManager, favoriteViewModel, getNavigationItemByIndex(viewModel.bindingModel.focusedIndex.intValue))
                                 true
                             }
@@ -324,23 +320,25 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
                 )
         }
 
-        // Arrow button in the middle for separation between drawer and main content
         Box(
             modifier = Modifier
-                .align(Alignment.CenterStart) // Align in the middle
-                .offset(x = animatedOffset - 15.dp) // Adjust the position if needed
-                .size(35.dp) // Set size for the circular background
-                .clip(CircleShape) // Make it a circle
+                .align(Alignment.CenterStart)
+                .offset(x = animatedOffset - 15.dp)
+                .size(35.dp)
+                .clip(CircleShape)
                 .background(back_custom_drawer)
-                .focusable(false),
-            contentAlignment = Alignment.Center, // Center the arrow inside the circle
+                .focusable(false)
+                .clickable {
+                    viewModel.bindingModel.drawerState.value = if (viewModel.bindingModel.drawerState.value == CustomDrawerState.Closed) CustomDrawerState.Opened else CustomDrawerState.Closed
+                },
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = painterResource(id = if (viewModel.bindingModel.drawerState.value == CustomDrawerState.Opened) R.drawable.ic_arrow_back else R.drawable.ic_arrow_front), // Replace with your arrow icon resource
                 contentDescription = "Toggle Drawer",
                 modifier = Modifier
                     .size(25.dp)
-                    .focusable(false), // Set the size of the image
+                    .focusable(false),
             )
         }
 
@@ -484,7 +482,6 @@ fun MainContent(
                 selectedNavigationItem = selectedNavigationItem,
                 viewModel = viewModel,
                 onSearchValueChange = { searchVal ->
-                    Log.d("dashBord", "onSearchValueChange $searchVal ")
                     channelManager.searchValue.value = searchVal
 
                     when (viewModel.bindingModel.selectedPage) {
@@ -572,6 +569,7 @@ fun MainContent(
                                 }
 
                             },
+                            searchValueInitial,
                         )
                         viewModel.bindingModel.selectedSerie.value = MediaItem()
                         viewModel.bindingModel.selectedMovie.value = MediaItem()
@@ -589,6 +587,7 @@ fun MainContent(
                                 viewModel.bindingModel.selectedNavigationSeriesOrFavorite.value = Series
                                 onShowScreenDetailSerie(serieSelected)
                             },
+                            searchValueInitial,
                         )
                         viewModel.bindingModel.selectedSerie.value = MediaItem()
                         viewModel.bindingModel.selectedMovie.value = MediaItem()
@@ -623,6 +622,7 @@ fun MainContent(
                                 viewModel.bindingModel.selectedNavigationMoviesOrFavorite.value = Movies
                                 onShowScreenDetailMovie(movieSelected)
                             },
+                            searchValueInitial,
                         )
 
                         viewModel.bindingModel.selectedSerie.value = MediaItem()

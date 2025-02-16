@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
@@ -72,6 +73,9 @@ fun NavigationItemView(
                 } else redLogout,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                 lineHeight = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
         }
     }
