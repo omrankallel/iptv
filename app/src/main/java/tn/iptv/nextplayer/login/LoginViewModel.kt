@@ -19,7 +19,7 @@ class LoginViewModel : BaseViewModel() {
     lateinit var bindingModel: LoginBindingModel
 
     @SuppressLint("LogNotTimber", "HardwareIds", "MissingPermission")
-    override fun initBindingData() {
+    override fun initBindingData(context: Context) {
 
         bindingModel = LoginBindingModel()
 

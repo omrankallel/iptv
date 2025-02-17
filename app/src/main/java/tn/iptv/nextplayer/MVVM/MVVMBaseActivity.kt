@@ -19,7 +19,7 @@ abstract class MVVMBaseActivity<VM : BaseViewModel> : ComponentActivity() {
         // save current activity
         viewModel.activity = this
         // init data binding
-        viewModel.initBindingData()
+        viewModel.initBindingData(this)
 
 
         super.onCreate(savedInstanceState)

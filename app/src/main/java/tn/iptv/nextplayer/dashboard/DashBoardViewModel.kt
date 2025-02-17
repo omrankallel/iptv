@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.dashboard
 
 import PreferencesHelper
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import org.koin.java.KoinJavaComponent
 import tn.iptv.nextplayer.MVVM.BaseViewModel
@@ -15,9 +16,9 @@ class DashBoardViewModel : BaseViewModel() {
 
 
     @SuppressLint("LogNotTimber")
-    override fun initBindingData() {
+    override fun initBindingData(context: Context) {
         Log.d("dashboard_vm", " initBindingData")
-        bindingModel = DashBoardBindingModel()
+        bindingModel = DashBoardBindingModel(context)
         channelManager.activationCode.value = PreferencesHelper.getActivationCode(app)
         channelManager.fetchPackages()
         observeHome()

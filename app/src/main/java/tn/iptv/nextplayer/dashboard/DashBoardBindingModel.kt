@@ -1,5 +1,8 @@
 package tn.iptv.nextplayer.dashboard
 
+import android.app.UiModeManager
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -17,8 +20,12 @@ import tn.iptv.nextplayer.domain.models.saisons.SaisonItem
 import tn.iptv.nextplayer.domain.models.series.MediaItem
 
 
-class DashBoardBindingModel {
+class DashBoardBindingModel(context: Context) {
 
+    fun isTvDevice(context: Context): Boolean {
+        val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+        return uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    }
 
     var boxFocusRequesterDrawer: MutableState<FocusRequester> = mutableStateOf(FocusRequester())
     var boxFocusRequesterHome: MutableState<FocusRequester> = mutableStateOf(FocusRequester())
@@ -31,8 +38,7 @@ class DashBoardBindingModel {
     var boxFocusRequesterFavorite: MutableState<FocusRequester> = mutableStateOf(FocusRequester())
     var boxFocusRequesterSettings: MutableState<FocusRequester> = mutableStateOf(FocusRequester())
     var focusedIndex: MutableIntState = mutableIntStateOf(0)
-    var drawerState: MutableState<CustomDrawerState> = mutableStateOf(CustomDrawerState.Opened)
-
+    var drawerState: MutableState<CustomDrawerState> = mutableStateOf(if (isTvDevice(context)) CustomDrawerState.Opened else CustomDrawerState.Closed)
 
 
     var showFilters: MutableState<Boolean> = mutableStateOf(false)

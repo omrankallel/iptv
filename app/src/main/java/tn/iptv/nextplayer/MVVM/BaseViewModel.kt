@@ -2,6 +2,7 @@ package tn.iptv.nextplayer.MVVM
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import org.koin.java.KoinJavaComponent
 
@@ -13,5 +14,5 @@ abstract class  BaseViewModel : ViewModel() {
     @SuppressLint("StaticFieldLeak")
     var activity: MVVMBaseActivity<*>? = null
 
-    abstract fun initBindingData()
+    abstract fun initBindingData(context: Context)
 }

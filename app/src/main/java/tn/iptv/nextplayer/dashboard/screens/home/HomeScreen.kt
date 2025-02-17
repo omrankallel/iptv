@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,6 +109,13 @@ fun HomeScreen(viewModel: DashBoardViewModel, onSelectPackage: (CategoryMedia) -
             },
         contentAlignment = Alignment.Center,
     ) {
+        LaunchedEffect(!isLoading.value) {
+            if (!isLoading.value) {
+                if (viewModel.bindingModel.drawerState.value == CustomDrawerState.Closed) {
+                    viewModel.bindingModel.boxFocusRequesterHome.value.requestFocus()
+                }
+            }
+        }
 
         if (isLoading.value)
             CircularProgressIndicator(color = borderFrame)

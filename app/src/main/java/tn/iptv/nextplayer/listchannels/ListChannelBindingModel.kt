@@ -13,4 +13,7 @@ class ListChannelBindingModel {
 
     val channelSelected    : MutableState< Channel>  =
         mutableStateOf(Channel())
+
+    var isLoadingChannel: MutableState<Boolean> = mutableStateOf(false)
+
 }

@@ -141,6 +141,7 @@ fun DashBoardScreen(viewModel: DashBoardViewModel, favoriteViewModel: FavoriteVi
     ) {
 
         CustomDrawer(
+            viewModel,
             drawerState = viewModel.bindingModel.drawerState.value,
             Modifier
                 .fillMaxHeight()

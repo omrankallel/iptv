@@ -6,5 +6,6 @@ data class Channel(
     val icon: String="",
     val id: String="",
     val name: String="",
-    val url: String=""
+    val url: String="",
+    val iconin: String=""
 )

@@ -168,6 +168,12 @@ class ChannelImp(private var application: Application) : ChannelManager {
     override var homeIsLoading: MutableLiveData<Boolean> = MutableLiveData(false)
 
 
+ /**
+     * [ChannelManager.channelIsLoading]
+     * */
+    override var channelIsLoading: MutableLiveData<Boolean> = MutableLiveData(false)
+
+
     /**
      * [ChannelManager.favoriteIsLoading]
      * */
@@ -274,6 +280,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
         Log.d(TAG, "fetchListChannels")
         job?.cancel()
         job = scopeMain.launch {
+            channelIsLoading.postValue(true)
             val response = try {
                 RetrofitInstance.getChannelsApi().getChannel()
             } catch (e: IOException) {
@@ -286,6 +293,7 @@ class ChannelImp(private var application: Application) : ChannelManager {
             if (response.isSuccessful && response.body() != null) {
                 Log.d(TAG, " isSuccessful --> ${response.body()!!}")
                 listOfChannels.postValue(response.body()!!.data.toMutableList())
+                channelIsLoading.postValue(false)
             } else {
                 Log.e(TAG, "Response not successful")
             }

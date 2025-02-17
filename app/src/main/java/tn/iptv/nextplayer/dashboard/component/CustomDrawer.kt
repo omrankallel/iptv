@@ -18,18 +18,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import org.koin.java.KoinJavaComponent
+import tn.iptv.nextplayer.dashboard.DashBoardViewModel
 import tn.iptv.nextplayer.dashboard.customdrawer.model.CustomDrawerState
 import tn.iptv.nextplayer.dashboard.customdrawer.model.NavigationItem
-import tn.iptv.nextplayer.dashboard.customdrawer.model.isOpened
 import tn.iptv.nextplayer.domain.channelManager.ChannelManager
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun CustomDrawer(
+    viewModel: DashBoardViewModel,
     drawerState: CustomDrawerState,
     modifier: Modifier = Modifier
         .fillMaxHeight()
@@ -59,13 +59,19 @@ fun CustomDrawer(
         ) {
             Spacer(modifier = Modifier.width(10.dp))
 
-            val sizeOfLogo = if (drawerState.isOpened()) 100.dp else 50.dp
+            val sizeOfLogo =/* if (drawerState.isOpened()) 100.dp else */50.dp
 
-            Image(
-                painter = rememberAsyncImagePainter(channelManager.channelSelected.value!!.icon),
-                modifier = Modifier.size(sizeOfLogo),
-                contentDescription = "ChannelIconSelected",
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             )
+            {
+                Image(
+                    painter = rememberAsyncImagePainter(channelManager.channelSelected.value!!.iconin),
+                    modifier = Modifier.size(sizeOfLogo),
+                    contentDescription = "ChannelIconSelected",
+                )
+            }
 
         }
 
@@ -89,7 +95,7 @@ fun CustomDrawer(
                             navigationItem = navigationItem,
                             selected = navigationItem == selectedNavigationItem,
                             onClick = { onNavigationItemClick(navigationItem) },
-                            isFocused = selectedIndex == index,
+                            isFocused = if (viewModel.bindingModel.isTvDevice(viewModel.activity!!)) selectedIndex == index else false,
 
                             )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -108,7 +114,7 @@ fun CustomDrawer(
                 navigationItem = navigationItem,
                 isLogoutItem = true,
                 selected = false,
-                isFocused = selectedIndex == 6,
+                isFocused = if (viewModel.bindingModel.isTvDevice(viewModel.activity!!)) selectedIndex == 6 else false,
                 onClick = {
                     when (navigationItem) {
                         NavigationItem.Settings -> {

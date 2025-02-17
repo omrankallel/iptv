@@ -41,7 +41,7 @@ fun NavigationItemView(
     isLogoutItem: Boolean = false,
     selected: Boolean,
     onClick: () -> Unit,
-    isFocused:Boolean,
+    isFocused: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -55,27 +55,31 @@ fun NavigationItemView(
             )
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (drawerState.isOpened()) Arrangement.Start else Arrangement.Center,
+        horizontalArrangement = Arrangement.Start,
     ) {
+        Spacer(modifier = Modifier.width(8.dp))
         Icon(
             painter = painterResource(id = navigationItem.icon),
             contentDescription = "Navigation Item Icon",
-            tint = if (isLogoutItem.not()) {
+            tint = if (!isLogoutItem) {
                 if (selected) Color.Black else Color.White
             } else redLogout,
         )
+
+        Spacer(modifier = Modifier.width(5.dp))
+
         if (drawerState.isOpened()) {
-            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = navigationItem.title,
-                color = if (isLogoutItem.not()) {
+                color = if (!isLogoutItem) {
                     if (selected) Color.Black else Color.White
                 } else redLogout,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                lineHeight = 20.sp,
+                lineHeight = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
+                fontSize = 13.sp
             )
         }
     }

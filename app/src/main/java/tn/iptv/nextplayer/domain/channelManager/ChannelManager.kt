@@ -144,6 +144,12 @@ interface ChannelManager {
      * */
     var homeIsLoading: MutableLiveData<Boolean>
 
+
+    /**
+     * [ChannelImp.channelIsLoading]
+     * */
+    var channelIsLoading: MutableLiveData<Boolean>
+
     /**
      * [ChannelImp.favoriteIsLoading]
      * */
