@@ -271,32 +271,34 @@ class PlayerActivity : AppCompatActivity() {
             binding.composeView.setContent {
                 isLive = true
                 val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
-                val indexOfCurrentChannel = remember { mutableIntStateOf(intent.getIntExtra("INDEX_OF_CHANNEL", 0)) }
-                val gson = Gson()
-                val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
+                if(!dataOfLiveChannelJsonString.isNullOrEmpty()) {
+                    val indexOfCurrentChannel = remember { mutableIntStateOf(intent.getIntExtra("INDEX_OF_CHANNEL", 0)) }
+                    val gson = Gson()
+                    val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
 
-                binding.composeView.visibility = View.VISIBLE
-                val displayMetrics = resources.displayMetrics
-                val width = (displayMetrics.widthPixels * 0.5)
+                    binding.composeView.visibility = View.VISIBLE
+                    val displayMetrics = resources.displayMetrics
+                    val width = (displayMetrics.widthPixels * 0.5)
 
 
-                seekBarPlayer.visibility = View.GONE
+                    seekBarPlayer.visibility = View.GONE
 
-                SideMenu(
-                    favoriteViewModel = favoriteViewModel,
-                    groupOfChannel = groupOfChannel,
-                    indexOfCurrentChannel = indexOfCurrentChannel.intValue,
-                    width = width.dp,
-                    dataOfLiveChannelJsonString = dataOfLiveChannelJsonString!!,
-                    onPress = { index, mediaItem ->
-                        playVideo(uri = Uri.parse(mediaItem.url))
-                        indexOfCurrentChannel.intValue = index
-                    },
-                    onPressBack = {
-                        binding.composeView.visibility = View.GONE
-                        binding.playerView.hideController()
-                    },
-                )
+                    SideMenu(
+                        favoriteViewModel = favoriteViewModel,
+                        groupOfChannel = groupOfChannel,
+                        indexOfCurrentChannel = indexOfCurrentChannel.intValue,
+                        width = width.dp,
+                        dataOfLiveChannelJsonString = dataOfLiveChannelJsonString!!,
+                        onPress = { index, mediaItem ->
+                            playVideo(uri = Uri.parse(mediaItem.url))
+                            indexOfCurrentChannel.intValue = index
+                        },
+                        onPressBack = {
+                            binding.composeView.visibility = View.GONE
+                            binding.playerView.hideController()
+                        },
+                    )
+                }
             }
 
 

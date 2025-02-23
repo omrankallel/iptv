@@ -6,6 +6,8 @@ import android.view.KeyEvent.KEYCODE_ENTER
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -93,12 +95,13 @@ fun ChannelItem(
                                 KEYCODE_ENTER, KEYCODE_DPAD_CENTER -> {
                                     if (keyEvent.nativeKeyEvent.isLongPress) {
                                         isLongPressTriggered = true
-                                        showFavorite = true
+                                        showFavorite = !showFavorite
                                         ////long press
                                     }
                                     true
                                 }
-                                KEYCODE_BACK->{
+
+                                KEYCODE_BACK -> {
                                     onPressBack()
                                     true
                                 }
@@ -140,6 +143,34 @@ fun ChannelItem(
                         else -> false
                     }
                 }
+                .combinedClickable(
+                    onClick = {
+                        if (!isLongPressTriggered) {
+                            if (showFavorite) {
+
+                                if (isFavorite) {
+                                    imgFavorite = false
+                                    favoriteViewModel.deleteFavoriteById(mediaItem.id)
+                                    txtFavorite = "Ajouter aux Favoris"
+                                } else {
+                                    imgFavorite = true
+                                    favoriteViewModel.addFavorite(mediaItem.id, mediaItem.name, mediaItem.icon, mediaItem.url, "", "", "", "", "", "", "", "Live TV", dataOfLiveChannelJsonString)
+                                    txtFavorite = "Supprimer des favoris"
+                                }
+                                isFavorite = !isFavorite
+                                showFavorite = false
+                            } else {
+                                onPress(mediaItem)
+                            }
+
+                        }
+                        isLongPressTriggered = false
+                    },
+                    onLongClick = {
+                        isLongPressTriggered = true
+                        showFavorite = !showFavorite
+                    },
+                )
                 .padding(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -175,7 +206,28 @@ fun ChannelItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .background(color = Color(0xFF808080)),
+                    .background(color = Color(0xFF808080))
+                    .clickable {
+
+                        if (showFavorite) {
+
+                            if (isFavorite) {
+                                imgFavorite = false
+                                favoriteViewModel.deleteFavoriteById(mediaItem.id)
+                                txtFavorite = "Ajouter aux Favoris"
+                            } else {
+                                imgFavorite = true
+                                favoriteViewModel.addFavorite(mediaItem.id, mediaItem.name, mediaItem.icon, mediaItem.url, "", "", "", "", "", "", "", "Live TV", dataOfLiveChannelJsonString)
+                                txtFavorite = "Supprimer des favoris"
+                            }
+                            isFavorite = !isFavorite
+                            showFavorite = false
+                        } else {
+                            onPress(mediaItem)
+                        }
+
+
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
             ) {
