@@ -1,5 +1,6 @@
 package tn.iptv.nextplayer.feature.player
 
+import SideMenu
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PictureInPictureParams
@@ -15,14 +16,10 @@ import android.media.audiofx.LoudnessEnhancer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import android.util.Rational
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.MotionEvent.ACTION_CANCEL
-import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_UP
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup.LayoutParams
@@ -37,7 +34,9 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.AppCompatImageView
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
@@ -58,9 +57,6 @@ import androidx.media3.ui.DefaultTimeBar
 import androidx.media3.ui.PlayerView
 import androidx.media3.ui.SubtitleView
 import androidx.media3.ui.TimeBar
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -84,8 +80,6 @@ import tn.iptv.nextplayer.core.model.DecoderPriority
 import tn.iptv.nextplayer.core.model.ScreenOrientation
 import tn.iptv.nextplayer.core.model.ThemeConfig
 import tn.iptv.nextplayer.core.model.VideoZoom
-import tn.iptv.nextplayer.feature.player.adpter.ChannelAdapter2
-import tn.iptv.nextplayer.feature.player.adpter.OnChannelClickListener
 import tn.iptv.nextplayer.feature.player.databinding.ActivityPlayerBinding
 import tn.iptv.nextplayer.feature.player.dialogs.PlaybackSpeedControlsDialogFragment
 import tn.iptv.nextplayer.feature.player.dialogs.TrackSelectionDialogFragment
@@ -111,7 +105,6 @@ import tn.iptv.nextplayer.feature.player.extensions.togglePlayPause
 import tn.iptv.nextplayer.feature.player.extensions.toggleSystemBars
 import tn.iptv.nextplayer.feature.player.model.Subtitle
 import tn.iptv.nextplayer.feature.player.model.grouped_media.GroupedMedia
-import tn.iptv.nextplayer.feature.player.utils.AppHelper
 import tn.iptv.nextplayer.feature.player.utils.BrightnessManager
 import tn.iptv.nextplayer.feature.player.utils.PlayerApi
 import tn.iptv.nextplayer.feature.player.utils.PlayerGestureHelper
@@ -151,11 +144,7 @@ class PlayerActivity : AppCompatActivity() {
     private var hideInfoLayoutJob: Job? = null
 
     private val favoriteViewModel: FavoriteViewModel by viewModels()
-
-    private lateinit var adapter: ChannelAdapter2
-
-    private var lastOkClickTime: Long = 0
-    private val DOUBLE_CLICK_TIME_DELTA = 300
+    var isLive: Boolean = false
 
 
     private val shouldFastSeek: Boolean
@@ -191,9 +180,6 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * Player controller views
      */
-    private lateinit var menuContainer: LinearLayout
-    private lateinit var menuTitle: TextView
-    private lateinit var imgImageChannel: AppCompatImageView
 
     private lateinit var audioTrackButton: ImageButton
     private lateinit var backButton: ImageButton
@@ -213,13 +199,6 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var unlockControlsButton: ImageButton
     private lateinit var videoTitleTextView: TextView
     private lateinit var videoZoomButton: ImageButton
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var upButton: ImageButton
-    private lateinit var downButton: ImageButton
-    private lateinit var addButton: ImageButton
-    private lateinit var doubleAddButton: ImageButton
-    val handler = Handler(Looper.getMainLooper())
-    var isHolding = false
 
 
     private val isPipSupported: Boolean by lazy {
@@ -253,10 +232,8 @@ class PlayerActivity : AppCompatActivity() {
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initializing views
-        menuContainer = binding.playerView.findViewById(R.id.menu_container)
-        menuTitle = binding.playerView.findViewById(R.id.menu_title)
-        imgImageChannel = binding.playerView.findViewById(R.id.img_channel)
+
+
 
 
         audioTrackButton = binding.playerView.findViewById(R.id.btn_audio_track)
@@ -277,67 +254,9 @@ class PlayerActivity : AppCompatActivity() {
         unlockControlsButton = binding.playerView.findViewById(R.id.btn_unlock_controls)
         videoTitleTextView = binding.playerView.findViewById(R.id.video_name)
         videoZoomButton = binding.playerView.findViewById(R.id.btn_video_zoom)
-        upButton = binding.playerView.findViewById(R.id.btn_up)
-        downButton = binding.playerView.findViewById(R.id.btn_down)
-        addButton = binding.playerView.findViewById(R.id.btn_add)
-        doubleAddButton = binding.playerView.findViewById(R.id.btn_double_add)
 
-        val runnableUp = object : Runnable {
-            override fun run() {
-                if (isHolding) {
-                    adapter.toggleFavoriteUp(recyclerView)
-                    handler.postDelayed(this, 200)
-                }
-            }
-        }
-        val runnableDown = object : Runnable {
-            override fun run() {
-                if (isHolding) {
-                    adapter.toggleFavoriteDown(recyclerView)
-                    handler.postDelayed(this, 200)
-                }
-            }
-        }
 
-        downButton.setOnTouchListener { _, event ->
-            when (event.action) {
-                ACTION_DOWN -> {
-                    isHolding = true
-                    handler.post(runnableUp)
-                }
 
-                ACTION_UP, ACTION_CANCEL -> {
-                    isHolding = false
-                    handler.removeCallbacks(runnableUp)
-                }
-            }
-            true
-        }
-        upButton.setOnTouchListener { _, event ->
-            when (event.action) {
-                ACTION_DOWN -> {
-                    isHolding = true
-                    handler.post(runnableDown)
-                }
-
-                ACTION_UP, ACTION_CANCEL -> {
-                    isHolding = false
-                    handler.removeCallbacks(runnableDown)
-                }
-            }
-            true
-        }
-        downButton.setOnLongClickListener {
-            adapter.toggleFavoriteDown(recyclerView)
-            true
-        }
-        addButton.setOnClickListener {
-            adapter.selectedChannel(this, recyclerView)
-        }
-
-        doubleAddButton.setOnClickListener {
-            adapter.openFavorite(recyclerView)
-        }
 
 
 
@@ -349,51 +268,41 @@ class PlayerActivity : AppCompatActivity() {
 
 
         try {
-            val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
-            var indexOfCurrentChannel = intent.getIntExtra("INDEX_OF_CHANNEL", 0)
+            binding.composeView.setContent {
+                isLive = true
+                val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
+                val indexOfCurrentChannel = remember { mutableIntStateOf(intent.getIntExtra("INDEX_OF_CHANNEL", 0)) }
+                val gson = Gson()
+                val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
+
+                binding.composeView.visibility = View.VISIBLE
+                val displayMetrics = resources.displayMetrics
+                val width = (displayMetrics.widthPixels * 0.5)
 
 
-            // Désérialisation de la chaîne JSON en objet GroupedMedia
-            val gson = Gson()
-            val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
+                seekBarPlayer.visibility = View.GONE
 
-            menuContainer.visibility = View.VISIBLE
-            val displayMetrics = resources.displayMetrics
-            val width = (displayMetrics.widthPixels * 0.5).toInt()
-            menuContainer.layoutParams.width = width
+                SideMenu(
+                    favoriteViewModel = favoriteViewModel,
+                    groupOfChannel = groupOfChannel,
+                    indexOfCurrentChannel = indexOfCurrentChannel.intValue,
+                    width = width.dp,
+                    dataOfLiveChannelJsonString = dataOfLiveChannelJsonString!!,
+                    onPress = { index, mediaItem ->
+                        playVideo(uri = Uri.parse(mediaItem.url))
+                        indexOfCurrentChannel.intValue = index
+                    },
+                    onPressBack = {
+                        binding.composeView.visibility = View.GONE
+                        binding.playerView.hideController()
+                    },
+                )
+            }
 
-            //adjust Container  with data
-            menuTitle.text = AppHelper.cleanChannelName(groupOfChannel.labelGenre)
-            Glide.with(this).load(groupOfChannel.icon).into(imgImageChannel)
-
-            recyclerView = findViewById(R.id.recyclerView)
-            recyclerView.layoutManager = LinearLayoutManager(this)
-
-            adapter = ChannelAdapter2(
-                this.applicationContext, groupOfChannel.listSeries, indexOfCurrentChannel, favoriteViewModel,
-                object : OnChannelClickListener {
-
-                    override fun onChannelClick(position: Int, mediaItem: tn.iptv.nextplayer.feature.player.model.grouped_media.MediaItem) {
-                        if (indexOfCurrentChannel == position) {
-                            showHidePlayerGesture()
-                        } else {
-                            indexOfCurrentChannel = position
-                            playVideo(uri = Uri.parse(mediaItem.url))
-
-                        }
-                    }
-
-                },
-                menuContainer,
-                dataOfLiveChannelJsonString!!,
-            )
-            recyclerView.adapter = adapter
-            recyclerView.scrollToPosition(indexOfCurrentChannel)
-            recyclerView.itemAnimator = null
-            seekBarPlayer.visibility = View.GONE
 
         } catch (error: NullPointerException) {
-            menuContainer.visibility = View.GONE
+            isLive = false
+            binding.composeView.visibility = View.GONE
         }
 
 
@@ -662,6 +571,9 @@ class PlayerActivity : AppCompatActivity() {
             playerUnlockControls.visibility = View.VISIBLE
             isControlsLocked = false
             binding.playerView.showController()
+            if (isLive) {
+                binding.composeView.visibility = View.VISIBLE
+            }
             toggleSystemBars(showBars = true)
         }
         videoZoomButton.setOnClickListener {
@@ -890,10 +802,7 @@ class PlayerActivity : AppCompatActivity() {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_UP,
                 -> {
-                if (::adapter.isInitialized) {
-                    adapter.toggleFavoriteDown(recyclerView)
-                    return true
-                } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                     volumeManager.increaseVolume(playerPreferences.showSystemVolumePanel)
                     showVolumeGestureLayout()
                     return true
@@ -911,10 +820,7 @@ class PlayerActivity : AppCompatActivity() {
 
             KeyEvent.KEYCODE_DPAD_DOWN,
                 -> {
-                if (::adapter.isInitialized) {
-                    adapter.toggleFavoriteUp(recyclerView)
-                    return true
-                } else if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                if (!binding.playerView.isControllerFullyVisible || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     volumeManager.decreaseVolume(playerPreferences.showSystemVolumePanel)
                     showVolumeGestureLayout()
                     return true
@@ -997,24 +903,19 @@ class PlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_DPAD_CENTER,
             KeyEvent.KEYCODE_NUMPAD_ENTER,
                 -> {
-                if (::adapter.isInitialized) {
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastOkClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                        adapter.openFavorite(recyclerView)
-                    } else {
-                        adapter.selectedChannel(this, recyclerView)
-                    }
-                    lastOkClickTime = currentTime
-                    return true
-                } else if (!binding.playerView.isControllerFullyVisible) {
+                if (!binding.playerView.isControllerFullyVisible) {
                     binding.playerView.showController()
+                    if (isLive) {
+                        binding.composeView.visibility = View.VISIBLE
+                    }
                     return true
                 }
             }
 
             KeyEvent.KEYCODE_BACK -> {
-                if (binding.playerView.isControllerFullyVisible && player.isPlaying && isDeviceTvBox()) {
+                if ((binding.composeView.visibility == View.VISIBLE) || (binding.playerView.isControllerFullyVisible && player.isPlaying && isDeviceTvBox())) {
                     binding.playerView.hideController()
+                    binding.composeView.visibility = View.GONE
                     return true
                 } else {
                     finish()
@@ -1044,6 +945,17 @@ class PlayerActivity : AppCompatActivity() {
                 -> {
                 hidePlayerInfo()
                 return true
+            }
+
+            KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_NUMPAD_ENTER,
+                -> {
+                if (isLive) {
+                    binding.composeView.visibility = View.VISIBLE
+                }
+                return true
+
             }
         }
         return super.onKeyUp(keyCode, event)

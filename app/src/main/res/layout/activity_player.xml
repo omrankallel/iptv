@@ -163,5 +163,13 @@
             android:src="@drawable/ic_brightness"
             tools:ignore="ContentDescription" />
     </LinearLayout>
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:background="#AA000000"
+        android:gravity="center"
+        android:padding="16dp"
+        android:visibility="visible" />
 
 </FrameLayout>

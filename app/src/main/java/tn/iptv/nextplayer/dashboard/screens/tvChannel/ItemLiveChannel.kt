@@ -85,47 +85,47 @@ Box (
         .focusable()
         .onKeyEvent { keyEvent: KeyEvent ->
             if (keyEvent.type == KeyEventType.KeyDown) {
-                when (keyEvent.nativeKeyEvent.keyCode) {
+                    when (keyEvent.nativeKeyEvent.keyCode) {
 
 
-                    KEYCODE_DPAD_LEFT -> {
-                        if (index == 0) {
-                            viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
-                            focusManager.clearFocus()
+                        KEYCODE_DPAD_LEFT -> {
+                            if (index == 0) {
+                                viewModel.bindingModel.drawerState.value = CustomDrawerState.Opened
+                                focusManager.clearFocus()
+                                true
+                            } else {
+                                false
+                            }
+
+                        }
+
+                        KEYCODE_BACK -> {
+                            when (viewModel.bindingModel.selectedNavigationItem.value) {
+                                DetailSeries -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Series
+                                    viewModel.bindingModel.selectedPage = Page.SERIES
+                                }
+
+                                DetailMovies -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Movies
+                                    viewModel.bindingModel.selectedPage = Page.MOVIES
+                                }
+
+                                TVChannels, Series, Movies, Favorite, Settings -> {
+                                    viewModel.bindingModel.selectedNavigationItem.value = Home
+                                    viewModel.bindingModel.selectedPage = Page.NOTHING
+                                }
+
+                                else -> {
+
+                                }
+                            }
                             true
-                        } else {
-                            false
                         }
 
+
+                        else -> false
                     }
-
-                    KEYCODE_BACK -> {
-                        when (viewModel.bindingModel.selectedNavigationItem.value) {
-                            DetailSeries -> {
-                                viewModel.bindingModel.selectedNavigationItem.value = Series
-                                viewModel.bindingModel.selectedPage = Page.SERIES
-                            }
-
-                            DetailMovies -> {
-                                viewModel.bindingModel.selectedNavigationItem.value = Movies
-                                viewModel.bindingModel.selectedPage = Page.MOVIES
-                            }
-
-                            TVChannels, Series, Movies, Favorite, Settings -> {
-                                viewModel.bindingModel.selectedNavigationItem.value = Home
-                                viewModel.bindingModel.selectedPage = Page.NOTHING
-                            }
-
-                            else -> {
-
-                            }
-                        }
-                        true
-                    }
-
-
-                    else -> false
-                }
             } else {
                 false
             }

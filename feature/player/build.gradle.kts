@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.composeCompiler)
+
 }
 
 android {
@@ -31,8 +33,12 @@ android {
     }
 
     buildFeatures {
+        compose = true
         viewBinding = true
         dataBinding = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
 }
 
@@ -71,11 +77,22 @@ dependencies {
     implementation(libs.github.anilbeesetti.nextlib.media3ext)
     implementation(libs.github.anilbeesetti.nextlib.mediainfo)
 
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+
+    implementation (libs.androidx.material)
+    implementation("io.coil-kt:coil-compose:2.0.0")
 
 
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.ui.android)
     ksp(libs.hilt.compiler)
     kspAndroidTest(libs.hilt.compiler)
 
