@@ -1,5 +1,6 @@
 package tn.iptv.nextplayer.dashboard.screens.detailmovies
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -114,7 +115,7 @@ fun LayoutDetailsOfMovie(movieItem: MediaItem, viewModel: DashBoardViewModel, fa
 
         }
 
-        ScrollableText(movieItem.plot)
+        ScrollableText(viewModel,movieItem.plot)
 
         // Buttons
         Row(
@@ -160,6 +161,7 @@ fun LayoutDetailsOfMovie(movieItem: MediaItem, viewModel: DashBoardViewModel, fa
 
                         val intent = Intent(app, PlayerActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        intent.putExtra("IS_LIVE", false)
                         intent.data = Uri.parse(movieItem.url)
                         Log.d("PlayerActivity", "------movie  ${movieItem.url}")
                         app.startActivity(intent)
@@ -240,10 +242,10 @@ fun Chip(text: String) {
 }
 
 @Composable
-fun ScrollableText(plot: String) {
+fun ScrollableText(viewModel: DashBoardViewModel, plot: String) {
     Box(
         modifier = Modifier
-            .height(200.dp),
+            .height(if (viewModel.bindingModel.isTvDevice(context = viewModel.app)) 200.dp else 60.dp),
     ) {
         var isFocused by remember { mutableStateOf(false) }
         val scrollState = rememberScrollState()

@@ -209,6 +209,7 @@ fun EpisodeItemLayout(episode: EpisodeItem, viewModel: DashBoardViewModel) {
                                             val videoSelected = viewModel.bindingModel.selectedEpisodeToWatch.value
                                             val intent = Intent(app, PlayerActivity::class.java)
                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            intent.putExtra("IS_LIVE", false)
                                             intent.data = Uri.parse(videoSelected.url)
 
 

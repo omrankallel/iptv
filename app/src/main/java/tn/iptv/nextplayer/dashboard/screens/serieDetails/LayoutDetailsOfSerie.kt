@@ -1,24 +1,30 @@
 package tn.iptv.nextplayer.dashboard.screens.serieDetails
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.view.KeyEvent.KEYCODE_BACK
+import android.view.KeyEvent.KEYCODE_DPAD_DOWN
+import android.view.KeyEvent.KEYCODE_DPAD_UP
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -28,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +45,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import tn.iptv.nextplayer.R
 import tn.iptv.nextplayer.core.data.favorite.FavoriteViewModel
 import tn.iptv.nextplayer.dashboard.DashBoardViewModel
@@ -109,10 +118,8 @@ fun LayoutDetailsOfSerie(serieItem: MediaItem, viewModel: DashBoardViewModel, fa
         }
 
         // Description
-        Text(
-            text = serieItem.plot,
-            color = Color.White,
-        )
+        ScrollableText(viewModel,serieItem.plot)
+
 
         // Buttons
         Row(
@@ -158,6 +165,7 @@ fun LayoutDetailsOfSerie(serieItem: MediaItem, viewModel: DashBoardViewModel, fa
                             val videoSelected = viewModel.bindingModel.selectedEpisodeToWatch.value
                             val intent = Intent(app, PlayerActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            intent.putExtra("IS_LIVE", false)
                             intent.data = Uri.parse(videoSelected.url)
                             Log.d("PlayerActivity", "------ series  ${videoSelected.url}")
 
@@ -234,5 +242,67 @@ fun Chip(text: String) {
             .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(text = text, color = Color.White)
+    }
+}
+
+@Composable
+fun ScrollableText(viewModel: DashBoardViewModel, plot: String) {
+    Box(
+        modifier = Modifier
+            .height(if (viewModel.bindingModel.isTvDevice(context = viewModel.app)) 200.dp else 60.dp),
+    ) {
+        var isFocused by remember { mutableStateOf(false) }
+        val scrollState = rememberScrollState()
+        val coroutineScope = rememberCoroutineScope()
+        Text(
+            text = "$plot",
+            color = Color.White,
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .focusable()
+                .border(
+                    width = 2.dp,
+                    color = if (isFocused) Color(0xFFB4A1FB) else Color.Transparent,
+                    shape = RoundedCornerShape(8.dp),
+                )
+                .onKeyEvent { keyEvent: KeyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown) {
+                        when (keyEvent.nativeKeyEvent.keyCode) {
+                            KEYCODE_DPAD_DOWN -> {
+                                val newScroll = scrollState.value + 50f
+                                if (newScroll >= scrollState.maxValue) {
+                                    false
+                                } else {
+                                    coroutineScope.launch {
+                                        scrollState.scrollBy(50f)
+                                    }
+                                    true
+                                }
+
+                            }
+
+                            KEYCODE_DPAD_UP -> {
+                                val newScroll = scrollState.value - 50f
+                                if (newScroll <= 0) {
+                                    false
+                                } else {
+                                    coroutineScope.launch {
+                                        scrollState.scrollBy(-50f)
+                                    }
+                                    true
+                                }
+                            }
+
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                },
+            maxLines = Int.MAX_VALUE,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

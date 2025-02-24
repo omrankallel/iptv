@@ -561,6 +561,7 @@ fun MainContent(
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
                                     intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
+                                    intent.putExtra("IS_LIVE", true)
                                     intent.data = Uri.parse(tvChannelSelected.url)
                                     app.startActivity(intent)
 
@@ -672,6 +673,7 @@ fun MainContent(
                                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                         intent.putExtra("GROUP_OF_CHANNEL", it.groupOFChannel)
                                         intent.putExtra("INDEX_OF_CHANNEL", indexOfChannel)
+                                        intent.putExtra("IS_LIVE", true)
                                         intent.data = Uri.parse(mediaItem.url)
                                         app.startActivity(intent)
 

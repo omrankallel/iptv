@@ -269,9 +269,9 @@ class PlayerActivity : AppCompatActivity() {
 
         try {
             binding.composeView.setContent {
-                isLive = true
-                val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
-                if(!dataOfLiveChannelJsonString.isNullOrEmpty()) {
+                isLive = intent.getBooleanExtra("IS_LIVE", false)
+                if (isLive) {
+                    val dataOfLiveChannelJsonString = intent.getStringExtra("GROUP_OF_CHANNEL")
                     val indexOfCurrentChannel = remember { mutableIntStateOf(intent.getIntExtra("INDEX_OF_CHANNEL", 0)) }
                     val gson = Gson()
                     val groupOfChannel: GroupedMedia = gson.fromJson(dataOfLiveChannelJsonString, GroupedMedia::class.java)
@@ -298,6 +298,8 @@ class PlayerActivity : AppCompatActivity() {
                             binding.playerView.hideController()
                         },
                     )
+                } else {
+                    binding.composeView.visibility = View.GONE
                 }
             }
 

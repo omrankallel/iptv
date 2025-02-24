@@ -98,6 +98,7 @@ fun ItemGenreLive(viewModel: DashBoardViewModel, groupedMediaItem: GroupedMedia,
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     intent.putExtra("GROUP_OF_CHANNEL", jsonStringGroupOFChannel)
                                     intent.putExtra("INDEX_OF_CHANNEL", 0)
+                                    intent.putExtra("IS_LIVE", true)
                                     intent.data = Uri.parse(groupedMediaItem.listSeries.first().url)
                                     app.startActivity(intent)
 
